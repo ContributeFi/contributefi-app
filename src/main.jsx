@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Outlet } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import HomePage from "./pages/HomePage";
 import RootLayout from "./components/RootLayout";
@@ -13,6 +13,8 @@ import Overview from "./pages/dashboard/Overview";
 import Communities from "./pages/dashboard/Communities";
 import Tasks from "./pages/dashboard/Tasks";
 import NotFound from "./components/NotFound";
+import GetStartedLayout from "./components/get-started/GetStartedLayout";
+import CreateAccount from "./pages/get-started/CreateAccount";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,11 @@ const router = createBrowserRouter([
       { path: "communities", Component: CommunitiesPage },
       { path: "*", Component: NotFound },
     ],
+  },
+  {
+    path: "/get-started",
+    Component: GetStartedLayout,
+    children: [{ index: true, Component: CreateAccount }],
   },
   {
     path: "/dashboard",

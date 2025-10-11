@@ -7,6 +7,8 @@ export default function CustomInput({
   prefix,
   type = "text",
   className = "",
+  icon,
+  handleRevealPassword,
   ...props
 }) {
   return (
@@ -23,14 +25,34 @@ export default function CustomInput({
             {...props}
             className={`rounded-[12px] border-none bg-[#F7F9FD] px-4 pl-24 placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0 ${className}`}
           />
+          {icon && (
+            <span
+              onClick={() => handleRevealPassword()}
+              className="absolute top-0 bottom-0 flex h-full items-center rounded-l-sm bg-[#EDF2FF] px-4 pt-2 text-sm text-[#8791A7]"
+            >
+              {icon}
+            </span>
+          )}
         </div>
       ) : (
-        <Input
-          type={type}
-          placeholder={placeholder}
-          {...props}
-          className={`rounded-[12px] border-none bg-[#F7F9FD] px-4 placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0 ${className}`}
-        />
+        <>
+          <div className="relative w-full rounded-sm">
+            <Input
+              type={type}
+              placeholder={placeholder}
+              {...props}
+              className={`rounded-[12px] border-none bg-[#F7F9FD] px-4 placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0 ${className}`}
+            />
+            {icon && (
+              <span
+                onClick={() => handleRevealPassword()}
+                className="absolute top-0 right-0 bottom-0 flex cursor-pointer items-center px-4 text-2xl text-[#B2B9C7]"
+              >
+                {icon}
+              </span>
+            )}
+          </div>
+        </>
       )}
     </Label>
   );
