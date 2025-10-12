@@ -15,6 +15,11 @@ import Tasks from "./pages/dashboard/Tasks";
 import NotFound from "./components/NotFound";
 import GetStartedLayout from "./components/get-started/GetStartedLayout";
 import CreateAccount from "./pages/get-started/CreateAccount";
+import VerifyEmail from "./pages/get-started/VerifyEmail";
+import Username from "./pages/get-started/Username";
+import Login from "./pages/login/Login";
+import AccountConfiguration from "./pages/get-started/AccountConfiguration";
+import Dashboard from "./pages/dashboard/Dashboard";
 
 const router = createBrowserRouter([
   {
@@ -38,13 +43,23 @@ const router = createBrowserRouter([
   {
     path: "/get-started",
     Component: GetStartedLayout,
-    children: [{ index: true, Component: CreateAccount }],
+    children: [
+      { index: true, Component: CreateAccount },
+      { path: "verify-email", Component: VerifyEmail },
+      { path: "username", Component: Username },
+      { path: "account-configuration", Component: AccountConfiguration },
+    ],
+  },
+  {
+    path: "/login",
+    Component: GetStartedLayout,
+    children: [{ index: true, Component: Login }],
   },
   {
     path: "/dashboard",
     Component: DashboardLayout,
     children: [
-      // { index: true, Component: HomePage },
+      { index: true, Component: Dashboard },
       { path: "overview", Component: Overview },
       { path: "communities", Component: Communities },
       { path: "tasks", Component: Tasks },
