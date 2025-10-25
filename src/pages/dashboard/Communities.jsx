@@ -3,7 +3,6 @@ import CustomPagination from "@/components/CustomPagination";
 import Filter from "@/components/Filter";
 import { Button } from "@/components/ui/button";
 import {
-  COMMUNITIES,
   COMMUNITIES_DETAILS,
   COMMUNITIES_OVERVIEW,
   COMMUNITIES_TAG,
@@ -30,28 +29,27 @@ const TASKS_PER_PAGE = 15;
 
 function Communities() {
   const location = useLocation();
-
+  const [sortOrder, setSortOrder] = useState("DESC");
   const [currentPage, setCurrentPage] = useState(1);
-
   const [communityView, setCommunityView] = useState("all");
 
-  const LIMIT = 2;
-
-  const OFFSET = (currentPage - 1) * LIMIT + 1;
+  const LIMIT = 10;
+  const OFFSET = (currentPage - 1) * LIMIT;
 
   const {
     data: communitiesData,
     isLoading: loadingCommunities,
     isError: errorLoadingCommunities,
+    refetch,
   } = useQuery({
-    queryKey: ["communities", LIMIT, OFFSET],
-    queryFn: () => getCommunities({ limit: LIMIT, offset: OFFSET }),
+    queryKey: ["communities", LIMIT, OFFSET, sortOrder],
+    queryFn: () =>
+      getCommunities({ limit: LIMIT, offset: OFFSET, sort: sortOrder }),
     keepPreviousData: true,
   });
 
   const communities = communitiesData?.data ?? [];
   const totalPages = communitiesData?.totalPages ?? 1;
-  console.log(communitiesData);
 
   const handleChangeCommunityView = (view) => {
     setCommunityView(view);
@@ -77,10 +75,14 @@ function Communities() {
   const queryParams = new URLSearchParams(location.search);
   const communityName = queryParams.get("community");
 
-  const handleSort = (sortOrder) => {
-    console.log("Sort by:", sortOrder);
-    // trigger sort logic here
+  const handleSort = (order) => {
+    console.log("Sort by:", order);
+    setSortOrder(order);
+    setCurrentPage(1);
+    refetch();
   };
+
+  console.log("Fetching with:", sortOrder);
 
   return (
     <>
@@ -200,7 +202,7 @@ function Communities() {
 
               <div className="flex gap-4 xl:order-3">
                 <Filter />
-                <Sort onToggle={handleSort} />
+                <Sort order={sortOrder} onToggle={handleSort} />
               </div>
             </div>
 
@@ -288,7 +290,7 @@ function Communities() {
 
               <div className="flex gap-4">
                 <Filter />
-                <Sort onToggle={handleSort} />
+                <Sort order={sortOrder} onToggle={handleSort} />
               </div>
             </div>
 

@@ -136,9 +136,13 @@ export function createCommunity(data) {
   );
 }
 
-export const getCommunities = async ({ limit = 10, offset = 1 } = {}) => {
+export const getCommunities = async ({
+  limit = 10,
+  offset = 1,
+  sort = "DESC",
+} = {}) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/communities?sortDirection=DESC&limit=${limit}&offset=${offset}`,
+    `${import.meta.env.VITE_BASE_URL}/communities?sortDirection=${sort}&limit=${limit}&offset=${offset}`,
   );
 
   return data.content;

@@ -721,7 +721,7 @@ const TAG = ["Design", "Development", "Growth"];
 function Tasks() {
   const location = useLocation();
   const [taskCurrentPage, setTaskCurrentPage] = useState(1);
-
+  const [sortOrder, setSortOrder] = useState("DESC");
   const [taskView, setTaskView] = useState("active-tasks");
 
   const handleChangeTaskView = (view) => {
@@ -744,9 +744,9 @@ function Tasks() {
 
   console.log({ taskTitle });
 
-  const handleSort = (sortOrder) => {
-    console.log("Sort by:", sortOrder);
-    // trigger sort logic here
+  const handleSort = (order) => {
+    console.log("Sort by:", order);
+    setSortOrder(order);
   };
 
   return (
@@ -926,7 +926,7 @@ function Tasks() {
 
               <div className="flex gap-4 xl:order-3">
                 <Filter />
-                <Sort onToggle={handleSort} />
+                <Sort order={sortOrder} onToggle={handleSort} />
               </div>
             </div>
 
