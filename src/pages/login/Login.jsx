@@ -45,7 +45,7 @@ function Login() {
             username: null,
           });
           navigate("/get-started/verify-email");
-          toast.error("Kindly verify for email address");
+          toast.error("Kindly verify your email address");
         } else if (!data.data.content.username) {
           login({
             token: data.data.content.accessToken.token,
@@ -69,7 +69,7 @@ function Login() {
           reset();
         }
       } else {
-        console.toast.error("Something went wrong");
+        toast.error("Something went wrong");
       }
     },
     onError: (error) => {

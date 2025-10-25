@@ -61,7 +61,7 @@ function Username() {
           toast.success("Username created successfully");
           reset();
         } else {
-          console.toast.error("Something went wrong");
+          toast.error("Something went wrong");
         }
       },
       onError: (error) => {

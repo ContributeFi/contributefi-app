@@ -9,14 +9,14 @@ function CommunitiesCard({ community, tag }) {
     if (tag === "communities-page") return;
     if (tag === "overview") {
       const params = new URLSearchParams(window.location.search);
-      params.set("community", community.name);
+      params.set("community", community.communityName);
       navigate(`/dashboard/communities?${params.toString()}`, {
         replace: false,
       });
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    params.set("community", community.name);
+    params.set("community", community.communityName);
     navigate(`?${params.toString()}`, { replace: false });
   };
   return (
@@ -28,30 +28,32 @@ function CommunitiesCard({ community, tag }) {
           <div className="flex items-start gap-3">
             <img src="/ChartPolar.svg" alt="" />
             <div className="space-y-1">
-              <p className="font-semibold text-[#050215]">{community.name}</p>
+              <p className="font-semibold text-[#050215]">
+                {community.communityName}
+              </p>
               <p className="flex gap-1 text-[14px] text-[#2F0FD1]">
                 <img src="/UsersThree (1).svg" alt="" />{" "}
                 <span className="shrink-0">
-                  {community.numberOfMembers} members
+                  {community.totalMembers} members
                 </span>
               </p>
             </div>
           </div>
 
           <div className="flex gap-2">
-            {community.tag.map((t, i) => (
+            {/* {community.tag.map((t, i) => (
               <div
                 className={`rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${COMMUNITY_TAG_BG[t]}`}
                 key={i}
               >
                 {t}
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
 
         <p className="text-sm font-light text-[#050215]">
-          {community.description}
+          {community.communityDescription}
         </p>
       </div>
 
@@ -59,7 +61,7 @@ function CommunitiesCard({ community, tag }) {
         <div className="space-y-2 text-sm font-normal text-[#525866]">
           <div className="flex gap-1.5">
             <img src="/Briefcase.svg" alt="" />
-            <span> {community.newTask} new tasks</span>
+            <span> {community.newTasks} new tasks</span>
           </div>
           <div className="flex gap-1.5">
             <img src="/Coins.svg" alt="" />

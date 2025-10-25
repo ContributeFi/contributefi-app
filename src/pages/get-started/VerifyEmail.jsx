@@ -48,7 +48,7 @@ function VerifyEmail() {
           toast.success("Email verified successfully");
           reset();
         } else {
-          console.toast.error("Something went wrong");
+          toast.error("Something went wrong");
         }
       },
       onError: (error) => {
@@ -65,7 +65,7 @@ function VerifyEmail() {
         if (data.status === 200) {
           toast.success("OTP sent successfully");
         } else {
-          console.toast.error("Something went wrong");
+          toast.error("Something went wrong");
         }
       },
       onError: (error) => {

@@ -107,3 +107,39 @@ export function loginUser(data) {
     },
   );
 }
+
+export function createCommunity(data) {
+  const requestPayload = {
+    communityName: data.communityName,
+    communityAlias: data.communityUsername,
+    communityDescription: data.communityDescription,
+    communityVisibility: "public",
+    communityLinks: [
+      { title: "Website", url: data.websitePage },
+      { title: "GitHub", url: data.githubPage },
+      { title: "Twitter", url: data.twitterPage },
+      { title: "Instagram", url: data.instagramPage },
+    ],
+  };
+
+  const accessToken = getItemFromLocalStorage("accessToken");
+
+  return axios.post(
+    `${import.meta.env.VITE_BASE_URL}/communities`,
+    requestPayload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+}
+
+export const getCommunities = async ({ limit = 10, offset = 1 } = {}) => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/communities?sortDirection=DESC&limit=${limit}&offset=${offset}`,
+  );
+
+  return data.content;
+};

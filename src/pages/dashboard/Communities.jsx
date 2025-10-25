@@ -23,8 +23,8 @@ import CustomSearch from "@/components/Search";
 import Sort from "@/components/Sort";
 import TasksCard from "@/components/TasksCard";
 import CreateCommunityForm from "@/components/CreateCommunityForm";
-
-const COMMUNITIES_PER_PAGE = 15;
+import { useQuery } from "@tanstack/react-query";
+import { getCommunities } from "@/services";
 
 const TASKS_PER_PAGE = 15;
 
@@ -35,6 +35,24 @@ function Communities() {
 
   const [communityView, setCommunityView] = useState("all");
 
+  const LIMIT = 2;
+
+  const OFFSET = (currentPage - 1) * LIMIT + 1;
+
+  const {
+    data: communitiesData,
+    isLoading: loadingCommunities,
+    isError: errorLoadingCommunities,
+  } = useQuery({
+    queryKey: ["communities", LIMIT, OFFSET],
+    queryFn: () => getCommunities({ limit: LIMIT, offset: OFFSET }),
+    keepPreviousData: true,
+  });
+
+  const communities = communitiesData?.data ?? [];
+  const totalPages = communitiesData?.totalPages ?? 1;
+  console.log(communitiesData);
+
   const handleChangeCommunityView = (view) => {
     setCommunityView(view);
   };
@@ -44,17 +62,6 @@ function Communities() {
   const handleChangeDetailView = (view) => {
     setDetailView(view);
   };
-
-  console.log({ communityView, detailView });
-
-  const totalCommunities = COMMUNITIES.length;
-  const totalPages = Math.ceil(totalCommunities / COMMUNITIES_PER_PAGE);
-
-  const startIndex = (currentPage - 1) * COMMUNITIES_PER_PAGE;
-  const currentCommunities = COMMUNITIES.slice(
-    startIndex,
-    startIndex + COMMUNITIES_PER_PAGE,
-  );
 
   const [taskCurrentPage, setTaskCurrentPage] = useState(1);
 
@@ -69,8 +76,6 @@ function Communities() {
 
   const queryParams = new URLSearchParams(location.search);
   const communityName = queryParams.get("community");
-
-  console.log({ communityName });
 
   const handleSort = (sortOrder) => {
     console.log("Sort by:", sortOrder);
@@ -244,15 +249,12 @@ function Communities() {
           </div>
 
           <div className="space-y-4 rounded-[4px] bg-white p-4">
-            <div className="flex flex-col gap-3 sm:flex-row items-center lg:hidden">
-              <div className="flex-1 w-full"> 
+            <div className="flex flex-col items-center gap-3 sm:flex-row lg:hidden">
+              <div className="w-full flex-1">
                 <CustomSearch placeholder="search community" />
               </div>
 
-              {/* <Button className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70 sm:flex-1">
-                Create Community
-              </Button> */}
-              <div className="flex-1 w-full">
+              <div className="w-full flex-1">
                 <CreateCommunityForm />
               </div>
             </div>
@@ -290,11 +292,31 @@ function Communities() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-              {currentCommunities.map((community, i) => (
-                <CommunitiesCard community={community} key={i} />
-              ))}
-            </div>
+            {loadingCommunities ? (
+              <div className="flex h-32 items-center justify-center">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+              </div>
+            ) : errorLoadingCommunities ? (
+              <div className="flex h-32 items-center justify-center">
+                <p className="text-2xl font-bold">
+                  Failed to load communities...
+                </p>
+              </div>
+            ) : communities.length === 0 ? (
+              <div className="flex h-32 items-center justify-center">
+                <p className="text-2xl font-bold">No communities found...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+                {communities.map((community, i) => (
+                  <CommunitiesCard
+                    community={community}
+                    key={i}
+                    tag="overview"
+                  />
+                ))}
+              </div>
+            )}
 
             <CustomPagination
               currentPage={currentPage}

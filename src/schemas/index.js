@@ -26,3 +26,38 @@ export const VerifyEmailSchema = z.object({
 export const UsernameSchema = z.object({
   username: z.string().min(1, "Username is required"),
 });
+
+const validateSocialUrl = (value) => {
+  const urlStr = value.startsWith("http") ? value : `https://${value}`;
+
+  try {
+    const url = new URL(urlStr);
+    const dotCount = (url.hostname.match(/\./g) || []).length;
+
+    if (url.hostname.startsWith("www")) {
+      return dotCount >= 2;
+    } else {
+      return dotCount >= 1;
+    }
+  } catch {
+    return false;
+  }
+};
+
+const socialUrlSchema = (message) =>
+  z
+    .string()
+    .min(1, message)
+    .transform((val) => (val.startsWith("http") ? val : `https://${val}`))
+    .refine(validateSocialUrl, { message });
+
+export const CreateCommunitySchema = z.object({
+  communityName: z.string().min(1, "Community name is required"),
+  communityUsername: z.string().min(1, "Community username is required"),
+  websitePage: socialUrlSchema("Enter a valid Website URL"),
+  githubPage: socialUrlSchema("Enter a valid GitHub URL"),
+  twitterPage: socialUrlSchema("Enter a valid Twitter URL"),
+  instagramPage: socialUrlSchema("Enter a valid Instagram URL"),
+  communityDescription: z.string().min(1, "Community description is required"),
+  message: z.string().optional(),
+});

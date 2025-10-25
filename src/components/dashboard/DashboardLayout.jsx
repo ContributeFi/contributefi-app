@@ -12,8 +12,11 @@ import CustomSearch from "../Search";
 import Heading from "./Heading";
 import CreateCommunityForm from "../CreateCommunityForm";
 import DashboardLogo from "./DashboardLogo";
+import { useAuth } from "@/hooks/useAuth";
 
 function DashboardLayout() {
+  const { user } = useAuth();
+
   const [sheetIsOpen, setSheetIsOpen] = useState(false);
 
   const location = useLocation();
@@ -44,7 +47,12 @@ function DashboardLayout() {
 
         <DashboardLogo />
 
-        <img src="/Frame 43596.svg" alt="" />
+        <img
+          src={
+            !user.profileImageUrl ? "/Frame 43596.svg" : user.profileImageUrl
+          }
+          alt=""
+        />
       </DashboardMobileHeader>
 
       <DashboardSidebarContainer>
@@ -74,7 +82,12 @@ function DashboardLayout() {
             </div>
           )}
 
-          <img src="/Frame 43596.svg" alt="" />
+          <img
+            src={
+              !user.profileImageUrl ? "/Frame 43596.svg" : user.profileImageUrl
+            }
+            alt=""
+          />
         </div>
       </DashboardDesktopHeader>
 

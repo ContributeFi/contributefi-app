@@ -1,16 +1,34 @@
 import CommunitiesCard from "@/components/CommunitiesCard";
 import TasksCard from "@/components/TasksCard";
 import { Button } from "@/components/ui/button";
-import { COMMUNITIES, OVERVIEW, TASKS } from "@/lib/constants";
+import { OVERVIEW, TASKS } from "@/lib/constants";
 import OverviewHeading from "./OverviewHeading";
 import MetricsContainer from "@/components/dashboard/MetricsContainer";
 import MetricCard from "@/components/dashboard/MetricCard";
 import Heading from "@/components/dashboard/Heading";
 import { useNavigate } from "react-router";
 import CreateCommunityForm from "@/components/CreateCommunityForm";
+import { getCommunities } from "@/services";
+import { useQuery } from "@tanstack/react-query";
 
 function Overview() {
   const navigate = useNavigate();
+
+  const LIMIT = 6;
+  const OFFSET = 1;
+
+  const {
+    data: communitiesData,
+    isLoading: loadingCommunities,
+    isError: errorLoadingCommunities,
+  } = useQuery({
+    queryKey: ["communities", LIMIT, OFFSET],
+    queryFn: () => getCommunities({ limit: LIMIT, offset: OFFSET }),
+    keepPreviousData: true,
+  });
+
+  const communities = communitiesData?.data || [];
+
   return (
     <div className="space-y-8">
       <div className="space-y-3">
@@ -86,11 +104,25 @@ function Overview() {
           </div>
         </OverviewHeading>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-          {COMMUNITIES.slice(0, 6).map((community, i) => (
-            <CommunitiesCard community={community} key={i} tag="overview" />
-          ))}
-        </div>
+        {loadingCommunities ? (
+          <div className="flex h-32 items-center justify-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+          </div>
+        ) : errorLoadingCommunities ? (
+          <div className="flex h-32 items-center justify-center">
+            <p className="text-2xl font-bold">Failed to load communities...</p>
+          </div>
+        ) : communities.length === 0 ? (
+          <div className="flex h-32 items-center justify-center">
+            <p className="text-2xl font-bold">No communities found...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            {communities.map((community, i) => (
+              <CommunitiesCard community={community} key={i} tag="overview" />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
