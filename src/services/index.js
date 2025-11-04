@@ -147,3 +147,11 @@ export const getCommunities = async ({
 
   return data.content;
 };
+
+export const getCommunity = async (communityId) => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/communities/${communityId}`,
+  );
+
+  return data.content;
+};

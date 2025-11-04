@@ -25,10 +25,10 @@ function DashboardLayout() {
   const currentPath = pathSegments[pathSegments.length - 1];
 
   const queryParams = new URLSearchParams(location.search);
-  const communityName = queryParams.get("community");
+  const communityId = queryParams.get("community");
   const taskTitle = queryParams.get("task");
 
-  console.log({ communityName, currentPath, taskTitle });
+  console.log({ communityId, currentPath, taskTitle });
 
   return (
     <DashboardLayoutContainer>
@@ -67,10 +67,10 @@ function DashboardLayout() {
       </DashboardSidebarContainer>
 
       <DashboardDesktopHeader>
-        {communityName || taskTitle ? <BackButton /> : <Heading />}
+        {communityId || taskTitle ? <BackButton /> : <Heading />}
 
         <div className="flex items-center gap-4">
-          {currentPath === "communities" && !communityName && (
+          {currentPath === "communities" && !communityId && (
             <div className="hidden items-center gap-3 lg:flex lg:flex-row">
               <div>
                 <CustomSearch placeholder="Search community" />

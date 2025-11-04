@@ -9,14 +9,14 @@ function CommunitiesCard({ community, tag }) {
     if (tag === "communities-page") return;
     if (tag === "overview") {
       const params = new URLSearchParams(window.location.search);
-      params.set("community", community.communityName);
+      params.set("community", community.id);
       navigate(`/dashboard/communities?${params.toString()}`, {
         replace: false,
       });
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    params.set("community", community.communityName);
+    params.set("community", community.id);
     navigate(`?${params.toString()}`, { replace: false });
   };
   return (

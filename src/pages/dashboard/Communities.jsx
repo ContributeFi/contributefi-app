@@ -8,7 +8,7 @@ import {
   COMMUNITIES_TAG,
   TASKS,
 } from "@/lib/constants";
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import { useLocation } from "react-router";
 import { FaLink } from "react-icons/fa6";
 import { RiTwitterXFill } from "react-icons/ri";
@@ -23,7 +23,9 @@ import Sort from "@/components/Sort";
 import TasksCard from "@/components/TasksCard";
 import CreateCommunityForm from "@/components/CreateCommunityForm";
 import { useQuery } from "@tanstack/react-query";
-import { getCommunities } from "@/services";
+import { getCommunities, getCommunity } from "@/services";
+import Loader from "@/components/Loader";
+import Error from "@/components/Error";
 
 const TASKS_PER_PAGE = 15;
 
@@ -73,7 +75,7 @@ function Communities() {
   );
 
   const queryParams = new URLSearchParams(location.search);
-  const communityName = queryParams.get("community");
+  const communityId = queryParams.get("community");
 
   const handleSort = (order) => {
     setSortOrder(order);
@@ -81,140 +83,198 @@ function Communities() {
     refetch();
   };
 
+  const {
+    data: community,
+    isLoading: loadingCommunity,
+    isError: errorLoadingCommunity,
+  } = useQuery({
+    queryKey: ["community", communityId],
+    queryFn: () => getCommunity(communityId),
+    enabled: !!communityId,
+    keepPreviousData: true,
+  });
+
+  console.log({ community });
+
   return (
     <>
-      {communityName ? (
+      {communityId ? (
         <div className="space-y-6">
           <div className="md:hidden">
             <BackButton />
           </div>
 
-          <div className="relative space-y-20 lg:space-y-25">
-            <div className="relative h-[180px] rounded-[4px] bg-[url(/Mask-group.svg)] bg-cover bg-center bg-no-repeat lg:h-[229px]">
-              <div className="absolute -bottom-1/3 left-1/2 h-[118px] w-[118px] -translate-x-1/2 rounded-full bg-white p-2 lg:left-10 lg:h-[140px] lg:w-[140px] lg:translate-x-0">
-                <div className="h-full rounded-full bg-[#F2F2F7] p-5">
-                  <img src="/ChartPolar (1).svg" alt="" />
+          {loadingCommunity ? (
+            <Loader />
+          ) : errorLoadingCommunity ? (
+            <Error title="Failed to load community details." />
+          ) : (
+            <>
+              <div className="relative space-y-20 lg:space-y-25">
+                <div
+                  className={`relative h-[180px] rounded-[4px] ${community.coverImageUrl ? `bg-[url(${community.coverImageUrl})]` : "bg-[url(/Mask-group.svg)]"} bg-cover bg-center bg-no-repeat lg:h-[229px]`}
+                >
+                  <div className="absolute -bottom-1/3 left-1/2 h-[118px] w-[118px] -translate-x-1/2 rounded-full bg-white p-2 lg:left-10 lg:h-[140px] lg:w-[140px] lg:translate-x-0">
+                    <div className="h-full rounded-full bg-[#F2F2F7] p-5">
+                      {community.logoUrl ? (
+                        <img src={community.logoUrl} alt="" />
+                      ) : (
+                        <img src="/ChartPolar (1).svg" alt="" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col justify-between gap-5 xl:flex-row">
+                  <div className="space-y-3 xl:space-y-4">
+                    <h2 className="text-[20px] font-semibold text-[#050215] md:text-[24px]">
+                      {community.communityName}
+                    </h2>
+
+                    <div className="flex flex-wrap gap-2">
+                      {COMMUNITIES_TAG.map((community, index) => (
+                        <div
+                          className="rounded-[4px] bg-[#E2F1FE] px-2 py-1 text-[14px] text-[#1082E4]"
+                          key={index}
+                        >
+                          {community}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="font-normal text-[#09032A] md:text-[18px]">
+                      {community.communityDescription}
+                    </p>
+                  </div>
+
+                  <div className="top-[42%] right-0 flex flex-wrap items-center justify-between gap-2 lg:absolute lg:w-1/2 xl:top-[53%] xl:w-1/3">
+                    <div className="flex flex-wrap gap-2">
+                      {community.communityLinks.map((link, i) => {
+                        return (
+                          <Fragment key={i}>
+                            {link.title === "Website" && (
+                              <div className="bg-white p-2">
+                                <a href={link.url} target="_blank">
+                                  <FaLink className="rounded-[4px] text-[24px] text-[#777F90]" />
+                                </a>
+                              </div>
+                            )}
+
+                            {link.title === "GitHub" && (
+                              <div className="bg-white p-2">
+                                <a href={link.url} target="_blank">
+                                  <RiTwitterXFill className="rounded-[4px] text-[24px] text-[#777F90]" />
+                                </a>
+                              </div>
+                            )}
+
+                            {link.title === "Twitter" && (
+                              <div className="bg-white p-2">
+                                <a href={link.url} target="_blank">
+                                  <RiInstagramFill className="rounded-[4px] text-[24px] text-[#777F90]" />
+                                </a>
+                              </div>
+                            )}
+
+                            {link.title === "Instagram" && (
+                              <div className="bg-white p-2">
+                                <a href={link.url} target="_blank">
+                                  <LuGithub className="rounded-[4px] text-[24px] text-[#777F90]" />
+                                </a>
+                              </div>
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </div>
+
+                    <Button className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70">
+                      Join
+                    </Button>
+                  </div>
+
+                  <div className="rounded-[4px] bg-white px-5 py-4 xl:w-1/2 xl:self-end">
+                    <div className="grid grid-cols-2 divide-x divide-y divide-[#F0F4FD] lg:grid-cols-4 lg:divide-y-0">
+                      {COMMUNITIES_DETAILS.map((com, index) => {
+                        const disableRightLine = index === 1;
+                        const disableTopLine = index === 2;
+                        const isLastItem =
+                          index === COMMUNITIES_DETAILS.length - 1;
+
+                        return (
+                          <div
+                            key={index}
+                            className={`space-y-1.5 px-4 py-3 lg:items-start ${disableRightLine ? "border-r-0" : ""} ${disableTopLine ? "border-b-0" : ""} border-[#F0F4FD] ${!isLastItem ? "lg:border-r" : ""}`}
+                          >
+                            <div className="text-[14px] font-normal text-[#525866]">
+                              {com.title}
+                            </div>
+                            <div className="font-semibold text-[#09032A]">
+                              {com.title === "Members"
+                                ? (community.totalMembers ?? 0)
+                                : com.title === "Total Tasks"
+                                  ? (community.totalTasks ?? 0)
+                                  : com.value}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-col justify-between gap-5 xl:flex-row">
-              <div className="space-y-3 xl:space-y-4">
-                <h2 className="text-[20px] font-semibold text-[#050215] md:text-[24px]">
-                  {communityName}
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {COMMUNITIES_TAG.map((community, index) => (
-                    <div
-                      className="rounded-[4px] bg-[#E2F1FE] px-2 py-1 text-[14px] text-[#1082E4]"
-                      key={index}
+              <div className="space-y-4 rounded-[4px] bg-white p-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="w-full xl:order-2 xl:w-fit">
+                    <CustomSearch placeholder="Search task" />
+                  </div>
+
+                  <div className="flex w-full flex-1 shrink-0 gap-4 rounded-[8px] bg-[#F7F9FD] p-2 xl:w-1/2">
+                    <Button
+                      onClick={() => handleChangeDetailView("tasks")}
+                      variant="outline"
+                      className={`flex-1 cursor-pointer rounded-[2px] border-none ${detailView === "tasks" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[15px] hover:bg-white hover:text-[#2F0FD1]`}
                     >
-                      {community}
-                    </div>
+                      Tasks
+                    </Button>
+
+                    <Button
+                      onClick={() => handleChangeDetailView("forum")}
+                      variant="outline"
+                      className={`flex-1 cursor-pointer rounded-[2px] border-none ${detailView === "forum" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[15px] hover:bg-white hover:text-[#2F0FD1]`}
+                    >
+                      Forum
+                    </Button>
+
+                    <Button
+                      onClick={() => handleChangeDetailView("leader-board")}
+                      variant="outline"
+                      className={`flex-1 cursor-pointer rounded-[2px] border-none ${detailView === "leader-board" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[15px] hover:bg-white hover:text-[#2F0FD1]`}
+                    >
+                      Leader Board
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-4 xl:order-3">
+                    <Filter />
+                    <Sort order={sortOrder} onToggle={handleSort} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+                  {currentTask.map((task, i) => (
+                    <TasksCard task={task} key={i} />
                   ))}
                 </div>
-                <p className="font-normal text-[#09032A] md:text-[18px]">
-                  Building an efficient payment flow for everyone.
-                </p>
+
+                <CustomPagination
+                  currentPage={taskCurrentPage}
+                  totalPages={taskTotalPages}
+                  onPageChange={(page) => setTaskCurrentPage(page)}
+                />
               </div>
-
-              <div className="top-[42%] right-0 flex flex-wrap items-center justify-between gap-2 lg:absolute lg:w-1/2 xl:top-[53%] xl:w-1/3">
-                <div className="flex flex-wrap gap-2">
-                  <div className="bg-white p-2">
-                    <FaLink className="rounded-[4px] text-[24px] text-[#777F90]" />
-                  </div>
-                  <div className="bg-white p-2">
-                    <RiTwitterXFill className="rounded-[4px] text-[24px] text-[#777F90]" />
-                  </div>
-                  <div className="bg-white p-2">
-                    <RiInstagramFill className="rounded-[4px] text-[24px] text-[#777F90]" />
-                  </div>
-                  <div className="bg-white p-2">
-                    <LuGithub className="rounded-[4px] text-[24px] text-[#777F90]" />
-                  </div>
-                </div>
-
-                <Button className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70">
-                  Join
-                </Button>
-              </div>
-
-              <div className="rounded-[4px] bg-white px-5 py-4 xl:w-1/2 xl:self-end">
-                <div className="grid grid-cols-2 divide-x divide-y divide-[#F0F4FD] lg:grid-cols-4 lg:divide-y-0">
-                  {COMMUNITIES_DETAILS.map((community, index) => {
-                    const disableRightLine = index === 1;
-                    const disableTopLine = index === 2;
-                    const isLastItem = index === COMMUNITIES_DETAILS.length - 1;
-
-                    return (
-                      <div
-                        key={index}
-                        className={`space-y-1.5 px-4 py-3 lg:items-start ${disableRightLine ? "border-r-0" : ""} ${disableTopLine ? "border-b-0" : ""} border-[#F0F4FD] ${!isLastItem ? "lg:border-r" : ""}`}
-                      >
-                        <div className="text-[14px] font-normal text-[#525866]">
-                          {community.title}
-                        </div>
-                        <div className="font-semibold text-[#09032A]">
-                          {community.value}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4 rounded-[4px] bg-white p-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="w-full xl:order-2 xl:w-fit">
-                <CustomSearch placeholder="Search task" />
-              </div>
-
-              <div className="flex w-full flex-1 shrink-0 gap-4 rounded-[8px] bg-[#F7F9FD] p-2 xl:w-1/2">
-                <Button
-                  onClick={() => handleChangeDetailView("tasks")}
-                  variant="outline"
-                  className={`flex-1 cursor-pointer rounded-[2px] border-none ${detailView === "tasks" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[15px] hover:bg-white hover:text-[#2F0FD1]`}
-                >
-                  Tasks
-                </Button>
-
-                <Button
-                  onClick={() => handleChangeDetailView("forum")}
-                  variant="outline"
-                  className={`flex-1 cursor-pointer rounded-[2px] border-none ${detailView === "forum" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[15px] hover:bg-white hover:text-[#2F0FD1]`}
-                >
-                  Forum
-                </Button>
-
-                <Button
-                  onClick={() => handleChangeDetailView("leader-board")}
-                  variant="outline"
-                  className={`flex-1 cursor-pointer rounded-[2px] border-none ${detailView === "leader-board" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[15px] hover:bg-white hover:text-[#2F0FD1]`}
-                >
-                  Leader Board
-                </Button>
-              </div>
-
-              <div className="flex gap-4 xl:order-3">
-                <Filter />
-                <Sort order={sortOrder} onToggle={handleSort} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-              {currentTask.map((task, i) => (
-                <TasksCard task={task} key={i} />
-              ))}
-            </div>
-
-            <CustomPagination
-              currentPage={taskCurrentPage}
-              totalPages={taskTotalPages}
-              onPageChange={(page) => setTaskCurrentPage(page)}
-            />
-          </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="space-y-8">
