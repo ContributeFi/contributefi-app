@@ -149,8 +149,15 @@ export const getCommunities = async ({
 };
 
 export const getCommunity = async (communityId) => {
+  const accessToken = getItemFromLocalStorage("accessToken");
+
   const { data } = await axios.get(
     `${import.meta.env.VITE_BASE_URL}/communities/${communityId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
   );
 
   return data.content;
@@ -165,6 +172,25 @@ export function joinCommunity(communityId) {
 
   return axios.post(
     `${import.meta.env.VITE_BASE_URL}/members/join`,
+    requestPayload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+}
+
+export function leaveCommunity(communityId, memberId) {
+  const requestPayload = {
+    memberId,
+  };
+
+  const accessToken = getItemFromLocalStorage("accessToken");
+
+  return axios.post(
+    `${import.meta.env.VITE_BASE_URL}/members/leave/${communityId}`,
     requestPayload,
     {
       headers: {

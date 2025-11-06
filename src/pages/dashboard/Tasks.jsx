@@ -763,12 +763,12 @@ function Tasks() {
                   <img src="/ChartPolar.svg" alt="" />
                   <div className="space-y-1">
                     <p className="font-semibold text-[#050215]">
-                      {/* {community.name} */} The Unifier
+                      {/* {community?.name} */} The Unifier
                     </p>
                     <p className="flex items-center gap-1 text-[14px] text-[#777F90]">
                       <FaUsers />
                       <span className="shrink-0">
-                        {/* {community.numberOfMembers} members */} 64 members
+                        {/* {community?.numberOfMembers} members */} 64 members
                       </span>
                     </p>
                   </div>

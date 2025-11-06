@@ -22,11 +22,17 @@ import CustomSearch from "@/components/Search";
 import Sort from "@/components/Sort";
 import TasksCard from "@/components/TasksCard";
 import CreateCommunityForm from "@/components/CreateCommunityForm";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getCommunities, getCommunity, joinCommunity } from "@/services";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getCommunities,
+  getCommunity,
+  joinCommunity,
+  leaveCommunity,
+} from "@/services";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import { toast } from "react-toastify";
+import { useAuth } from "@/hooks/useAuth";
 
 const TASKS_PER_PAGE = 15;
 
@@ -35,6 +41,8 @@ function Communities() {
   const [sortOrder, setSortOrder] = useState("DESC");
   const [currentPage, setCurrentPage] = useState(1);
   const [communityView, setCommunityView] = useState("all");
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const LIMIT = 10;
   const OFFSET = (currentPage - 1) * LIMIT;
@@ -95,28 +103,125 @@ function Communities() {
     keepPreviousData: true,
   });
 
-  console.log({ community });
-
   const { mutate: joinCommunityMutation, isPending: joinCommunityPending } =
     useMutation({
       mutationFn: () => joinCommunity(communityId),
-      onSuccess: async (data) => {
+      onMutate: async () => {
+        await queryClient.cancelQueries(["community", communityId]);
+
+        const previousCommunity = queryClient.getQueryData([
+          "community",
+          communityId,
+        ]);
+
+        queryClient.setQueryData(["community", communityId], (old) => ({
+          ...old,
+          isMember: true,
+          totalMembers: (old?.totalMembers ?? 0) + 1,
+        }));
+
+        return { previousCommunity };
+      },
+      // onSuccess: async (data) => {
+      // console.log({ data });
+      // if (data.status === 201) {
+      //   refetchCommunity();
+      //   toast.success("Community joined successfully");
+      // } else {
+      //   toast.error("Something went wrong");
+      // }
+      // },
+      // onError: (error) => {
+      //   console.error("Error:", error.response.data.message);
+      //   toast.error(error.response.data.message);
+      // },
+
+      onError: (error, _, context) => {
+        // Rollback on error
+        queryClient.setQueryData(
+          ["community", communityId],
+          context.previousCommunity,
+        );
+        toast.error(
+          error?.response?.data?.message || "Failed to join community",
+        );
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries(["community", communityId]);
+      },
+      onSuccess: (data) => {
         console.log({ data });
         if (data.status === 201) {
-          toast.success("Login successful");
+          toast.success("Community joined successfully");
         } else {
           toast.error("Something went wrong");
         }
-      },
-      onError: (error) => {
-        console.error("Error:", error.response.data.message);
-        toast.error(error.response.data.message);
       },
     });
 
   const handleJoinCommunity = () => {
     joinCommunityMutation(communityId);
   };
+
+  const { mutate: leaveCommunityMutation, isPending: leaveCommunityPending } =
+    useMutation({
+      mutationFn: () => leaveCommunity(communityId, user?.id),
+      onMutate: async () => {
+        await queryClient.cancelQueries(["community", communityId]);
+        const previousCommunity = queryClient.getQueryData([
+          "community",
+          communityId,
+        ]);
+
+        queryClient.setQueryData(["community", communityId], (old) => ({
+          ...old,
+          isMember: false,
+          totalMembers: Math.max((old?.totalMembers ?? 1) - 1, 0),
+        }));
+
+        return { previousCommunity };
+      },
+      // onSuccess: async (data) => {
+      // console.log({ data });
+      // if (data.status === 201) {
+      //   refetchCommunity();
+      //   toast.success("Successfully left the community");
+      // } else {
+      //   toast.error("Something went wrong");
+      // }
+      // },
+      // onError: (error) => {
+      //   console.error("Error:", error.response.data.message);
+      //   toast.error(error.response.data.message);
+      // },
+
+      onError: (error, _, context) => {
+        queryClient.setQueryData(
+          ["community", communityId],
+          context.previousCommunity,
+        );
+        toast.error(
+          error?.response?.data?.message || "Failed to leave community",
+        );
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries(["community", communityId]);
+      },
+      onSuccess: (data) => {
+        console.log({ data });
+        if (data.status === 201) {
+          toast.success("Successfully left the community");
+        } else {
+          toast.error("Something went wrong");
+        }
+      },
+    });
+
+  const handleLeaveCommunity = () => {
+    leaveCommunityMutation(communityId);
+  };
+
+  console.log({ communities });
 
   return (
     <>
@@ -134,12 +239,12 @@ function Communities() {
             <>
               <div className="relative space-y-20 lg:space-y-25">
                 <div
-                  className={`relative h-[180px] rounded-[4px] ${community.coverImageUrl ? `bg-[url(${community.coverImageUrl})]` : "bg-[url(/Mask-group.svg)]"} bg-cover bg-center bg-no-repeat lg:h-[229px]`}
+                  className={`relative h-[180px] rounded-[4px] ${community?.coverImageUrl ? `bg-[url(${community?.coverImageUrl})]` : "bg-[url(/Mask-group.svg)]"} bg-cover bg-center bg-no-repeat lg:h-[229px]`}
                 >
                   <div className="absolute -bottom-1/3 left-1/2 h-[118px] w-[118px] -translate-x-1/2 rounded-full bg-white p-2 lg:left-10 lg:h-[140px] lg:w-[140px] lg:translate-x-0">
                     <div className="h-full rounded-full bg-[#F2F2F7] p-5">
-                      {community.logoUrl ? (
-                        <img src={community.logoUrl} alt="" />
+                      {community?.logoUrl ? (
+                        <img src={community?.logoUrl} alt="" />
                       ) : (
                         <img src="/ChartPolar (1).svg" alt="" />
                       )}
@@ -147,10 +252,12 @@ function Communities() {
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-between gap-5 xl:flex-row">
+                <div
+                  className={`flex flex-col justify-between gap-5 xl:flex-row`}
+                >
                   <div className="space-y-3 xl:space-y-4">
                     <h2 className="text-[20px] font-semibold text-[#050215] md:text-[24px]">
-                      {community.communityName}
+                      {community?.communityName}
                     </h2>
 
                     <div className="flex flex-wrap gap-2">
@@ -164,15 +271,17 @@ function Communities() {
                       ))}
                     </div>
                     <p className="font-normal text-[#09032A] md:text-[18px]">
-                      {community.communityDescription
-                        ? community.communityDescription
-                        : "Add a description"}
+                      {community?.communityDescription
+                        ? community?.communityDescription
+                        : "..."}
                     </p>
                   </div>
 
-                  <div className="top-[42%] right-0 flex flex-wrap items-center justify-between gap-2 lg:absolute lg:w-1/2 xl:top-[53%] xl:w-1/3">
+                  <div
+                    className={`top-[42%] right-0 flex flex-wrap items-center justify-between gap-2 lg:absolute lg:w-1/2 xl:top-[53%]`}
+                  >
                     <div className="flex flex-wrap gap-2">
-                      {community.communityLinks.map((link, i) => {
+                      {community?.communityLinks.map((link, i) => {
                         return (
                           <Fragment key={i}>
                             {link.title === "Website" && (
@@ -211,13 +320,39 @@ function Communities() {
                       })}
                     </div>
 
-                    <Button
-                      onClick={handleJoinCommunity}
-                      disabled={joinCommunityPending}
-                      className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70"
-                    >
-                      {joinCommunityPending ? "Joining..." : "Join"}
-                    </Button>
+                    {user?.id === community?.communityOwnerId ? (
+                      <div className="flex flex-wrap gap-3.5">
+                        <Button className="cursor-pointer rounded-md bg-[#FFFFFF] px-8 py-5 text-[#2F0FD1] hover:bg-[#FFFFFF]/50">
+                          Edit Details
+                        </Button>
+
+                        <Button className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70">
+                          Create Task
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={
+                          community?.isMember
+                            ? handleLeaveCommunity
+                            : handleJoinCommunity
+                        }
+                        disabled={joinCommunityPending || leaveCommunityPending}
+                        className={`cursor-pointer rounded-md ${
+                          community?.isMember
+                            ? "bg-[#FCE9E9] text-[#F31307] hover:bg-[#FCE9E9]/70"
+                            : "bg-[#2F0FD1] hover:bg-[#2F0FD1]/70"
+                        } px-8 py-5`}
+                      >
+                        {joinCommunityPending
+                          ? "Joining..."
+                          : leaveCommunityPending
+                            ? "Leaving..."
+                            : community?.isMember
+                              ? "Leave"
+                              : "Join"}
+                      </Button>
+                    )}
                   </div>
 
                   <div className="rounded-[4px] bg-white px-5 py-4 xl:w-1/2 xl:self-end">
@@ -238,9 +373,9 @@ function Communities() {
                             </div>
                             <div className="font-semibold text-[#09032A]">
                               {com.title === "Members"
-                                ? (community.totalMembers ?? 0)
+                                ? (community?.totalMembers ?? 0)
                                 : com.title === "Total Tasks"
-                                  ? (community.totalTasks ?? 0)
+                                  ? (community?.totalTasks ?? 0)
                                   : com.value}
                             </div>
                           </div>
@@ -380,15 +515,9 @@ function Communities() {
             </div>
 
             {loadingCommunities ? (
-              <div className="flex h-32 items-center justify-center">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-              </div>
+              <Loader />
             ) : errorLoadingCommunities ? (
-              <div className="flex h-32 items-center justify-center">
-                <p className="text-2xl font-bold">
-                  Failed to load communities...
-                </p>
-              </div>
+              <Error title="Failed to load communities." />
             ) : communities.length === 0 ? (
               <div className="flex h-32 items-center justify-center">
                 <p className="text-2xl font-bold">No communities found...</p>

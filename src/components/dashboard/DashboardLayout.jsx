@@ -49,7 +49,7 @@ function DashboardLayout() {
 
         <img
           src={
-            !user.profileImageUrl ? "/Frame 43596.svg" : user.profileImageUrl
+            !user?.profileImageUrl ? "/Frame 43596.svg" : user?.profileImageUrl
           }
           alt=""
         />
@@ -84,7 +84,7 @@ function DashboardLayout() {
 
           <img
             src={
-              !user.profileImageUrl ? "/Frame 43596.svg" : user.profileImageUrl
+              !user?.profileImageUrl ? "/Frame 43596.svg" : user?.profileImageUrl
             }
             alt=""
           />
