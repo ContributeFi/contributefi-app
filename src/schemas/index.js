@@ -61,3 +61,14 @@ export const CreateCommunitySchema = z.object({
   communityDescription: z.string().optional(),
   message: z.string().optional(),
 });
+
+export const CreateGrowthQuestSchema = z.object({
+  communityName: z.string().min(1, "Community name is required"),
+  communityUsername: z.string().min(1, "Community username is required"),
+  websitePage: socialUrlSchema("Enter a valid Website URL"),
+  githubPage: socialUrlSchema("Enter a valid GitHub URL"),
+  twitterPage: socialUrlSchema("Enter a valid Twitter URL"),
+  instagramPage: socialUrlSchema("Enter a valid Instagram URL"),
+  communityDescription: z.string().optional(),
+  message: z.string().optional(),
+})

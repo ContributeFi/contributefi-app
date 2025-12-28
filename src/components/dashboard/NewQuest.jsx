@@ -26,7 +26,7 @@ function NewQuest({ sheetIsOpen, setSheetIsOpen }) {
       </SheetTrigger>
       <SheetContent
         side={side}
-        className={`bg-white ${side === "bottom" ? "h-[80%]" : "sm:max-w-lg"} px-4`}
+        className={`bg-white ${side === "bottom" ? "h-[80%]" : "sm:max-w-xl"} px-4`}
       >
         <SheetHeader className="relative">
           <SheetTitle className="text-[28px] font-bold text-[#09032A]">
