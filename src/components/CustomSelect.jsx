@@ -1,51 +1,40 @@
 import React from "react";
-import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { Field, Label, Select } from "@headlessui/react";
 
 export default function CustomSelect({
   label,
   placeholder = "Select",
   options,
   error,
+  register,
   className = "",
   disabled,
-  value,
-  onValueChange,
   ...rest
 }) {
   return (
-    <Label className="flex flex-col items-start gap-2 font-light text-[#09032A]">
-      {label}
-      <div className="relative w-full rounded-sm">
-        <Select
-          value={value}
-          onValueChange={onValueChange}
-          disabled={disabled}
-          {...rest}
-        >
-          <SelectTrigger
-            className={`w-full border-none bg-[#F7F9FD] ${className}`}
+    <Field className="">
+      <Label className="flex flex-col items-start text-[14px] gap-1 font-light text-[#09032A]">
+        {label}
+        <div className="relative w-full rounded-sm">
+          <Select
+            {...(register ? register : {})}
+            className={`h-[36px] rounded-[12px] border-none bg-[#F7F9FD] px-3  placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0 ${className} w-full`}
+            {...rest}
+            disabled={disabled}
           >
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-
-          <SelectContent>
+            <option value="" className="text-[#8791A7]">
+              {placeholder}
+            </option>
             {options.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
+              <option key={opt.value} value={opt.value}>
                 {opt.label}
-              </SelectItem>
+              </option>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
+          </Select>
+        </div>
 
-      {error && <span className="text-xs text-red-500">{error}</span>}
-    </Label>
+        {error && <span className="text-xs text-red-500">{error}</span>}
+      </Label>
+    </Field>
   );
 }
