@@ -23,8 +23,8 @@ export default function CustomInput({
           <Input
             type={type}
             placeholder={placeholder}
-            {...props}
             className={`rounded-[12px] border-none bg-[#F7F9FD] px-4 pl-24 placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0 ${className}`}
+            {...props}
           />
           {icon && (
             <span
@@ -41,8 +41,8 @@ export default function CustomInput({
             <Input
               type={type}
               placeholder={placeholder}
-              {...props}
               className={`rounded-[12px] border-none bg-[#F7F9FD] px-4 placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0 ${className}`}
+              {...props}
             />
             {icon && (
               <span

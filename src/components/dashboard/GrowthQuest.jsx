@@ -10,15 +10,20 @@ import { Button } from "../ui/button";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { IoIosArrowForward, IoMdArrowDropdown } from "react-icons/io";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { CreateGrowthQuestSchema } from "@/schemas";
 import CustomInput from "../CustomInput";
 import CustomSelect from "../CustomSelect";
 import { Checkbox, Field, Label, Radio, RadioGroup } from "@headlessui/react";
 import { useState } from "react";
 import CustomDateSelect from "../CustomDateSelect";
+import { RiDeleteBin6Fill } from "react-icons/ri";
 
 const rewardMode = ["Overall Reward", "Individual Task Reward"];
+const options = [
+  { label: "Token", value: "token" },
+  { label: "Cash", value: "cash" },
+];
 
 function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
   const isDesktop = useIsDesktop();
@@ -31,14 +36,34 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
     register,
     handleSubmit,
     formState: { errors },
-    // reset,
+    watch,
+    setValue,
+    control,
   } = useForm({
     resolver: zodResolver(CreateGrowthQuestSchema),
+    defaultValues: {
+      rewardType: "token",
+      tokenContract: "",
+      startDate: undefined,
+      endDate: undefined,
+      runContinuously: false,
+      numberOfWinners: 0,
+      tasks: [{ type: "", points: 0 }],
+    },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "tasks", // matches defaultValues
+  });
+
+  console.log({ errors });
 
   const onSubmit = (data) => {
     console.log(data);
   };
+
+  const rewardType = watch("rewardType");
 
   return (
     <Sheet open={sheetIsOpen} onOpenChange={setSheetIsOpen}>
@@ -83,16 +108,41 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
             {...register("questTitle")}
           />
 
-          <CustomSelect
-            label="Reward Type"
-            placeholder="Select"
-            options={[
-              { label: "Option 1", value: "option1" },
-              { label: "Option 2", value: "option2" },
-            ]}
-            error={errors.rewardType?.message}
-            register={register("rewardType")}
+          <Controller
+            name="rewardType"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                label="Reward Type"
+                placeholder="Select"
+                options={options}
+                error={errors.rewardType?.message}
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            )}
           />
+
+          <div className={rewardType !== "token" ? "hidden" : ""}>
+            <CustomInput
+              label="Token Contract"
+              placeholder="000000000000000000000"
+              type="text"
+              error={errors.tokenContract?.message}
+              {...register("tokenContract")}
+            />
+          </div>
+
+          {/* {rewardType === "token" && (
+            <CustomInput
+              label="Token Contract"
+              placeholder="000000000000000000000"
+              type="text"
+              error={errors.tokenContract?.message}
+              {...register("tokenContract")}
+              className={rewardType !== "token" ? "hidden" : ""}
+            />
+          )} */}
 
           <div className="grid gap-5 sm:grid-cols-2">
             <CustomInput
@@ -100,10 +150,10 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
               placeholder="0"
               type="number"
               error={errors.numberOfWinners?.message}
-              {...register("numberOfWinners")}
+              {...register("numberOfWinners", { valueAsNumber: true })}
             />
 
-            <CustomSelect
+            {/* <CustomSelect
               label="Winner Selection Method"
               placeholder="Select"
               options={[
@@ -112,6 +162,23 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
               ]}
               error={errors.winnerSelectionMethod?.message}
               register={register("winnerSelectionMethod")}
+            /> */}
+
+            <Controller
+              name="winnerSelectionMethod"
+              control={control}
+              render={({ field }) => (
+                <CustomSelect
+                  label="Winner Selection Method"
+                  options={[
+                    { label: "Option 1", value: "option1" },
+                    { label: "Option 2", value: "option2" },
+                  ]}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  error={errors.winnerSelectionMethod?.message}
+                />
+              )}
             />
           </div>
 
@@ -122,31 +189,59 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
                 <p className="text-[15px] font-[300] text-[#09032A]">
                   Run quest continuously
                 </p>
-                <Checkbox className="group block size-4 shrink-0 rounded border border-[#D0D5DD] bg-white data-checked:border-none data-checked:bg-[#2F0FD1] data-disabled:cursor-not-allowed data-disabled:bg-orange-200">
-                  <svg
-                    className="stroke-white opacity-0 group-data-checked:opacity-100"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                  >
-                    <path
-                      d="M3 8L6 11L11 3.5"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Checkbox>
+                <Controller
+                  name="runContinuously"
+                  control={control}
+                  defaultValue={false}
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onChange={field.onChange}
+                      className="group block size-4 shrink-0 rounded border border-[#D0D5DD] bg-white data-checked:border-none data-checked:bg-[#2F0FD1] data-disabled:cursor-not-allowed data-disabled:bg-orange-200"
+                    >
+                      <svg
+                        className="stroke-white opacity-0 group-data-checked:opacity-100"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                      >
+                        <path
+                          d="M3 8L6 11L11 3.5"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </Checkbox>
+                  )}
+                />
               </div>
             </div>
 
-            <CustomDateSelect
-              placeholder="Start Date"
-              error={errors.questDuration?.message}
-              {...register("questDuration")}
-              icon={<IoMdArrowDropdown />}
-              startDate={true}
-              endDate={true}
+            <Controller
+              name="startDate"
+              control={control}
+              render={({ field }) => (
+                <CustomDateSelect
+                  startDate={field.value}
+                  endDate={watch("endDate")}
+                  onStartDateChange={field.onChange}
+                  onEndDateChange={(date) =>
+                    setValue("endDate", date, { shouldValidate: true })
+                  }
+                  runContinuously={watch("runContinuously")}
+                  //   error={errors.startDate?.message}
+                  startDateError={errors.startDate?.message}
+                  endDateError={errors.endDate?.message}
+                />
+              )}
             />
+
+            {/* <CustomDateSelect
+              error={errors.startDate?.message}
+              {...register("startDate")}
+              setValue={setValue}
+              runContinuously={watch("runContinuously")}
+            /> */}
           </div>
 
           <div className="grid gap-2">
@@ -172,10 +267,60 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
             </RadioGroup>
           </div>
 
+          <CustomInput
+            label="How many points per winner?"
+            placeholder="eg 50"
+            type="number"
+            error={errors.numberOfWinners?.message}
+            {...register("numberOfWinners", { valueAsNumber: true })}
+          />
+
           <hr className="border border-[#F0F4FD]" />
 
-          <div className="bg-[#EDF2FF] px-3 py-2">
-            <p className="font-semibold text-[#2F0FD1]">Task</p>
+          {fields.map((task, index) => (
+            <div key={task.id} className="grid gap-4">
+              <div className="flex items-center justify-between bg-[#EDF2FF] px-3 py-2">
+                <p className="font-semibold text-[#2F0FD1]">Task {index + 1}</p>
+                {fields.length > 1 && (
+                  <button
+                    type="button"
+                    className="text-md bg-white p-2"
+                    onClick={() => remove(index)}
+                  >
+                    <RiDeleteBin6Fill className="text-red-500" />
+                  </button>
+                )}
+              </div>
+
+              <Controller
+                name={`tasks.${index}.type`}
+                control={control}
+                render={({ field }) => (
+                  <CustomSelect
+                    label="Select Task Type"
+                    placeholder="Select"
+                    options={[
+                      { label: "Option 1", value: "option1" },
+                      { label: "Option 2", value: "option2" },
+                    ]}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                )}
+              />
+
+              {/* <CustomInput
+                label="How many points per winner?"
+                placeholder="eg 50"
+                type="number"
+                {...register(`tasks.${index}.points`, { valueAsNumber: true })}
+                error={errors.tasks?.[index]?.points?.message}
+              /> */}
+            </div>
+          ))}
+
+          {/* <div className="bg-[#EDF2FF] px-3 py-2">
+            <p className="font-semibold text-[#2F0FD1]">Task 1</p>
           </div>
 
           <CustomSelect
@@ -187,12 +332,17 @@ function GrowthQuest({ sheetIsOpen, setSheetIsOpen }) {
             ]}
             error={errors.winnerSelectionMethod?.message}
             register={register("winnerSelectionMethod")}
-          />
+          /> */}
 
-          <button className="ml-auto text-[#2F0FD1] flex items-center gap-1">+ Add Another Task</button>
+          <button
+            type="button"
+            onClick={() => append({ type: "", points: 0 })}
+            className="ml-auto flex items-center gap-1 text-[#2F0FD1]"
+          >
+            + Add Another Task
+          </button>
 
           <Button
-            // disabled={createCommunityPending}
             variant="secondary"
             size="lg"
             type="submit"

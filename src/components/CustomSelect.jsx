@@ -13,17 +13,22 @@ export default function CustomSelect({
   placeholder = "Select",
   options,
   error,
-  register,
   className = "",
-  // icon,
   disabled,
+  value,
+  onValueChange,
   ...rest
 }) {
   return (
     <Label className="flex flex-col items-start gap-2 font-light text-[#09032A]">
       {label}
       <div className="relative w-full rounded-sm">
-        <Select {...(register ? register : {})} disabled={disabled} {...rest}>
+        <Select
+          value={value}
+          onValueChange={onValueChange}
+          disabled={disabled}
+          {...rest}
+        >
           <SelectTrigger
             className={`w-full border-none bg-[#F7F9FD] ${className}`}
           >
