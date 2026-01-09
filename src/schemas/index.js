@@ -66,7 +66,7 @@ const GrowthTaskSchema = z.object({
       (val) =>
         [
           "Follow on Twitter",
-          "Comment on Twitter",
+          "Comment on Tweet",
           "Like Tweet",
           "Post on Discord",
           "Join Telegram Channel",
@@ -301,7 +301,7 @@ export const CreateGrowthQuestSchema = z
           break;
 
         case "Like Tweet":
-        case "Comment on Twitter":
+        case "Comment on Tweet":
           if (!task.tweetUrl) {
             ctx.addIssue({
               path: [...taskPath, "tweetUrl"],

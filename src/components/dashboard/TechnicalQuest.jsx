@@ -37,7 +37,7 @@ const QUEST_TYPES = [
 ];
 const TASK_TYPES = [
   { label: "Follow on Twitter", value: "follow_on_twitter" },
-  { label: "Comment on Twitter", value: "comment_on_twitter" },
+  { label: "Comment on Tweet", value: "comment_on_twitter" },
 ];
 
 function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess }) {

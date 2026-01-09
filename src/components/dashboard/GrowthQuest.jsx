@@ -33,15 +33,7 @@ import {
   TASK_TYPES,
   WINNER_SELECTION_METHOD,
 } from "@/utils/constants";
-
-const TASK_FIELDS = {
-  "Follow on Twitter": ["twitterUrl"],
-  "Like Tweet": ["tweetUrl"],
-  "Comment on Twitter": ["tweetUrl", "keywordValidation"],
-  "Post on Discord": ["discordLink", "channelId"],
-  "Join Telegram Channel": ["telegramLink"],
-  "Post on Telegram Group": ["telegramGroupLink"],
-};
+import { BsFillInfoCircleFill } from "react-icons/bs";
 
 function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
   const isDesktop = useIsDesktop();
@@ -577,7 +569,15 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                         {watch(`tasks.${index}.type`) ===
                           "Join Telegram Channel" && (
                           <CustomInput
-                            label="Telegram Link"
+                            label={
+                              <div className="flex w-full items-center justify-between">
+                                <span>Telegram Link</span>
+                                <span className="flex items-center gap-1 text-[14px] font-normal text-[#2F0FD1]">
+                                  Channel needs a ContributeFi bot{" "}
+                                  <BsFillInfoCircleFill />
+                                </span>
+                              </div>
+                            }
                             error={errors.tasks?.[index]?.telegramLink?.message}
                             {...register(`tasks.${index}.telegramLink`)}
                             placeholder="Paste URL"
@@ -601,7 +601,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                         )}
 
                         {watch(`tasks.${index}.type`) ===
-                          "Comment on Twitter" && (
+                          "Comment on Tweet" && (
                           <div className="space-y-5">
                             <CustomInput
                               label="Tweet URL"
@@ -803,7 +803,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                         </div>
 
                         {!collapsedTasks[index] && (
-                          <div className="mt-2 flex justify-between rounded-[8px] bg-white p-4">
+                          <div className="mt-2 flex flex-wrap justify-between gap-4 rounded-[8px] bg-white p-4">
                             <div className="space-y-2">
                               <p className="font-[300] text-[#525866]">
                                 Task Type
@@ -833,6 +833,28 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                                 </p>
                                 <p className="font-medium text-[#050215]">
                                   {task[config.field]}
+                                </p>
+                              </div>
+                            )}
+
+                            {task["keywordValidation"] && (
+                              <div className="space-y-2">
+                                <p className="font-[300] text-[#525866]">
+                                  Keyword Validation
+                                </p>
+                                <p className="font-medium text-[#050215]">
+                                  {task["keywordValidation"]}
+                                </p>
+                              </div>
+                            )}
+
+                            {task["channelId"] && (
+                              <div className="space-y-2">
+                                <p className="font-[300] text-[#525866]">
+                                  Channel ID
+                                </p>
+                                <p className="font-medium text-[#050215]">
+                                  {task["channelId"]}
                                 </p>
                               </div>
                             )}
