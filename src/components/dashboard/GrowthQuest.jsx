@@ -34,6 +34,15 @@ import {
   WINNER_SELECTION_METHOD,
 } from "@/utils/constants";
 
+const TASK_FIELDS = {
+  "Follow on Twitter": ["twitterUrl"],
+  "Like Tweet": ["tweetUrl"],
+  "Comment on Twitter": ["tweetUrl", "keywordValidation"],
+  "Post on Discord": ["discordLink", "channelId"],
+  "Join Telegram Channel": ["telegramLink"],
+  "Post on Telegram Group": ["telegramGroupLink"],
+};
+
 function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
   const isDesktop = useIsDesktop();
   const [open, setOpen] = useState(false);
@@ -192,6 +201,28 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  //   useEffect(() => {
+  //     tasks.forEach((task, index) => {
+  //       const allowedFields = TASK_FIELDS[task.type] ?? [];
+
+  //       const allFields = [
+  //         "twitterUrl",
+  //         "tweetUrl",
+  //         "discordLink",
+  //         "telegramLink",
+  //         "telegramGroupLink",
+  //         "channelId",
+  //         "keywordValidation",
+  //       ];
+
+  //       allFields.forEach((field) => {
+  //         if (!allowedFields.includes(field)) {
+  //           unregister(`tasks.${index}.${field}`);
+  //         }
+  //       });
+  //     });
+  //   }, [tasks, unregister]);
 
   console.log({ errors, step1Data });
 
@@ -740,17 +771,6 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                         : `${step1Data?.pointsPerWinner} Points`}
                     </p>
                   </div>
-
-                  {/* {step1Data?.extraPoints && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <p className="w-1/2 font-[300] text-[#525866]">
-                        Extra Points
-                      </p>
-                      <p className="w-1/2 font-medium text-[#050215]">
-                        {step1Data.extraPoints} Points
-                      </p>
-                    </div>
-                  )} */}
                 </>
               )}
             </div>
