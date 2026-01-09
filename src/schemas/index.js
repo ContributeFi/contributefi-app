@@ -123,7 +123,7 @@ export const CreateGrowthQuestSchema = z
       ),
     tokensPerWinner: numberOrNullSchema,
     pointsPerWinner: numberOrNullSchema,
-    allWithPoints: numberOrNullSchema,
+    extraPoints: numberOrNullSchema,
     tasks: z.array(GrowthTaskSchema).nonempty("At least one task is required"),
   })
   .superRefine((data, ctx) => {
@@ -163,11 +163,19 @@ export const CreateGrowthQuestSchema = z
     }
 
     if (data.rewardAllWithPoints) {
-      ctx.addIssue({
-        path: ["allWithPoints"],
-        message: "Number of winners cannot be negative",
-        code: "custom",
-      });
+      if (!data.extraPoints) {
+        ctx.addIssue({
+          path: ["extraPoints"],
+          message: "Extra points value is required",
+          code: "custom",
+        });
+      } else if (data.numberOfWinners < 0) {
+        ctx.addIssue({
+          path: ["extraPoints"],
+          message: "Extra points value cannot be negative",
+          code: "custom",
+        });
+      }
     }
 
     if (!data.startDate) {

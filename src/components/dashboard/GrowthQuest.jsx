@@ -77,7 +77,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
       endDate: "",
       rewardMode: "Overall Reward",
       pointsPerWinner: step1Data?.pointsPerTask || "",
-      allWithPoints: step1Data?.allWithPoints || "",
+      extraPoints: step1Data?.extraPoints || "",
       tokensPerWinner: "",
       tasks: [
         {
@@ -105,7 +105,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
   const rewardMode = watch("rewardMode");
   const runContinuously = watch("runContinuously");
   const rewardAllWithPoints = watch("rewardAllWithPoints");
-  const allWithPoints = watch("allWithPoints");
+  const extraPoints = watch("extraPoints");
   const tasks = watch("tasks");
   const tasksLength = tasks.length;
 
@@ -120,6 +120,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
       setValue("numberOfWinners", "");
       setValue("winnerSelectionMethod", "");
       setValue("rewardAllWithPoints", false);
+      setValue("extraPoints", "");
     } else {
       setValue("winnerSelectionMethod", "Random");
     }
@@ -132,7 +133,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
       const updated = {
         ...prev,
         rewardAllWithPoints,
-        allWithPoints,
+        extraPoints,
       };
 
       setItemInLocalStorage("growthQuestStep1Data", updated);
@@ -141,7 +142,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rewardAllWithPoints, allWithPoints]);
+  }, [rewardAllWithPoints, extraPoints]);
 
   useEffect(() => {
     if (rewardType === "Points") {
@@ -156,13 +157,41 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
     if (rewardMode === "Individual Task Reward") {
       setValue("pointsPerWinner", "");
       setValue("tokensPerWinner", "");
+      if (rewardType === "Points") {
+        for (let i = 0; i < tasksLength; i++) {
+          setValue(`tasks.${i}.tokensPerTask`, "");
+        }
+      } else {
+        for (let i = 0; i < tasksLength; i++) {
+          setValue(`tasks.${i}.pointsPerTask`, "");
+        }
+      }
     } else {
       for (let i = 0; i < tasksLength; i++) {
         setValue(`tasks.${i}.pointsPerTask`, "");
         setValue(`tasks.${i}.tokensPerTask`, "");
       }
     }
-  }, [rewardMode, setValue, tasksLength]);
+  }, [rewardMode, setValue, tasksLength, rewardType]);
+
+  useEffect(() => {
+    if (step1Data) {
+      if (step1Data?.rewardAllWithPoints && !step1Data?.extraPoints) {
+        setStep1Data((prev) => {
+          const updated = {
+            ...prev,
+            rewardAllWithPoints: false,
+            extraPoints: "",
+          };
+
+          setItemInLocalStorage("growthQuestStep1Data", updated);
+
+          return updated;
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   console.log({ errors, step1Data });
 
@@ -190,15 +219,24 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
         <SheetHeader className="bg-white px-4 shadow">
           {step === 2 || step === 3 ? (
             <>
-              <FaArrowLeftLong
-                className="cursor-pointer text-3xl text-[#050215]"
-                onClick={() => {
-                  step === 2
-                    ? setItemInLocalStorage("growthQuestStep", 1)
-                    : setItemInLocalStorage("growthQuestStep", 2);
-                  setStep((prev) => prev - 1);
-                }}
-              />
+              {step === 2 && (
+                <FaArrowLeftLong
+                  className="cursor-pointer text-3xl text-[#050215]"
+                  onClick={() => {
+                    if (step === 2) {
+                      setItemInLocalStorage("growthQuestStep", 1);
+                      if (!extraPoints) {
+                        console.log({ extraPoints });
+                        setValue("rewardAllWithPoints", false);
+                      }
+                    } else {
+                      setItemInLocalStorage("growthQuestStep", 2);
+                    }
+                    setStep((prev) => prev - 1);
+                  }}
+                />
+              )}
+
               <SheetTitle className="text-[28px] font-bold text-[#09032A]">
                 Quest Preview
               </SheetTitle>
@@ -702,16 +740,17 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                         : `${step1Data?.pointsPerWinner} Points`}
                     </p>
                   </div>
-                  {step1Data?.allWithPoints && (
-                    <div className="flex items-center gap-2">
+
+                  {/* {step1Data?.extraPoints && (
+                    <div className="mt-2 flex items-center gap-2">
                       <p className="w-1/2 font-[300] text-[#525866]">
-                        Extra Points Per Winner
+                        Extra Points
                       </p>
                       <p className="w-1/2 font-medium text-[#050215]">
-                        {step1Data.allWithPoints} Points
+                        {step1Data.extraPoints} Points
                       </p>
                     </div>
-                  )}
+                  )} */}
                 </>
               )}
             </div>
@@ -822,11 +861,11 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
 
             {rewardAllWithPoints && (
               <CustomInput
-                label="How many points per winner?"
+                label="How many extra points?"
                 placeholder="eg 50"
                 type="number"
-                error={errors.allWithPoints?.message}
-                {...register("allWithPoints", { valueAsNumber: true })}
+                error={errors.extraPoints?.message}
+                {...register("extraPoints", { valueAsNumber: true })}
               />
             )}
 
@@ -877,6 +916,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                       setStep((prev) => prev + 1);
                       setItemInLocalStorage("growthQuestStep", 3);
                     }}
+                    disabled={rewardAllWithPoints && !extraPoints}
                   >
                     Deposit Token
                   </Button>
@@ -890,7 +930,11 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                       Amount Deposited
                     </p>
                     <p className="text-2xl font-bold text-[#050215]">
-                      6,000 XLM
+                      {step1Data.rewardMode === "Overall Reward" &&
+                        `${step1Data.tokensPerWinner * step1Data.numberOfWinners} XLM`}
+
+                      {step1Data.rewardMode === "Individual Task Reward" &&
+                        `${step1Data.tasks.reduce((total, task) => total + task.tokensPerTask, 0) * step1Data.numberOfWinners} XLM`}
                     </p>
                   </div>
 
@@ -905,6 +949,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                       removeItemFromLocalStorage("growthQuestStep");
                       removeItemFromLocalStorage("growthQuestStep1Data");
                     }}
+                    disabled={rewardAllWithPoints && !extraPoints}
                   >
                     Publish Quest
                   </Button>
