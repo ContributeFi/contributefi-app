@@ -837,27 +837,29 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                               </div>
                             )}
 
-                            {task["keywordValidation"] && (
-                              <div className="space-y-2">
-                                <p className="font-[300] text-[#525866]">
-                                  Keyword Validation
-                                </p>
-                                <p className="font-medium text-[#050215]">
-                                  {task["keywordValidation"]}
-                                </p>
-                              </div>
-                            )}
+                            {task["keywordValidation"] &&
+                              task.type === "Comment on Tweet" && (
+                                <div className="space-y-2">
+                                  <p className="font-[300] text-[#525866]">
+                                    Keyword Validation
+                                  </p>
+                                  <p className="font-medium text-[#050215]">
+                                    {task["keywordValidation"]}
+                                  </p>
+                                </div>
+                              )}
 
-                            {task["channelId"] && (
-                              <div className="space-y-2">
-                                <p className="font-[300] text-[#525866]">
-                                  Channel ID
-                                </p>
-                                <p className="font-medium text-[#050215]">
-                                  {task["channelId"]}
-                                </p>
-                              </div>
-                            )}
+                            {task["channelId"] &&
+                              task.type === "Post on Discord" && (
+                                <div className="space-y-2">
+                                  <p className="font-[300] text-[#525866]">
+                                    Channel ID
+                                  </p>
+                                  <p className="font-medium text-[#050215]">
+                                    {task["channelId"]}
+                                  </p>
+                                </div>
+                              )}
                           </div>
                         )}
                       </div>
@@ -903,7 +905,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
 
             {rewardAllWithPoints && (
               <CustomInput
-                label="How many extra points?"
+                label="How many points per participant?"
                 placeholder="eg 50"
                 type="number"
                 error={errors.extraPoints?.message}
