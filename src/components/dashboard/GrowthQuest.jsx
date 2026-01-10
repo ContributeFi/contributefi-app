@@ -43,7 +43,6 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
   const [step, setStep] = useState(
     getItemFromLocalStorage("growthQuestStep") || 1,
   );
-
   const [step1Data, setStep1Data] = useState(() => {
     const stored = getItemFromLocalStorage("growthQuestStep1Data");
     return stored ? hydrateGrowthQuestData(stored) : null;
@@ -72,14 +71,13 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
       numberOfWinners: "",
       winnerSelectionMethod: "Random",
       makeConcurrent: false,
-      tasksConcurrent: false,
       rewardAllWithPoints: step1Data?.rewardAllWithPoints || false,
       startDate: new Date(),
       endDate: "",
       rewardMode: "Overall Reward",
       pointsPerWinner: step1Data?.pointsPerTask || "",
       extraPoints: step1Data?.extraPoints || "",
-      tokensPerWinner: "",
+      tokensPerWinner: step1Data?.tokensPerWinner || "",
       tasks: [
         {
           type: "",
@@ -445,7 +443,6 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
               <hr className="border border-[#F0F4FD]" />
 
               {fields.map((task, index) => {
-                // setIndex(() => index);
                 return (
                   <div key={task.id} className="grid gap-4">
                     <div className="flex items-center justify-between bg-[#EDF2FF] px-3 py-2">
