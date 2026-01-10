@@ -46,8 +46,8 @@ function NewQuest({ sheetIsOpen, setSheetIsOpen, setOpenQuestSuccess }) {
           setOpenQuestSuccess={setOpenQuestSuccess}
         />
         <TechnicalQuest
-        // sheetIsOpen={sheetIsOpen}
-        // setSheetIsOpen={setSheetIsOpen}
+          setSheetIsOpen={setSheetIsOpen}
+          setOpenQuestSuccess={setOpenQuestSuccess}
         />
       </SheetContent>
     </Sheet>

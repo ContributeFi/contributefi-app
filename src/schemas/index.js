@@ -169,7 +169,7 @@ export const CreateGrowthQuestSchema = z
           message: "Extra points value is required",
           code: "custom",
         });
-      } else if (data.numberOfWinners < 0) {
+      } else if (data.extraPoints < 0) {
         ctx.addIssue({
           path: ["extraPoints"],
           message: "Extra points value cannot be negative",
@@ -457,7 +457,7 @@ export const CreateOnChainQuestSchema = z
           message: "Extra points value is required",
           code: "custom",
         });
-      } else if (data.numberOfWinners < 0) {
+      } else if (data.extraPoints < 0) {
         ctx.addIssue({
           path: ["extraPoints"],
           message: "Extra points value cannot be negative",
@@ -610,61 +610,62 @@ const TechnicalTaskSchema = z.object({
   description: z.string().min(1, "Task description is required"),
   instruction: z.string().min(1, "Task instruction is required"),
   links: z.array(LinkSchema).max(5, "Maximum 5 links"),
+  tokensPerTask: numberOrNullSchema,
+  pointsPerTask: numberOrNullSchema,
 });
 
 export const CreateTechnicalQuestSchema = z
   .object({
-    questTitle: z.string().min(1, "Quest title is required"),
-    questType: z.string().min(1, "Quest type is required"),
-    rewardType: z.string().min(1, "Reward type is required"),
-    tokenContract: z.string().optional().nullable(),
-    // numberOfWinners: z.number().nullable(),
-    // pointsPerWinner: z.number().nullable(),
-    // winnerSelectionMethod: z
-    //   .string()
-    //   .min(1, "Winner selection method is required"),
-    rewardMode: z.enum(["Overall Reward", "Individual Task Reward"]).nullable(),
-    questGoal: z.enum(["Project-based", "Recruit Candidates"]).nullable(),
-    // runContinuously: z.boolean().default(false),
-    makeConcurrent: z.boolean().default(false),
-    // startDate: z.date().nullable(),
-    // endDate: z.date().optional().nullable(),
+    questTitle: z.string().nonempty("Quest title is required"),
+    questType: z
+      .string()
+      .nonempty("Quest type is required")
+      .refine((val) => ["Design", "Development"].includes(val), {
+        message: "Invalid quest type",
+      }),
+    rewardType: z
+      .string()
+      .nonempty("Reward type is required")
+      .refine((val) => ["Token", "Points"].includes(val), {
+        message: "Invalid reward type",
+      }),
+    tokenContract: z.string().nullish(),
+    questGoal: z
+      .string()
+      .nullish()
+      .refine((val) => val !== null && val.length > 0, {
+        message: "Quest goal is required",
+      })
+      .refine(
+        (val) => val === "Project-based" || val === "Recruit Candidates",
+        {
+          message: "Invalid quest goal",
+        },
+      ),
+    questVisibility: z.string().nullish(),
+    candidateListFile: z.instanceof(File).optional().or(z.literal(null)),
+    numberOfPeople: numberOrNullSchema,
+    selectionMethod: z.string().nullish(),
+    rewardMode: z
+      .string()
+      .nullish()
+      .refine((val) => val !== null && val.length > 0, {
+        message: "Reward mode is required",
+      })
+      .refine(
+        (val) => val === "Overall Reward" || val === "Individual Task Reward",
+        {
+          message: "Invalid reward mode",
+        },
+      ),
+    tokensPerWinner: numberOrNullSchema,
+    pointsPerWinner: numberOrNullSchema,
+    rewardAllWithPoints: z.boolean().default(false),
+    extraPoints: numberOrNullSchema,
     tasks: z.array(TechnicalTaskSchema).min(1, "At least one task is required"),
   })
   .superRefine((data, ctx) => {
-    // if (data.numberOfWinners === null) {
-    //   ctx.addIssue({
-    //     path: ["numberOfWinners"],
-    //     message: "Number of winners is required",
-    //     code: "custom",
-    //   });
-    // }
-
-    // if (data.pointsPerWinner === null) {
-    //   ctx.addIssue({
-    //     path: ["pointsPerWinner"],
-    //     message: "Points per winner is required",
-    //     code: "custom",
-    //   });
-    // }
-
-    // if (!data.startDate) {
-    //   ctx.addIssue({
-    //     path: ["startDate"],
-    //     message: "Start date is required",
-    //     code: "custom",
-    //   });
-    // }
-
-    // if (data.startDate && data.startDate < new Date()) {
-    //   ctx.addIssue({
-    //     path: ["startDate"],
-    //     message: "Start date must be greater than or equal today",
-    //     code: "custom",
-    //   });
-    // }
-
-    if (data.rewardType === "token") {
+    if (data.rewardType === "Token") {
       if (!data.tokenContract || data.tokenContract.trim() === "") {
         ctx.addIssue({
           path: ["tokenContract"],
@@ -674,41 +675,127 @@ export const CreateTechnicalQuestSchema = z
       }
     }
 
-    // if (!data.runContinuously) {
-    //   if (!data.endDate) {
-    //     ctx.addIssue({
-    //       path: ["endDate"],
-    //       message: "End date is required",
-    //       code: "custom",
-    //     });
-    //   }
-    // }
+    if (
+      data.questGoal === "Project-based" ||
+      (data.questGoal === "Recruit Candidates" &&
+        data.questVisibility === "Open Quest")
+    ) {
+      if (!data.selectionMethod || data.selectionMethod.trim() === "") {
+        ctx.addIssue({
+          path: ["selectionMethod"],
+          message: "Selection method is required",
+          code: "custom",
+        });
+      }
 
-    // if (
-    //   !data.runContinuously &&
-    //   data.endDate &&
-    //   data.endDate < data.startDate
-    // ) {
-    //   ctx.addIssue({
-    //     path: ["endDate"],
-    //     message: "End date must be greater than start date",
-    //     code: "custom",
-    //   });
-    // }
+      if (!data.numberOfPeople) {
+        ctx.addIssue({
+          path: ["numberOfPeople"],
+          message: "Number of people is required",
+          code: "custom",
+        });
+      } else if (data.numberOfPeople < 0) {
+        ctx.addIssue({
+          path: ["numberOfPeople"],
+          message: "Number of people cannot be negative",
+          code: "custom",
+        });
+      }
+    }
 
-    if (!data.rewardMode) {
+    if (data.rewardAllWithPoints) {
+      if (!data.extraPoints) {
+        ctx.addIssue({
+          path: ["extraPoints"],
+          message: "Extra points value is required",
+          code: "custom",
+        });
+      } else if (data.extraPoints < 0) {
+        ctx.addIssue({
+          path: ["extraPoints"],
+          message: "Extra points value cannot be negative",
+          code: "custom",
+        });
+      }
+    }
+
+    if (data.rewardMode === "Overall Reward") {
+      if (data.rewardType === "Token" && !data.tokensPerWinner) {
+        ctx.addIssue({
+          path: ["tokensPerWinner"],
+          message: "Token per winner is required",
+          code: "custom",
+        });
+      } else if (data.tokensPerWinner < 0) {
+        ctx.addIssue({
+          path: ["tokensPerWinner"],
+          message: "Token per winner cannot be negative",
+          code: "custom",
+        });
+      }
+
+      if (data.rewardType === "Points" && !data.pointsPerWinner) {
+        ctx.addIssue({
+          path: ["pointsPerWinner"],
+          message: "Points per winner is required",
+          code: "custom",
+        });
+      } else if (data.pointsPerWinner < 0) {
+        ctx.addIssue({
+          path: ["pointsPerWinner"],
+          message: "Points per winner cannot be negative",
+          code: "custom",
+        });
+      }
+    }
+
+    if (
+      data.questGoal === "Recruit Candidates" &&
+      data.questVisibility === "Closed Quest" &&
+      !data.candidateListFile
+    ) {
       ctx.addIssue({
-        path: ["rewardMode"],
-        message: "Reward mode is required",
+        path: ["candidateListFile"],
+        message: "CSV file is required for closed recruitment quests",
         code: "custom",
       });
     }
 
-    if (!data.questGoal) {
-      ctx.addIssue({
-        path: ["questGoal"],
-        message: "Quest goal is required",
-        code: "custom",
-      });
-    }
+    data.tasks.forEach((task, index) => {
+      const taskPath = ["tasks", index];
+
+      if (data.rewardMode === "Individual Task Reward") {
+        if (data.rewardType === "Token") {
+          if (!task.tokensPerTask) {
+            ctx.addIssue({
+              path: [...taskPath, "tokensPerTask"],
+              message: "Tokens per task is required",
+              code: "custom",
+            });
+          } else if (task.tokensPerTask < 0) {
+            ctx.addIssue({
+              path: [...taskPath, "tokensPerTask"],
+              message: "Tokens per task cannot be negative",
+              code: "custom",
+            });
+          }
+        }
+
+        if (data.rewardType === "Points") {
+          if (!task.pointsPerTask) {
+            ctx.addIssue({
+              path: [...taskPath, "pointsPerTask"],
+              message: "Points per task is required",
+              code: "custom",
+            });
+          } else if (task.pointsPerTask < 0) {
+            ctx.addIssue({
+              path: [...taskPath, "pointsPerTask"],
+              message: "Points per task cannot be negative",
+              code: "custom",
+            });
+          }
+        }
+      }
+    });
   });
