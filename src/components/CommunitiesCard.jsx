@@ -180,13 +180,15 @@ function CommunitiesCard({ community, tag }) {
           onClick={data?.isMember ? handleLeaveCommunity : handleJoinCommunity}
           className={`cursor-pointer font-medium ${data?.isMember ? "text-[#F31307]" : "text-[#2F0FD1]"} disabled:cursor-not-allowed`}
         >
-          {joinCommunityPending
-            ? "Joining..."
-            : leaveCommunityPending
-              ? "Leaving..."
-              : data?.isMember
-                ? "Leave"
-                : "+ Join"}
+          {community.communityOwnerId === user.id
+            ? ""
+            : joinCommunityPending
+              ? "Joining..."
+              : leaveCommunityPending
+                ? "Leaving..."
+                : data?.isMember
+                  ? "Leave"
+                  : "+ Join"}
         </button>
       </div>
     </div>
