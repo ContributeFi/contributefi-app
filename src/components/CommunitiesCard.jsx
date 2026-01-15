@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 function CommunitiesCard({ community, tag }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const handleOpen = () => {
     navigate(
@@ -22,7 +22,7 @@ function CommunitiesCard({ community, tag }) {
   const { data } = useQuery({
     queryKey: ["community", community.id],
     queryFn: () => getCommunity(community.id),
-    enabled: !!community.id,
+    enabled: isAuthenticated && !!community.id,
     keepPreviousData: true,
   });
 
