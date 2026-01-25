@@ -8,7 +8,7 @@ function TasksCard({ task, tag }) {
 
   const handleOpen = () => {
     const params = new URLSearchParams(window.location.search);
-    params.set("task", task.title);
+    params.set("task", task.questTitle);
     navigate(`/dashboard/tasks?${params.toString()}`, { replace: false });
     return;
   };
@@ -19,7 +19,7 @@ function TasksCard({ task, tag }) {
       className={`flex cursor-pointer ${tag === "home-page" || tag === "task-page" ? "" : "cursor-pointer"} flex-col justify-center gap-8 rounded-[8px] border-2 border-[#F0F4FD] bg-white px-[24px] py-[28px]`}
     >
       <div className="space-y-4">
-        <div className="flex flex-wrap gap-2">
+        {/* <div className="flex flex-wrap gap-2">
           {task.tag.map((t, i) => (
             <div
               className={`rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[t]}`}
@@ -28,6 +28,19 @@ function TasksCard({ task, tag }) {
               {t}
             </div>
           ))}
+        </div> */}
+        <div className="flex flex-wrap gap-2">
+          <div
+            className={`w-fit rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[task.category]}`}
+          >
+            {task.category}
+          </div>
+
+          <div
+            className={`w-fit rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[task.rewardType]}`}
+          >
+            {task.rewardType}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -46,10 +59,10 @@ function TasksCard({ task, tag }) {
 
       <div className={`space-y-2`}>
         <p className="max-w-full truncate overflow-hidden font-semibold whitespace-nowrap text-[#1C1C1E]">
-          {task.title}
+          {task.title || task.questTitle}
         </p>
         <p className="max-w-full truncate overflow-hidden text-[15px] font-normal whitespace-nowrap text-[#636366]">
-          by {task.community}
+          by {task.communityName}
         </p>
       </div>
     </div>

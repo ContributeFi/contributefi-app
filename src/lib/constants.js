@@ -1477,10 +1477,11 @@ export const COMMUNITIES = [
 ];
 
 export const TASK_TAG_BG = {
-  Design: "bg-[#FDE7E1]",
-  Development: "bg-[#F6ECF5]",
-  Growth: "bg-[#D9F3DC]",
-  QA: "bg-[#E3F3FE]",
+  GROWTH: "bg-[#FDE7E1]",
+  ON_CHAIN: "bg-[#F6ECF5]",
+  TECHNICAL: "bg-[#D9F3DC]",
+  Points: "bg-[#E3F3FE]",
+  Token: "bg-[#E3F3FE]",
 };
 
 export const COMMUNITY_TAG_BG = {

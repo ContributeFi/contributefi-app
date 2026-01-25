@@ -25,7 +25,11 @@ import {
   setItemInLocalStorage,
 } from "@/lib/utils";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { formatDateToYYYYMMDD, hydrateGrowthQuestData } from "@/utils";
+import {
+  formatDateToYYYYMMDD,
+  hydrateGrowthQuestData,
+  mapFormToCreateGrowthQuestPayload,
+} from "@/utils";
 import {
   REWARD_MODES,
   REWARD_TYPES,
@@ -34,8 +38,9 @@ import {
   WINNER_SELECTION_METHOD,
 } from "@/utils/constants";
 import { BsFillInfoCircleFill } from "react-icons/bs";
+import { createGrowthQuest } from "@/services";
 
-function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
+function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   const isDesktop = useIsDesktop();
   const [open, setOpen] = useState(false);
   const side = isDesktop ? "right" : "bottom";
@@ -66,6 +71,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
     resolver: zodResolver(CreateGrowthQuestSchema),
     defaultValues: step1Data ?? {
       questTitle: "",
+      questDescription: "",
       rewardType: "Points",
       tokenContract: "",
       numberOfWinners: "",
@@ -192,29 +198,34 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //   useEffect(() => {
-  //     tasks.forEach((task, index) => {
-  //       const allowedFields = TASK_FIELDS[task.type] ?? [];
-
-  //       const allFields = [
-  //         "twitterUrl",
-  //         "tweetUrl",
-  //         "discordLink",
-  //         "telegramLink",
-  //         "telegramGroupLink",
-  //         "channelId",
-  //         "keywordValidation",
-  //       ];
-
-  //       allFields.forEach((field) => {
-  //         if (!allowedFields.includes(field)) {
-  //           unregister(`tasks.${index}.${field}`);
-  //         }
-  //       });
-  //     });
-  //   }, [tasks, unregister]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   console.log({ errors, step1Data });
+
+  const handlePublishQuest = async () => {
+    console.log({ step1Data });
+    try {
+      const payload = JSON.parse(
+        JSON.stringify(mapFormToCreateGrowthQuestPayload(step1Data)),
+      );
+
+      console.log({ payload });
+
+      setIsSubmitting(true);
+      await createGrowthQuest(payload, communityId);
+
+      setIsSubmitting(false);
+
+      setSheetIsOpen(false);
+      setOpenQuestSuccess(true);
+
+      removeItemFromLocalStorage("growthQuestStep");
+      removeItemFromLocalStorage("growthQuestStep1Data");
+    } catch (error) {
+      console.error("Failed to create growth quest", error);
+      // TODO: toast / error UI
+    }
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -289,6 +300,14 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                 type="text"
                 error={errors.questTitle?.message}
                 {...register("questTitle")}
+              />
+
+              <CustomInput
+                label="Quest Description"
+                placeholder="Enter Description"
+                type="text"
+                error={errors.questDescription?.message}
+                {...register("questDescription")}
               />
 
               <CustomSelect
@@ -922,13 +941,14 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                     type="submit"
                     className="mt-5 w-full"
                     onClick={() => {
-                      setSheetIsOpen(false);
-                      setOpenQuestSuccess(true);
-                      removeItemFromLocalStorage("growthQuestStep");
-                      removeItemFromLocalStorage("growthQuestStep1Data");
+                      // setSheetIsOpen(false);
+                      // setOpenQuestSuccess(true);
+                      // removeItemFromLocalStorage("growthQuestStep");
+                      // removeItemFromLocalStorage("growthQuestStep1Data");
+                      handlePublishQuest();
                     }}
                   >
-                    Publish Quest
+                    {isSubmitting ? "Publishing..." : "Publish Quest"}
                   </Button>
                 </>
               ) : step === 2 && step1Data?.rewardType === "Token" ? (
@@ -988,14 +1008,15 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                     type="submit"
                     className="mt-5 w-full"
                     onClick={() => {
-                      setSheetIsOpen(false);
-                      setOpenQuestSuccess(true);
-                      removeItemFromLocalStorage("growthQuestStep");
-                      removeItemFromLocalStorage("growthQuestStep1Data");
+                      // setSheetIsOpen(false);
+                      // setOpenQuestSuccess(true);
+                      // removeItemFromLocalStorage("growthQuestStep");
+                      // removeItemFromLocalStorage("growthQuestStep1Data");
+                      handlePublishQuest();
                     }}
                     disabled={rewardAllWithPoints && !extraPoints}
                   >
-                    Publish Quest
+                    {isSubmitting ? "Publishing..." : "Publish Quest"}
                   </Button>
                 </>
               )}

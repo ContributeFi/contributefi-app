@@ -29,6 +29,8 @@ function CommunitiesPage() {
   const communities = communitiesData?.data ?? [];
   const totalPages = communitiesData?.totalPages ?? 1;
 
+  console.log({ communitiesData });
+
   return (
     <div className="bg-white pt-40">
       <div className="mx-auto w-full max-w-[1200px] space-y-8 px-5 pb-10 lg:px-10">

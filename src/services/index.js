@@ -91,6 +91,24 @@ export function createCommunity(data) {
   );
 }
 
+export function createGrowthQuest(payload, communityId) {
+  console.log({ payload });
+
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/quests/${communityId}/growth`,
+    payload,
+  );
+}
+
+export function createOnChainQuest(payload, communityId) {
+  console.log({ payload });
+
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/quests/${communityId}/on-chain`,
+    payload,
+  );
+}
+
 export const getCommunities = async ({
   limit = 10,
   offset = 1,
@@ -100,6 +118,20 @@ export const getCommunities = async ({
   const { data } = await api.get(
     `${import.meta.env.VITE_BASE_URL}/communities?sortBy=createdAt:${sort}&limit=${limit}&offset=${offset}&${communityOwnerId !== "" && `communityOwnerId=${communityOwnerId}`}`,
   );
+
+  return data.content;
+};
+
+export const getQuests = async ({
+  limit = 10,
+  offset = 1,
+  sort = "DESC",
+} = {}) => {
+  const { data } = await api.get(
+    `${import.meta.env.VITE_BASE_URL}/quests?sortBy=createdAt:${sort}&limit=${limit}&offset=${offset}`,
+  );
+
+  console.log({ data });
 
   return data.content;
 };

@@ -97,3 +97,184 @@ export const hydrateGrowthQuestData = (data) => {
     endDate: data.endDate ? new Date(data.endDate) : null,
   };
 };
+
+export const mapFormToCreateGrowthQuestPayload = (data) => {
+  console.log({ data });
+  const payload = {
+    questTitle: data.questTitle,
+    questDescription: data.questDescription,
+    rewardType: data.rewardType === "Token" ? "Token" : "Points",
+    runContinuously: data.runContinuously,
+    startDate: new Date(data.startDate).toISOString(),
+    rewardMode: data.rewardMode === "Overall Reward" ? "Overall" : "Individual",
+
+    tasks: [],
+  };
+
+  if (data.tokenContract) {
+    payload.tokenContract = data.tokenContract;
+  }
+
+  if (data.numberOfWinners) {
+    payload.numberOfWinners = data.numberOfWinners;
+  }
+
+  if (data.winnerSelectionMethod) {
+    payload.winnerSelectionMethod = data.winnerSelectionMethod;
+  }
+
+  if (data.endDate) {
+    payload.endDate = new Date(data.endDate).toISOString();
+  }
+
+  if (data.pointsPerWinner) {
+    payload.pointsPerWinner = data.pointsPerWinner;
+  }
+
+  if (data.tokensPerWinner) {
+    payload.tokensPerWinner = data.tokensPerWinner;
+  }
+
+  // ----------------------------
+  // TOKEN reward specific fields
+  // ----------------------------
+  // if (data.rewardType === "Token") {
+  //   payload.tokenContract = data.tokenContract;
+  //   payload.numberOfWinners = data.numberOfWinners;
+  //   payload.winnerSelectionMethod = data.winnerSelectionMethod?.toUpperCase();
+
+  //   if (payload.rewardMode === "OVERALL") {
+  //     payload.tokensPerWinner = data.tokensPerWinner;
+  //   }
+  // }
+
+  // ----------------------------
+  // POINTS reward specific fields
+  // ----------------------------
+  // if (data.rewardType === "Points") {
+  //   if (payload.rewardMode === "OVERALL") {
+  //     payload.pointsPerWinner = data.pointsPerWinner;
+  //   }
+  // }
+
+  // ----------------------------
+  // Tasks mapping
+  // ----------------------------
+  payload.tasks = data.tasks.map((task) => {
+    const taskPayload = {
+      type: task.type,
+    };
+
+    if (data.rewardMode === "INDIVIDUAL" && data.rewardType === "Token") {
+      taskPayload.tokensPerTask = task.tokensPerTask;
+    }
+
+    if (data.rewardMode === "INDIVIDUAL" && data.rewardType === "Points") {
+      taskPayload.pointsPerTask = task.pointsPerTask;
+    }
+
+    if (task.twitterUrl) taskPayload.twitterUrl = task.twitterUrl;
+    if (task.tweetUrl) taskPayload.tweetUrl = task.tweetUrl;
+    if (task.discordLink) taskPayload.discordLink = task.discordLink;
+    if (task.telegramLink) taskPayload.telegramLink = task.telegramLink;
+    if (task.telegramGroupLink)
+      taskPayload.telegramGroupLink = task.telegramGroupLink;
+    if (task.channelId) taskPayload.channelId = task.channelId;
+    if (task.keywordValidation)
+      taskPayload.keywordValidation = task.keywordValidation;
+
+    return taskPayload;
+  });
+
+  // ----------------------------
+  // Optional flags
+  // ----------------------------
+  if (data.makeConcurrent) payload.makeConcurrent = true;
+
+  if (data.rewardAllWithPoints) {
+    payload.rewardAllWithPoints = true;
+    payload.extraPoints = data.extraPoints;
+  }
+
+  return payload;
+};
+
+export const mapFormToCreateOnChainQuestPayload = (data) => {
+  console.log({ data });
+  const payload = {
+    questTitle: data.questTitle,
+    questDescription: data.questDescription,
+    rewardType: data.rewardType === "Token" ? "Token" : "Points",
+    runContinuously: data.runContinuously,
+    startDate: new Date(data.startDate).toISOString(),
+    rewardMode: data.rewardMode === "Overall Reward" ? "Overall" : "Individual",
+
+    tasks: [],
+  };
+
+  if (data.tokenContract) {
+    payload.tokenContract = data.tokenContract;
+  }
+
+  if (data.numberOfWinners) {
+    payload.numberOfWinners = data.numberOfWinners;
+  }
+
+  if (data.winnerSelectionMethod) {
+    payload.winnerSelectionMethod = data.winnerSelectionMethod;
+  }
+
+  if (data.endDate) {
+    payload.endDate = new Date(data.endDate).toISOString();
+  }
+
+  if (data.pointsPerWinner) {
+    payload.pointsPerWinner = data.pointsPerWinner;
+  }
+
+  if (data.tokensPerWinner) {
+    payload.tokensPerWinner = data.tokensPerWinner;
+  }
+
+  if (data.verificationMode) {
+    payload.verificationMode = data.verificationMode;
+  }
+
+  if (data.contractAddress) {
+    payload.contractAddress = data.contractAddress;
+  }
+
+  // ----------------------------
+  // Tasks mapping
+  // ----------------------------
+  payload.tasks = data.tasks.map((task) => {
+    const taskPayload = {
+      type: task.type,
+    };
+
+    if (data.rewardMode === "INDIVIDUAL" && data.rewardType === "Token") {
+      taskPayload.tokensPerTask = task.tokensPerTask;
+    }
+
+    if (data.rewardMode === "INDIVIDUAL" && data.rewardType === "Points") {
+      taskPayload.pointsPerTask = task.pointsPerTask;
+    }
+
+    if (task.function) taskPayload.function = task.function;
+    if (task.description) taskPayload.description = task.description;
+
+    return taskPayload;
+  });
+
+  // ----------------------------
+  // Optional flags
+  // ----------------------------
+  if (data.makeConcurrent) payload.makeConcurrent = true;
+
+  if (data.rewardAllWithPoints) {
+    payload.rewardAllWithPoints = true;
+    payload.extraPoints = data.extraPoints;
+  }
+
+  return payload;
+};

@@ -358,6 +358,7 @@ function Communities() {
                           sheetIsOpen={sheetIsOpen}
                           setSheetIsOpen={setSheetIsOpen}
                           setOpenQuestSuccess={setOpenQuestSuccess}
+                          communityId={community.id}
                         />
                       </div>
                     ) : (

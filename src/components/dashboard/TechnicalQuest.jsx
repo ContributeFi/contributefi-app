@@ -71,6 +71,7 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
     resolver: zodResolver(CreateTechnicalQuestSchema),
     defaultValues: step1Data ?? {
       questTitle: "",
+      questDescription: "",
       questType: "Design",
       rewardType: "Points",
       tokenContract: "",
@@ -224,6 +225,14 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess }) {
                 type="text"
                 error={errors.questTitle?.message}
                 {...register("questTitle")}
+              />
+
+              <CustomInput
+                label="Quest Description"
+                placeholder="Enter Description"
+                type="text"
+                error={errors.questDescription?.message}
+                {...register("questDescription")}
               />
 
               <CustomSelect

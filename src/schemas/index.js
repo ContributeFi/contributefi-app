@@ -96,6 +96,7 @@ const GrowthTaskSchema = z.object({
 export const CreateGrowthQuestSchema = z
   .object({
     questTitle: z.string().nonempty("Quest title is required"),
+    questDescription: z.string().nonempty("Description is required"),
     rewardType: z
       .string()
       .nonempty("Reward type is required")
@@ -369,6 +370,7 @@ const OnChainTaskSchema = z.object({
 export const CreateOnChainQuestSchema = z
   .object({
     questTitle: z.string().nonempty("Quest title is required"),
+    questDescription: z.string().nonempty("Description is required"),
     rewardType: z
       .string()
       .nonempty("Reward type is required")
@@ -613,6 +615,7 @@ const TechnicalTaskSchema = z.object({
 export const CreateTechnicalQuestSchema = z
   .object({
     questTitle: z.string().nonempty("Quest title is required"),
+    questDescription: z.string().nonempty("Description is required"),
     questType: z
       .string()
       .nonempty("Quest type is required")

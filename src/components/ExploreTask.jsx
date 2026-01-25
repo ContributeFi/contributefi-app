@@ -1,10 +1,29 @@
-import { TASKS } from "@/lib/constants";
 import { useNavigate } from "react-router";
 import TasksCard from "./TasksCard";
 import { Button } from "./ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { getQuests } from "@/services";
+import Loader from "./Loader";
+import Error from "./Error";
+import Empty from "./Empty";
 
 function ExploreTask() {
   const navigate = useNavigate();
+
+  const LIMIT = 6;
+
+  const {
+    data: questsData,
+    isLoading: loadingQuests,
+    isError: errorLoadingQuests,
+  } = useQuery({
+    queryKey: ["quests", LIMIT],
+    queryFn: () => getQuests({ limit: LIMIT }),
+    keepPreviousData: true,
+  });
+
+  const quests = questsData?.data ?? [];
+
   return (
     <div className="bg-[#F7F9FD]">
       <div className="mx-auto w-full max-w-[1200px] space-y-8 px-5 py-10 md:py-[104px]">
@@ -19,11 +38,19 @@ function ExploreTask() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">
-          {TASKS.slice(0, 6).map((task, i) => (
-            <TasksCard task={task} key={i} tag="home-page" />
-          ))}
-        </div>
+        {loadingQuests ? (
+          <Loader />
+        ) : errorLoadingQuests ? (
+          <Error title="Failed to load quests..." />
+        ) : quests.length === 0 ? (
+          <Empty title="No quest found..." />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">
+            {quests.map((quest, i) => (
+              <TasksCard task={quest} key={i} tag="home-page" />
+            ))}
+          </div>
+        )}
 
         <div className="flex justify-center">
           <Button
