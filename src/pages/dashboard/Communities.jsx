@@ -27,6 +27,7 @@ import {
   getCommunities,
   getCommunity,
   getMemberCommunities,
+  getQuestsByCommunity,
   joinCommunity,
   leaveCommunity,
 } from "@/services";
@@ -36,6 +37,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import NewQuest from "@/components/dashboard/NewQuest";
 import QuestSuccess from "@/components/dashboard/QuestSuccess";
+import Empty from "@/components/Empty";
 
 const TASKS_PER_PAGE = 15;
 
@@ -89,6 +91,31 @@ function Communities() {
   // let communities = communitiesData?.data ?? [];
   const totalPages = communitiesData?.totalPages ?? 1;
 
+  const [questCurrentPage, setQuestCurrentPage] = useState(1);
+
+  // const LIMIT = 10;
+  // const OFFSET = (questCurrentPage - 1) * LIMIT;
+
+  const {
+    data: questData,
+    isLoading: loadingQuests,
+    isError: errorLoadingQuests,
+  } = useQuery({
+    queryKey: ["quests", LIMIT, OFFSET],
+    queryFn: () =>
+      getQuestsByCommunity({
+        limit: LIMIT,
+        offset: OFFSET,
+        communityId: community.id,
+      }),
+    keepPreviousData: true,
+  });
+
+  const quests = questData?.data ?? [];
+  const questTotalPages = questData?.totalPages ?? 1;
+
+  console.log({ questData });
+
   useEffect(() => {
     if (communityView === "all" || communityView === "created") {
       setDisplayedCommunities(communitiesData?.data ?? []);
@@ -128,16 +155,16 @@ function Communities() {
     setDetailView(view);
   };
 
-  const [taskCurrentPage, setTaskCurrentPage] = useState(1);
+  // const [taskCurrentPage, setTaskCurrentPage] = useState(1);
 
-  const totalTask = TASKS.length;
-  const taskTotalPages = Math.ceil(totalTask / TASKS_PER_PAGE);
+  // const totalTask = TASKS.length;
+  // const taskTotalPages = Math.ceil(totalTask / TASKS_PER_PAGE);
 
-  const taskStartIndex = (taskCurrentPage - 1) * TASKS_PER_PAGE;
-  const currentTask = TASKS.slice(
-    taskStartIndex,
-    taskStartIndex + TASKS_PER_PAGE,
-  );
+  // const taskStartIndex = (taskCurrentPage - 1) * TASKS_PER_PAGE;
+  // const currentTask = TASKS.slice(
+  //   taskStartIndex,
+  //   taskStartIndex + TASKS_PER_PAGE,
+  // );
 
   const { communityAlias: communityId } = useParams();
 
@@ -455,7 +482,29 @@ function Communities() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {loadingQuests ? (
+                  <Loader />
+                ) : errorLoadingQuests ? (
+                  <Error title="Failed to load quests..." />
+                ) : quests.length === 0 ? (
+                  <Empty title="No quests found..." />
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                      {quests.map((quest, i) => (
+                        <TasksCard task={quest} key={i} tag="task-page" />
+                      ))}
+                    </div>
+
+                    <CustomPagination
+                      currentPage={questCurrentPage}
+                      totalPages={questTotalPages}
+                      onPageChange={(page) => setQuestCurrentPage(page)}
+                    />
+                  </>
+                )}
+
+                {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {currentTask.map((task, i) => (
                     <TasksCard task={task} key={i} />
                   ))}
@@ -465,7 +514,7 @@ function Communities() {
                   currentPage={taskCurrentPage}
                   totalPages={taskTotalPages}
                   onPageChange={(page) => setTaskCurrentPage(page)}
-                />
+                /> */}
               </div>
             </>
           )}

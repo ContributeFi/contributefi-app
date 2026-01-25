@@ -145,6 +145,21 @@ export const getQuests = async ({
   return data.content;
 };
 
+export const getQuestsByCommunity = async ({
+  limit = 10,
+  offset = 1,
+  sort = "DESC",
+  communityId,
+} = {}) => {
+  const { data } = await api.get(
+    `${import.meta.env.VITE_BASE_URL}/quests/${communityId}?sortBy=createdAt:${sort}&limit=${limit}&offset=${offset}`,
+  );
+
+  console.log({ data });
+
+  return data.content;
+};
+
 export const getMemberCommunities = async ({ limit = 10, offset = 1 } = {}) => {
   const { data } = await api.get(
     `${import.meta.env.VITE_BASE_URL}/members/my-communities?includeRemoved=false&limit=${limit}&offset=${offset}`,
