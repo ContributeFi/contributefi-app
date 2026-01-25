@@ -6,7 +6,6 @@ import {
   COMMUNITIES_DETAILS,
   COMMUNITIES_OVERVIEW,
   COMMUNITIES_TAG,
-  TASKS,
 } from "@/lib/constants";
 import React, { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -38,8 +37,6 @@ import { useAuth } from "@/hooks/useAuth";
 import NewQuest from "@/components/dashboard/NewQuest";
 import QuestSuccess from "@/components/dashboard/QuestSuccess";
 import Empty from "@/components/Empty";
-
-const TASKS_PER_PAGE = 15;
 
 function Communities() {
   const [sortOrder, setSortOrder] = useState("DESC");
@@ -88,33 +85,24 @@ function Communities() {
 
   console.log({ memberCommunitiesData, communitiesData });
 
-  // let communities = communitiesData?.data ?? [];
   const totalPages = communitiesData?.totalPages ?? 1;
 
   const [questCurrentPage, setQuestCurrentPage] = useState(1);
 
-  // const LIMIT = 10;
-  // const OFFSET = (questCurrentPage - 1) * LIMIT;
-
-  const {
-    data: questData,
-    isLoading: loadingQuests,
-    isError: errorLoadingQuests,
-  } = useQuery({
-    queryKey: ["quests", LIMIT, OFFSET],
-    queryFn: () =>
-      getQuestsByCommunity({
-        limit: LIMIT,
-        offset: OFFSET,
-        communityId: community.id,
-      }),
-    keepPreviousData: true,
-  });
-
-  const quests = questData?.data ?? [];
-  const questTotalPages = questData?.totalPages ?? 1;
-
-  console.log({ questData });
+  // const {
+  //   data: questData,
+  //   isLoading: loadingQuests,
+  //   isError: errorLoadingQuests,
+  // } = useQuery({
+  //   queryKey: ["quests", LIMIT, OFFSET],
+  //   queryFn: () =>
+  //     getQuestsByCommunity({
+  //       limit: LIMIT,
+  //       offset: OFFSET,
+  //       communityId: community.id,
+  //     }),
+  //   keepPreviousData: false,
+  // });
 
   useEffect(() => {
     if (communityView === "all" || communityView === "created") {
@@ -273,6 +261,28 @@ function Communities() {
   const handleLeaveCommunity = () => {
     leaveCommunityMutation(communityId);
   };
+
+  const questOffset = (questCurrentPage - 1) * LIMIT;
+
+  const {
+    data: questData,
+    isLoading: loadingQuests,
+    isError: errorLoadingQuests,
+  } = useQuery({
+    queryKey: ["quests", community?.id, LIMIT, questCurrentPage],
+    queryFn: () =>
+      getQuestsByCommunity({
+        limit: LIMIT,
+        offset: questOffset,
+        communityId: community.id,
+      }),
+    enabled: !!community?.id,
+  });
+
+  const quests = questData?.data ?? [];
+  const questTotalPages = questData?.totalPages ?? 1;
+
+  console.log({ questData });
 
   return (
     <>

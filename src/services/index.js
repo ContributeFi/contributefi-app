@@ -151,6 +151,7 @@ export const getQuestsByCommunity = async ({
   sort = "DESC",
   communityId,
 } = {}) => {
+  console.log({ communityId });
   const { data } = await api.get(
     `${import.meta.env.VITE_BASE_URL}/quests/${communityId}?sortBy=createdAt:${sort}&limit=${limit}&offset=${offset}`,
   );
