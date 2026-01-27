@@ -38,7 +38,7 @@ import {
   WINNER_SELECTION_METHOD,
 } from "@/utils/constants";
 import { BsFillInfoCircleFill } from "react-icons/bs";
-import { createOnChainQuest } from "@/services";
+import { useCreateOnChainQuest } from "@/hooks/useCreateQuest";
 
 function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   const isDesktop = useIsDesktop();
@@ -207,6 +207,8 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
 
   console.log({ errors, step1Data });
 
+  const { mutateAsync: createQuest } = useCreateOnChainQuest();
+
   const handlePublishQuest = async () => {
     console.log({ step1Data });
     try {
@@ -217,7 +219,11 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
       console.log({ payload });
 
       setIsSubmitting(true);
-      await createOnChainQuest(payload, communityId);
+      // await createOnChainQuest(payload, communityId);
+      await createQuest({
+        payload,
+        communityId,
+      });
 
       setIsSubmitting(false);
 

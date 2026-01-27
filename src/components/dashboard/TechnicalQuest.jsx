@@ -35,7 +35,7 @@ import {
 } from "@/utils";
 import { BsFillInfoCircleFill } from "react-icons/bs";
 import FileUpload from "../FileUpload";
-import { createTechnicalQuest } from "@/services";
+import { useCreateTechnicalQuest } from "@/hooks/useCreateQuest";
 
 const QUEST_GOAL = ["Project-based", "Recruit Candidates"];
 const QUEST_VISIBILITY = ["Open Quest", "Closed Quest"];
@@ -157,6 +157,8 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
 
   console.log({ errors, step1Data });
 
+  const { mutateAsync: createQuest } = useCreateTechnicalQuest();
+
   const handlePublishQuest = async () => {
     console.log({ step1Data });
     try {
@@ -167,7 +169,11 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
       console.log({ payload });
 
       setIsSubmitting(true);
-      await createTechnicalQuest(payload, communityId);
+      // await createTechnicalQuest(payload, communityId);
+      await createQuest({
+        payload,
+        communityId,
+      });
 
       setIsSubmitting(false);
 

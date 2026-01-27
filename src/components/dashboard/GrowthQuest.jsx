@@ -38,8 +38,7 @@ import {
   WINNER_SELECTION_METHOD,
 } from "@/utils/constants";
 import { BsFillInfoCircleFill } from "react-icons/bs";
-import { createGrowthQuest } from "@/services";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCreateGrowthQuest } from "@/hooks/useCreateQuest";
 
 function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   const isDesktop = useIsDesktop();
@@ -202,27 +201,6 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   console.log({ errors, step1Data });
-
-  const useCreateGrowthQuest = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-      mutationFn: ({ payload, communityId }) =>
-        createGrowthQuest(payload, communityId),
-
-      onSuccess: (_, variables) => {
-        // 🔥 THIS is the magic
-        queryClient.invalidateQueries({
-          queryKey: ["quests", variables.communityId],
-        });
-
-        // Optional: update community stats
-        queryClient.invalidateQueries({
-          queryKey: ["community", variables.communityId],
-        });
-      },
-    });
-  };
 
   const { mutateAsync: createQuest } = useCreateGrowthQuest();
 
