@@ -1,5 +1,4 @@
 import { FOOTER_LINKS } from "@/lib/constants";
-import { Button } from "../ui/button";
 import { Link } from "react-router";
 import { Fragment } from "react";
 import ExploreButtons from "../ExploreButtons";
@@ -23,22 +22,12 @@ function Footer() {
           <div className="grid w-fit grid-cols-1 gap-5 lg:flex-1 lg:grid-cols-3">
             {FOOTER_LINKS.map((link, i) => (
               <Fragment key={i}>
-                {link.title === "Testimonials" ? (
-                  <a
-                    className="font-normal text-[#1C1C1E] hover:underline"
-                    href={link.href}
-                  >
-                    {" "}
-                    {link.title}
-                  </a>
-                ) : (
-                  <Link
-                    className="font-normal text-[#1C1C1E] hover:underline"
-                    to={link.href}
-                  >
-                    {link.title}
-                  </Link>
-                )}
+                <Link
+                  className="font-normal text-[#1C1C1E] hover:underline"
+                  to={link.href}
+                >
+                  {link.title}
+                </Link>
               </Fragment>
             ))}
           </div>

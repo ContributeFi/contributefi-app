@@ -39,6 +39,22 @@ const router = createBrowserRouter([
           </div>
         ),
       },
+      {
+        path: "terms-of-use",
+        element: (
+          <div className="flex h-screen items-center justify-center font-extrabold">
+            In Development...
+          </div>
+        ),
+      },
+      {
+        path: "privacy-policy",
+        element: (
+          <div className="flex h-screen items-center justify-center font-extrabold">
+            In Development...
+          </div>
+        ),
+      },
       { path: "tasks", Component: TaskPage },
       { path: "communities", Component: CommunitiesPage },
       { path: "*", Component: NotFound },

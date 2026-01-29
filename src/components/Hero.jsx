@@ -21,7 +21,12 @@ function Hero() {
         </div>
 
         {/* Image */}
-        <img className="h-auto max-h-[970px] w-full" src="/Frame.svg" alt="" />
+        <img
+          className="h-auto max-h-[970px] w-full"
+          src="/Frame.svg"
+          alt=""
+          height={970}
+        />
       </div>
     </div>
   );

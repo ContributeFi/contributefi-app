@@ -2,12 +2,12 @@ import { TESTIMONIALS } from "@/lib/constants";
 
 function Testimonial() {
   return (
-    <div className="mx-auto mb-10 w-full max-w-[1200px] space-y-8 px-4 py-10 md:py-[104px] lg:px-10">
+    <div
+      className="mx-auto mb-10 w-full max-w-[1200px] space-y-8 px-4 py-10 md:py-[104px] lg:px-10"
+      id="testimonials"
+    >
       <div className="mx-auto max-w-[1200px] space-y-8 text-center text-[#050215]">
-        <h2
-          id="testimonials"
-          className="text-[32px] font-extrabold md:text-[44px]"
-        >
+        <h2 className="text-[32px] font-extrabold md:text-[44px]">
           Testimonials
         </h2>
 

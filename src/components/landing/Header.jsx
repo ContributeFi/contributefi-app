@@ -1,6 +1,6 @@
 import { LANDING_NAV_LINKS } from "@/lib/constants";
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import AuthButtons from "../AuthButtons";
 import MobileNavigation from "../MobileNavigation";
 import Logo from "../Logo";
@@ -11,6 +11,7 @@ function Header() {
   const [sheetIsOpen, setSheetIsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <header className="mx-auto flex w-full max-w-[1200px] items-center justify-between rounded-[360px] bg-[#F0F4FD] px-6 py-4 lg:py-6">
@@ -22,12 +23,12 @@ function Header() {
           {LANDING_NAV_LINKS.map((link) => (
             <li key={link.title}>
               {link.title === "Testimonials" ? (
-                <a
-                  className="text-[#0D0516] hover:text-[#2F0FD1] hover:underline"
-                  href={link.href}
+                <NavLink
+                  className={`text-[#0D0516] hover:text-[#2F0FD1] hover:underline ${location.hash === link.href.slice(1) && "font-extrabold text-[#2F0FD1]"}`}
+                  to={link.href}
                 >
                   {link.title}
-                </a>
+                </NavLink>
               ) : (
                 <NavLink
                   className={({ isActive }) =>
@@ -71,13 +72,13 @@ function Header() {
               {LANDING_NAV_LINKS.map((link) => (
                 <li key={link.title}>
                   {link.title === "Testimonials" ? (
-                    <a
-                      className="text-[#0D0516] hover:text-[#2F0FD1] hover:underline"
-                      href={link.href}
+                    <NavLink
+                      className={`text-[#0D0516] hover:text-[#2F0FD1] hover:underline ${location.hash === link.href.slice(1) && "font-extrabold text-[#2F0FD1]"}`}
+                      to={link.href}
                       onClick={() => setSheetIsOpen(false)}
                     >
                       {link.title}
-                    </a>
+                    </NavLink>
                   ) : (
                     <NavLink
                       className={({ isActive }) =>

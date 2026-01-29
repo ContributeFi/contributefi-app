@@ -21,6 +21,7 @@ import { FaUserLarge } from "react-icons/fa6";
 import { Input } from "../ui/input";
 import { FaPlus } from "react-icons/fa";
 import { ImSpinner5 } from "react-icons/im";
+import ScrollToTop from "../ScrollToTop";
 
 function DashboardLayout() {
   const { user, isAuthenticated, loading, setUser } = useAuth();
@@ -89,6 +90,7 @@ function DashboardLayout() {
 
   return (
     <DashboardLayoutContainer>
+      <ScrollToTop />
       <DashboardMobileHeader>
         <MobileNavigation
           side="left"
@@ -109,13 +111,15 @@ function DashboardLayout() {
             <div className="flex flex-col items-center gap-4 sm:flex-row">
               <Label
                 htmlFor="image"
-                className="relative flex h-[60px] w-[60px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#F7F9FD]"
+                className="relative flex h-[50px] w-[50px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#F7F9FD]"
               >
                 {user?.profileImageUrl ? (
                   <img
                     src={user?.profileImageUrl}
                     alt="Selected avatar"
-                    className="h-[50px] w-[50px] rounded-full"
+                    height={40}
+                    width={40}
+                    className="h-[40px] w-[40px] rounded-full"
                   />
                 ) : (
                   <FaUserLarge className="text-[40px] text-[#B2B9C7]" />
@@ -128,7 +132,7 @@ function DashboardLayout() {
                   disabled={uploading}
                 />
 
-                <div className="absolute right-0 bottom-0 rounded-full bg-[#F7F9FD] p-2 shadow">
+                <div className="absolute right-0 bottom-0 rounded-full bg-[#F7F9FD] p-1 shadow">
                   {uploading ? (
                     <ImSpinner5 className="animate-spin" />
                   ) : (
@@ -175,13 +179,15 @@ function DashboardLayout() {
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <Label
                   htmlFor="image"
-                  className="relative flex h-[60px] w-[60px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#F7F9FD]"
+                  className="relative flex h-[50px] w-[50px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#F7F9FD]"
                 >
                   {user?.profileImageUrl ? (
                     <img
                       src={user?.profileImageUrl}
                       alt="Selected avatar"
-                      className="h-[50px] w-[50px] rounded-full"
+                      height={40}
+                      width={40}
+                      className="h-[40px] w-[40px] rounded-full"
                     />
                   ) : (
                     <FaUserLarge className="text-[40px] text-[#B2B9C7]" />
@@ -194,7 +200,7 @@ function DashboardLayout() {
                     disabled={uploading}
                   />
 
-                  <div className="absolute right-0 bottom-0 rounded-full bg-[#F7F9FD] p-2 shadow">
+                  <div className="absolute right-0 bottom-0 rounded-full bg-[#F7F9FD] p-1 shadow">
                     {uploading ? (
                       <ImSpinner5 className="animate-spin" />
                     ) : (
