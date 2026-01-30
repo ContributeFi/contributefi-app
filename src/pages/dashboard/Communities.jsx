@@ -10,12 +10,14 @@ import MetricCard from "@/components/dashboard/MetricCard";
 import CustomSearch from "@/components/Search";
 import Sort from "@/components/Sort";
 import CreateCommunityForm from "@/components/CreateCommunityForm";
-import { useQuery } from "@tanstack/react-query";
-import { getCommunities, getMemberCommunities } from "@/services";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
+import {
+  useGetCommunities,
+  useGetMemberCommunities,
+} from "@/hooks/useGetCommunities";
 
 function Communities() {
   const [sortOrder, setSortOrder] = useState("DESC");
@@ -29,50 +31,31 @@ function Communities() {
   const OFFSET = (currentPage - 1) * LIMIT;
 
   const {
-    data: communitiesData,
-    isLoading: loadingCommunities,
-    isError: errorLoadingCommunities,
+    communities,
+    loadingCommunities,
+    errorLoadingCommunities,
+    totalPages: totalCommunityPages,
     refetch,
-  } = useQuery({
-    queryKey: ["communities", LIMIT, OFFSET, sortOrder, communityOwnerId],
-    queryFn: () =>
-      getCommunities({
-        limit: LIMIT,
-        offset: OFFSET,
-        sort: sortOrder,
-        communityOwnerId,
-      }),
-    keepPreviousData: true,
-  });
+  } = useGetCommunities(LIMIT, OFFSET, sortOrder, communityOwnerId);
 
   const {
-    data: memberCommunitiesData,
-    isLoading: loadingMemberCommunities,
-    isError: errorLoadingMemberCommunities,
-  } = useQuery({
-    queryKey: ["communities", LIMIT, OFFSET],
-    queryFn: () =>
-      getMemberCommunities({
-        limit: LIMIT,
-        offset: OFFSET,
-      }),
-    enabled: communityView === "joined",
-    keepPreviousData: true,
-  });
-
-  const totalPages = communitiesData?.totalPages ?? 1;
+    memberCommunities,
+    loadingMemberCommunities,
+    errorLoadingMemberCommunities,
+    totalPages: totalMemberCommunitiesPages,
+  } = useGetMemberCommunities(LIMIT, OFFSET, communityView);
 
   useEffect(() => {
     if (communityView === "all" || communityView === "created") {
-      setDisplayedCommunities(communitiesData?.data ?? []);
+      setDisplayedCommunities(communities);
     }
-  }, [communitiesData, communityView]);
+  }, [communities, communityView]);
 
   useEffect(() => {
     if (communityView === "joined") {
-      setDisplayedCommunities(memberCommunitiesData?.data ?? []);
+      setDisplayedCommunities(memberCommunities);
     }
-  }, [memberCommunitiesData, communityView]);
+  }, [memberCommunities, communityView]);
 
   const handleChangeCommunityView = (view) => {
     if (!user && (view === "created" || view === "joined")) {
@@ -199,7 +182,11 @@ function Communities() {
 
           <CustomPagination
             currentPage={currentPage}
-            totalPages={totalPages}
+            totalPages={
+              totalMemberCommunitiesPages && communityView === "joined"
+                ? totalMemberCommunitiesPages
+                : totalCommunityPages
+            }
             onPageChange={(page) => setCurrentPage(page)}
           />
         </div>
