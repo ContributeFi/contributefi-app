@@ -488,12 +488,7 @@ function CommunityDetailsPage() {
                 <>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                     {quests.map((quest, i) => (
-                      <TasksCard
-                        task={quest}
-                        key={i}
-                        tag="task-page"
-                        communityAlias={community.communityAlias}
-                      />
+                      <TasksCard task={quest} key={i} tag="task-page" />
                     ))}
                   </div>
 

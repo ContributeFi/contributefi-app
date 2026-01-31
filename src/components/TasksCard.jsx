@@ -1,20 +1,31 @@
 import { TASK_TAG_BG } from "@/lib/constants";
 import { useLocation, useNavigate } from "react-router";
 
-function TasksCard({ task, tag, communityAlias }) {
+function TasksCard({ task, tag }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const pathLength = location.pathname.split("/").length;
+  let pathname = location.pathname.split("/");
+
+  pathname = pathname[1] + "/" + pathname[2] + "/" + pathname[3];
+
   const handleOpen = () => {
-    if (location.pathname.startsWith("/dashboard/communities/")) {
+    if (
+      pathLength === 4 &&
+      location.pathname.startsWith("/dashboard/communities")
+    ) {
       navigate(
-        `/dashboard/communities/${encodeURIComponent(
-          communityAlias,
-        )}/${encodeURIComponent(task.id)}`,
+        `/${location.pathname.slice(1, location.pathname.length)}/${encodeURIComponent(task.id)}`,
         {
           replace: false,
         },
       );
+      return;
+    } else if (pathLength === 5) {
+      navigate(`/${pathname}/${encodeURIComponent(task.id)}`, {
+        replace: false,
+      });
       return;
     } else {
       navigate(`/dashboard/tasks/${encodeURIComponent(task.id)}`, {
@@ -30,16 +41,6 @@ function TasksCard({ task, tag, communityAlias }) {
       className={`flex cursor-pointer ${tag === "home-page" || tag === "task-page" ? "" : "cursor-pointer"} flex-col justify-center gap-8 rounded-[8px] border-2 border-[#F0F4FD] bg-white px-[24px] py-[28px]`}
     >
       <div className="space-y-4">
-        {/* <div className="flex flex-wrap gap-2">
-          {task.tag.map((t, i) => (
-            <div
-              className={`rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[t]}`}
-              key={i}
-            >
-              {t}
-            </div>
-          ))}
-        </div> */}
         <div className="flex flex-wrap gap-2">
           <div
             className={`w-fit rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[task.category]}`}
