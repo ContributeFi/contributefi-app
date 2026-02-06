@@ -240,8 +240,17 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   };
 
   useEffect(() => {
-    setValue("tokenContract", rewardToken?.contract);
+    setValue(
+      "tokenContract",
+      rewardToken?.contract
+        ? `Contract: ${rewardToken.contract.slice(0, 10)}...${rewardToken.contract.slice(-8)}`
+        : rewardToken?.issuer
+          ? `Issuer: ${rewardToken.issuer.slice(0, 10)}...${rewardToken.issuer.slice(-8)}`
+          : "",
+    );
   }, [rewardToken, setValue]);
+
+  console.log({ rewardToken });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -339,6 +348,34 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                 setRewardToken={setRewardToken}
               />
 
+              {rewardType === "Token" && (
+                <CustomInput
+                  label="Asset / Token"
+                  placeholder="Select or enter an asset or token"
+                  type="text"
+                  error={errors.tokenContract?.message}
+                  {...register("tokenContract")}
+                  className={rewardType !== "Token" ? "hidden" : "pl-[30%]"}
+                  onFocus={handleChangeToken}
+                  handleRevealPassword={() => {}}
+                  icon={<RxCaretDown />}
+                  token={
+                    rewardToken && (
+                      <div className="flex w-full items-center gap-2 text-sm text-black">
+                        <span>
+                          {rewardToken?.contract
+                            ? "Sym:"
+                            : rewardToken?.issuer
+                              ? "Asset:"
+                              : ""}
+                        </span>
+                        <span className="font-bold">{rewardToken?.code}</span>
+                      </div>
+                    )
+                  }
+                />
+              )}
+
               {/* {rewardType === "Token" && (
                 <CustomInput
                   label="Token Contract"
@@ -350,7 +387,7 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                 />
               )} */}
 
-              {rewardType === "Token" && (
+              {/* {rewardType === "Token" && (
                 <CustomInput
                   label="Token Contract"
                   placeholder="000000000000000000000"
@@ -373,7 +410,7 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                     )
                   }
                 />
-              )}
+              )} */}
 
               {rewardType === "Token" && (
                 <div className={`grid gap-5 sm:grid-cols-2`}>
