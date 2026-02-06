@@ -36,6 +36,7 @@ import {
 import { BsFillInfoCircleFill } from "react-icons/bs";
 import FileUpload from "../FileUpload";
 import { useCreateTechnicalQuest } from "@/hooks/useCreateQuest";
+import TokenSelectorModal from "./TokenSelectorModal";
 
 const QUEST_GOAL = ["Project-based", "Recruit Candidates"];
 const QUEST_VISIBILITY = ["Open Quest", "Closed Quest"];
@@ -56,6 +57,13 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
     const stored = getItemFromLocalStorage("technicalQuestStep1Data");
     return stored ? hydrateGrowthQuestData(stored) : null;
   });
+
+  const [openTokenSelectorModal, setOpenTokenSelectorModal] = useState(false);
+  const [rewardToken, setRewardToken] = useState(null);
+
+  const handleChangeToken = () => {
+    setOpenTokenSelectorModal(true);
+  };
 
   const toggleTask = (index) => {
     setCollapsedTasks((prev) => ({
@@ -182,6 +190,10 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
     }
   };
 
+  useEffect(() => {
+    setValue("tokenContract", rewardToken?.contract);
+  }, [rewardToken, setValue]);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -281,6 +293,12 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                 register={register("rewardType")}
               />
 
+              <TokenSelectorModal
+                openTokenSelectorModal={openTokenSelectorModal}
+                setOpenTokenSelectorModal={setOpenTokenSelectorModal}
+                setRewardToken={setRewardToken}
+              />
+
               {rewardType === "Token" && (
                 <CustomInput
                   label="Token Contract"
@@ -289,8 +307,33 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                   error={errors.tokenContract?.message}
                   {...register("tokenContract")}
                   className={rewardType !== "Token" ? "hidden" : ""}
+                  defaultValue={rewardToken?.contract.slice(0, 20)}
+                  onFocus={handleChangeToken}
+                  token={
+                    rewardToken && (
+                      <div className="flex items-center gap-2 rounded-sm border bg-white px-2 py-1 text-sm text-black shadow">
+                        <img
+                          src={rewardToken?.icon}
+                          alt={rewardToken?.code}
+                          className="h-3 w-3"
+                        />
+                        {rewardToken?.name}
+                      </div>
+                    )
+                  }
                 />
               )}
+
+              {/* {rewardType === "Token" && (
+                <CustomInput
+                  label="Token Contract"
+                  placeholder="000000000000000000000"
+                  type="text"
+                  error={errors.tokenContract?.message}
+                  {...register("tokenContract")}
+                  className={rewardType !== "Token" ? "hidden" : ""}
+                />
+              )} */}
 
               <Controller
                 name="questGoal"

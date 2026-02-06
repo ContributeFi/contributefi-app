@@ -10,6 +10,7 @@ export default function CustomInput({
   icon,
   handleRevealPassword,
   error,
+  token,
   ...props
 }) {
   return (
@@ -50,6 +51,11 @@ export default function CustomInput({
                 className="absolute top-0 right-0 bottom-0 flex cursor-pointer items-center px-4 text-2xl text-[#B2B9C7]"
               >
                 {icon}
+              </span>
+            )}
+            {token && (
+              <span className="absolute top-0 right-0 bottom-0 flex cursor-pointer items-center px-4 text-2xl text-[#B2B9C7]">
+                {token}
               </span>
             )}
           </div>

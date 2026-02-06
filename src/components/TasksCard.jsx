@@ -1,5 +1,6 @@
 import { TASK_TAG_BG } from "@/lib/constants";
 import { useLocation, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 function TasksCard({ task, tag }) {
   const navigate = useNavigate();
@@ -11,6 +12,10 @@ function TasksCard({ task, tag }) {
   pathname = pathname[1] + "/" + pathname[2] + "/" + pathname[3];
 
   const handleOpen = () => {
+    if (!task.isActive) {
+      toast.error("Task is no longer active");
+      return;
+    }
     if (
       pathLength === 4 &&
       location.pathname.startsWith("/dashboard/communities")
@@ -52,6 +57,11 @@ function TasksCard({ task, tag }) {
             className={`w-fit rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[task.rewardType]}`}
           >
             {task.rewardType}
+          </div>
+          <div
+            className={`w-fit rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${task.isActive ? "bg-green-400" : "bg-red-400"} text-white`}
+          >
+            {task.isActive ? "Active" : "Expired"}
           </div>
         </div>
 

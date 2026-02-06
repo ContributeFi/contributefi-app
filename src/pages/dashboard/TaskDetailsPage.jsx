@@ -13,9 +13,12 @@ import Error from "@/components/Error";
 import Empty from "@/components/Empty";
 import { Fragment } from "react";
 import { timeAgo } from "@/utils";
+import { toast } from "react-toastify";
+import { useAuth } from "@/hooks/useAuth";
 
 function TaskDetailsPage() {
   const { taskId } = useParams();
+  const { user } = useAuth();
 
   const {
     data: quest,
@@ -156,7 +159,15 @@ function TaskDetailsPage() {
                     })}
                   </div>
 
-                  <Button className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70">
+                  <Button
+                    onClick={() => {
+                      if (!user) {
+                        toast.error("You must be logged in to claim a task");
+                        return;
+                      }
+                    }}
+                    className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 hover:bg-[#2F0FD1]/70"
+                  >
                     Claim Task
                   </Button>
                 </div>

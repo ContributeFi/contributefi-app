@@ -3,16 +3,13 @@ import { COMMUNITY_TAG_BG } from "@/lib/constants";
 import { getCommunity, joinCommunity, leaveCommunity } from "@/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImSpinner5 } from "react-icons/im";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 function CommunitiesCard({ community }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isAuthenticated } = useAuth();
-  const location = useLocation();
-
-  console.log({ location });
 
   const handleOpen = () => {
     navigate(
@@ -182,7 +179,7 @@ function CommunitiesCard({ community }) {
           </div>
           <div className="flex gap-1.5">
             <img src="/Coins.svg" alt="" />
-            <span>{community?.amountSpent ?? 0} spent</span>
+            <span>{community?.totalSpent ?? 0} tokens spent</span>
           </div>
         </div>
 

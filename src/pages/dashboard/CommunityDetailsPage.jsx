@@ -1,4 +1,4 @@
-import { FaLink, FaUserLarge } from "react-icons/fa6";
+import { FaLink } from "react-icons/fa6";
 import { RiTwitterXFill } from "react-icons/ri";
 import { RiInstagramFill } from "react-icons/ri";
 import { LuGithub } from "react-icons/lu";
@@ -27,9 +27,6 @@ import Filter from "@/components/Filter";
 import Sort from "@/components/Sort";
 import CustomPagination from "@/components/CustomPagination";
 import { ImSpinner5 } from "react-icons/im";
-import { FaPlus } from "react-icons/fa";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 
 function CommunityDetailsPage() {
   const [sortOrder, setSortOrder] = useState("DESC");
@@ -177,52 +174,6 @@ function CommunityDetailsPage() {
     setCurrentPage(1);
     refetch();
   };
-
-  // const [uploading, setUploading] = useState(false);
-
-  // const handleImageSelect = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
-
-  //   if (!file.type.startsWith("image/")) {
-  //     toast.error("Please select a valid image");
-  //     return;
-  //   }
-
-  //   if (file.size > 5 * 1024 * 1024) {
-  //     toast.error("Image must be less than 5MB");
-  //     return;
-  //   }
-
-  //   try {
-  //     setUploading(true);
-
-  //     const response = await uploadCommunityCover(file, communityId);
-
-  //     if (response?.data?.content?.profileImageUrl) {
-  //       // setUser((prevUser) => {
-  //       //   const updatedUser = {
-  //       //     ...prevUser,
-  //       //     profileImageUrl: response.data.content.profileImageUrl,
-  //       //   };
-  //       //   setItemInLocalStorage("user", updatedUser);
-  //       //   return updatedUser;
-  //       // });
-  //     } else {
-  //       toast.error("Failed to upload profile picture");
-  //       return;
-  //     }
-
-  //     toast.success("Profile picture updated");
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error(
-  //       error?.response?.data?.message || "Failed to upload profile picture",
-  //     );
-  //   } finally {
-  //     setUploading(false);
-  //   }
-  // };
 
   return (
     <>

@@ -117,9 +117,10 @@ export const getCommunities = async ({
   offset = 1,
   sort = "DESC",
   communityOwnerId = "",
+  searchValue = "",
 } = {}) => {
   const { data } = await api.get(
-    `${import.meta.env.VITE_BASE_URL}/communities?sortBy=createdAt:${sort}&limit=${limit}&offset=${offset}&${communityOwnerId !== "" && `communityOwnerId=${communityOwnerId}`}`,
+    `${import.meta.env.VITE_BASE_URL}/communities?sortBy=createdAt:${sort}&limit=${limit}&offset=${offset}&searchValue=${searchValue}&${communityOwnerId !== "" && `communityOwnerId=${communityOwnerId}`}`,
   );
 
   return data.content;

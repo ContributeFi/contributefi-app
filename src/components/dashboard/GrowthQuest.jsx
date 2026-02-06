@@ -39,6 +39,7 @@ import {
 } from "@/utils/constants";
 import { BsFillInfoCircleFill } from "react-icons/bs";
 import { useCreateGrowthQuest } from "@/hooks/useCreateQuest";
+import TokenSelectorModal from "./TokenSelectorModal";
 
 function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   const isDesktop = useIsDesktop();
@@ -53,11 +54,17 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
     return stored ? hydrateGrowthQuestData(stored) : null;
   });
 
+  const [openTokenSelectorModal, setOpenTokenSelectorModal] = useState(false);
+  const [rewardToken, setRewardToken] = useState(null);
   const toggleTask = (index) => {
     setCollapsedTasks((prev) => ({
       ...prev,
       [index]: !prev[index],
     }));
+  };
+
+  const handleChangeToken = () => {
+    setOpenTokenSelectorModal(true);
   };
 
   const {
@@ -124,6 +131,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
       setValue("winnerSelectionMethod", "");
       setValue("rewardAllWithPoints", false);
       setValue("extraPoints", "");
+      setRewardToken(null);
     } else {
       setValue("winnerSelectionMethod", "Random");
     }
@@ -226,6 +234,12 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
     }
   };
 
+  useEffect(() => {
+    setValue("tokenContract", rewardToken?.contract);
+  }, [rewardToken, setValue]);
+
+  console.log({ rewardToken });
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -289,7 +303,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
         {step === 1 ? (
           <>
             <form
-              className="grid gap-5 px-4 py-4"
+              className="relative grid gap-5 px-4 py-4"
               onSubmit={handleSubmit(onSubmit)}
             >
               <CustomInput
@@ -316,6 +330,12 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                 register={register("rewardType")}
               />
 
+              <TokenSelectorModal
+                openTokenSelectorModal={openTokenSelectorModal}
+                setOpenTokenSelectorModal={setOpenTokenSelectorModal}
+                setRewardToken={setRewardToken}
+              />
+
               {rewardType === "Token" && (
                 <CustomInput
                   label="Token Contract"
@@ -324,6 +344,20 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                   error={errors.tokenContract?.message}
                   {...register("tokenContract")}
                   className={rewardType !== "Token" ? "hidden" : ""}
+                  defaultValue={rewardToken?.contract.slice(0, 20)}
+                  onFocus={handleChangeToken}
+                  token={
+                    rewardToken && (
+                      <div className="flex items-center gap-2 rounded-sm border bg-white px-2 py-1 text-sm text-black shadow">
+                        <img
+                          src={rewardToken?.icon}
+                          alt={rewardToken?.code}
+                          className="h-3 w-3"
+                        />
+                        {rewardToken?.name}
+                      </div>
+                    )
+                  }
                 />
               )}
 

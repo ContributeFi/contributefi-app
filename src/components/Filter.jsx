@@ -19,14 +19,14 @@ import {
 } from "@/components/ui/popover";
 
 const frameworks = [
-  {
-    value: "DeFi",
-    label: "DeFi",
-  },
-  {
-    value: "Dex",
-    label: "Dex",
-  },
+  // {
+  //   value: "DeFi",
+  //   label: "DeFi",
+  // },
+  // {
+  //   value: "Dex",
+  //   label: "Dex",
+  // },
 ];
 
 function Filter({ tag }) {

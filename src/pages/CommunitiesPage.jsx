@@ -11,6 +11,7 @@ import { useGetCommunities } from "@/hooks/useGetCommunities";
 
 function CommunitiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchValue, setSearchValue] = useState("");
 
   const LIMIT = 10;
   const OFFSET = (currentPage - 1) * LIMIT;
@@ -21,7 +22,12 @@ function CommunitiesPage() {
     loadingCommunities,
     errorLoadingCommunities,
     totalPages,
-  } = useGetCommunities(LIMIT, OFFSET);
+  } = useGetCommunities(LIMIT, OFFSET, searchValue);
+
+  const handleSearch = (e) => {
+    console.log(e.target.value);
+    setSearchValue(e.target.value);
+  };
 
   return (
     <div className="bg-white pt-40">
@@ -50,7 +56,10 @@ function CommunitiesPage() {
                 <Filter tag="landing" />
               </div>
 
-              <CustomSearch placeholder="Search community" />
+              <CustomSearch
+                placeholder="Search community"
+                onSearchChange={handleSearch}
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -21,10 +21,11 @@ function Hero() {
         </div>
 
         <img
-          className="h-auto max-h-[970px] w-full"
+          className="h-auto w-full"
           src="/Frame.svg"
-          alt=""
-          height={970}
+          alt="Dashboard image"
+          height="314"
+          width="372"
         />
       </div>
     </div>

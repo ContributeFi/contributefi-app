@@ -6,6 +6,7 @@ export const useGetCommunities = (
   OFFSET = 1,
   sortOrder = "DESC",
   communityOwnerId = "",
+  searchValue = "",
 ) => {
   const {
     data: communitiesData,
@@ -13,13 +14,21 @@ export const useGetCommunities = (
     isError: errorLoadingCommunities,
     refetch,
   } = useQuery({
-    queryKey: ["communities", LIMIT, OFFSET, sortOrder, communityOwnerId],
+    queryKey: [
+      "communities",
+      LIMIT,
+      OFFSET,
+      sortOrder,
+      communityOwnerId,
+      searchValue,
+    ],
     queryFn: () =>
       getCommunities({
         limit: LIMIT,
         offset: OFFSET,
         sort: sortOrder,
         communityOwnerId,
+        searchValue,
       }),
     keepPreviousData: true,
   });
