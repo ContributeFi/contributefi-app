@@ -755,17 +755,17 @@ export const DASHBOARD_NAV_LINKS = [
   {
     heading: "MAIN MENU",
     links: [
-      { title: "Overview", href: "/dashboard/overview", icon: IoGrid },
+      { title: "Overview", href: "/", icon: IoGrid },
       {
         title: "Communities",
-        href: "/dashboard/communities",
+        href: "/communities",
         icon: HiSquare3Stack3D,
       },
-      { title: "Tasks", href: "/dashboard/tasks", icon: FaNewspaper },
-      { title: "Earnings", href: "/dashboard/earnings", icon: FaCreditCard },
+      { title: "Tasks", href: "/tasks", icon: FaNewspaper },
+      { title: "Earnings", href: "/earnings", icon: FaCreditCard },
       {
         title: "Analytics",
-        href: "/dashboard/analytics",
+        href: "/analytics",
         icon: BsBarChartLineFill,
       },
     ],
@@ -773,21 +773,16 @@ export const DASHBOARD_NAV_LINKS = [
   {
     heading: "PERSONAL",
     links: [
-      { title: "Profile", href: "/dashboard/profile", icon: FaUser },
+      { title: "Profile", href: "/profile", icon: FaUser },
       {
         title: "Notifications",
-        href: "/dashboard/notifications",
+        href: "/notifications",
         icon: FaBell,
       },
       {
         title: "Help & Support",
-        href: "/dashboard/help",
+        href: "/help",
         icon: IoIosHelpCircle,
-      },
-      {
-        title: "Log Out",
-        href: "/",
-        icon: GoSignOut,
       },
     ],
   },

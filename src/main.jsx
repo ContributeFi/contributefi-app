@@ -30,35 +30,23 @@ import TaskDetailsPage from "./pages/dashboard/TaskDetailsPage";
 const router = createBrowserRouter([
   {
     path: "/",
-    Component: RootLayout,
+    Component: DashboardLayout,
     children: [
-      { index: true, Component: HomePage },
+      { index: true, Component: Overview },
+      // { path: "overview", Component: Overview },
+      { path: "communities", Component: Communities },
+      { path: "communities/:communityAlias", Component: CommunityDetailsPage },
       {
-        path: "learn-more",
-        element: (
-          <div className="flex h-screen items-center justify-center font-extrabold">
-            In Development...
-          </div>
-        ),
+        path: "communities/:communityAlias/:taskId",
+        Component: TaskDetailsPage,
       },
-      {
-        path: "terms-of-use",
-        element: (
-          <div className="flex h-screen items-center justify-center font-extrabold">
-            In Development...
-          </div>
-        ),
-      },
-      {
-        path: "privacy-policy",
-        element: (
-          <div className="flex h-screen items-center justify-center font-extrabold">
-            In Development...
-          </div>
-        ),
-      },
-      { path: "tasks", Component: TaskPage },
-      { path: "communities", Component: CommunitiesPage },
+      { path: "tasks", Component: Tasks },
+      { path: "tasks/:taskId", Component: TaskDetailsPage },
+      { path: "earnings", element: <></> },
+      { path: "analytics", element: <></> },
+      { path: "profile", element: <></> },
+      { path: "notifications", element: <></> },
+      { path: "help", element: <></> },
       { path: "*", Component: NotFound },
     ],
   },
@@ -76,28 +64,6 @@ const router = createBrowserRouter([
     path: "login",
     Component: GetStartedLayout,
     children: [{ index: true, Component: Login }],
-  },
-  {
-    path: "dashboard",
-    Component: DashboardLayout,
-    children: [
-      { index: true, Component: Dashboard },
-      { path: "overview", Component: Overview },
-      { path: "communities", Component: Communities },
-      { path: "communities/:communityAlias", Component: CommunityDetailsPage },
-      {
-        path: "communities/:communityAlias/:taskId",
-        Component: TaskDetailsPage,
-      },
-      { path: "tasks", Component: Tasks },
-      { path: "tasks/:taskId", Component: TaskDetailsPage },
-      { path: "earnings", element: <></> },
-      { path: "analytics", element: <></> },
-      { path: "profile", element: <></> },
-      { path: "notifications", element: <></> },
-      { path: "help", element: <></> },
-      { path: "*", Component: NotFound },
-    ],
   },
   {
     path: "*",
