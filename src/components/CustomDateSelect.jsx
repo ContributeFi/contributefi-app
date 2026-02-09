@@ -19,16 +19,16 @@ export default function CustomDateSelect({
 
   return (
     <Label className="flex flex-col items-start gap-2 font-light text-[#09032A]">
-      <div className="relative flex w-full flex-col gap-5 rounded-sm sm:flex-row">
+      <div className="relative flex h-[48px] w-full flex-col gap-5 rounded-[12px] sm:flex-row">
         <div
-          className={`flex w-full flex-col gap-1 ${runContinuously ? "sm:w-full" : "sm:w-[48%]"}`}
+          className={`flex h-full w-full flex-col gap-1 ${runContinuously ? "sm:w-full" : "sm:w-[48%]"}`}
         >
           <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 id="date"
-                className={`w-full justify-between bg-[#F7F9FD] font-normal text-[#8791A7] shadow-none hover:bg-[#F7F9FD] hover:text-[#8791A7]`}
+                className={`h-full w-full justify-between bg-[#F7F9FD] font-normal text-[#8791A7] shadow-none hover:bg-[#F7F9FD] hover:text-[#8791A7]`}
               >
                 {startDate ? startDate.toLocaleDateString() : "Start Date"}
                 <IoMdArrowDropdown />
@@ -56,13 +56,13 @@ export default function CustomDateSelect({
         </div>
 
         {!runContinuously && (
-          <div className="flex w-full flex-col gap-1 sm:w-[48%]">
+          <div className="flex h-full w-full flex-col gap-1 sm:w-[48%]">
             <Popover open={openEndDate} onOpenChange={setOpenEndDate}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   id="date"
-                  className="w-full justify-between bg-[#F7F9FD] font-normal text-[#8791A7] shadow-none hover:bg-[#F7F9FD] hover:text-[#8791A7]"
+                  className="h-full w-full justify-between bg-[#F7F9FD] font-normal text-[#8791A7] shadow-none hover:bg-[#F7F9FD] hover:text-[#8791A7]"
                 >
                   {endDate ? endDate.toLocaleDateString() : "End Date"}
                   <IoMdArrowDropdown />
