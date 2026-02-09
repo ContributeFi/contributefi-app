@@ -81,7 +81,7 @@ function Overview() {
           description="Explore available tasks"
         >
           <Button
-            onClick={() => navigate("/dashboard/tasks")}
+            onClick={() => navigate("/tasks")}
             variant="secondary"
             size="lg"
             className="w-full sm:w-auto"
@@ -115,7 +115,7 @@ function Overview() {
         >
           <div className="flex w-full gap-4">
             <Button
-              onClick={() => navigate("/dashboard/communities")}
+              onClick={() => navigate("/communities")}
               variant="outline"
               size="lg"
               className="flex-1 bg-white"

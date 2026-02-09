@@ -16,7 +16,7 @@ import {
   joinCommunity,
   leaveCommunity,
 } from "@/services";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import Loader from "@/components/Loader";
@@ -34,9 +34,10 @@ function CommunityDetailsPage() {
   const [sheetIsOpen, setSheetIsOpen] = useState(false);
   const [openQuestSuccess, setOpenQuestSuccess] = useState(false);
 
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { communityAlias: communityId } = useParams();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const {
     data: community,
@@ -119,8 +120,8 @@ function CommunityDetailsPage() {
     });
 
   const handleJoinCommunity = () => {
-    if (!user) {
-      toast.error("You need to be logged in to join a community");
+    if (!isAuthenticated) {
+      navigate("/login");
       return;
     }
     joinCommunityMutation(communityId);

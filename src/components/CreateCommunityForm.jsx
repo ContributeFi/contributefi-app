@@ -17,11 +17,12 @@ import { toast } from "react-toastify";
 import { checkUsernameAvailability, createCommunity } from "@/services";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router";
 
 function CreateCommunityForm() {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
-
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [usernameInput, setUsernameInput] = useState("");
@@ -93,8 +94,8 @@ function CreateCommunityForm() {
         size="lg"
         className="w-full"
         onClick={() => {
-          if (!user) {
-            toast.error("You need to be logged in to create a community");
+          if (!isAuthenticated) {
+            navigate("/login");
             return;
           }
           setOpen(true);

@@ -16,10 +16,7 @@ function TasksCard({ task, tag }) {
       toast.error("Task is no longer active");
       return;
     }
-    if (
-      pathLength === 4 &&
-      location.pathname.startsWith("/dashboard/communities")
-    ) {
+    if (pathLength === 3 && location.pathname.startsWith("/communities")) {
       navigate(
         `/${location.pathname.slice(1, location.pathname.length)}/${encodeURIComponent(task.id)}`,
         {
@@ -33,7 +30,7 @@ function TasksCard({ task, tag }) {
       });
       return;
     } else {
-      navigate(`/dashboard/tasks/${encodeURIComponent(task.id)}`, {
+      navigate(`/tasks/${encodeURIComponent(task.id)}`, {
         replace: false,
       });
       return;

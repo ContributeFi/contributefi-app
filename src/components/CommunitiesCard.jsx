@@ -12,12 +12,9 @@ function CommunitiesCard({ community }) {
   const { user, isAuthenticated } = useAuth();
 
   const handleOpen = () => {
-    navigate(
-      `/dashboard/communities/${encodeURIComponent(community.communityAlias)}`,
-      {
-        replace: false,
-      },
-    );
+    navigate(`/communities/${encodeURIComponent(community.communityAlias)}`, {
+      replace: false,
+    });
   };
 
   const { data } = useQuery({
@@ -73,8 +70,8 @@ function CommunitiesCard({ community }) {
 
   const handleJoinCommunity = (e) => {
     e.stopPropagation();
-    if (!user) {
-      toast.error("You must be logged in to join a community.");
+    if (!isAuthenticated) {
+      navigate("/login");
       return;
     }
     joinCommunityMutation(community.id);

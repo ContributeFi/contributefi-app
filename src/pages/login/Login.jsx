@@ -1,6 +1,6 @@
 import CustomInput from "@/components/CustomInput";
 import { Button } from "@/components/ui/button";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { IoMdEyeOff } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
@@ -14,10 +14,11 @@ import { loginUser } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { PiPlugsConnectedFill } from "react-icons/pi";
 import { WalletContext } from "@/contexts/WalletContext";
+import Loader from "@/components/Loader";
 // import { useSendOtp } from "@/hooks/useSendOtp";
 
 function Login() {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
   const { setIsOpen } = useContext(WalletContext);
@@ -63,7 +64,6 @@ function Login() {
           navigate("/get-started/username");
           toast.error("Kindly select a username");
         } else {
-          
           login({
             token: data.data.content.accessToken.token,
             email: null,
@@ -88,6 +88,14 @@ function Login() {
   const onSubmit = (data) => {
     loginMutation(data);
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [navigate, isAuthenticated]);
+
+  if (isAuthenticated) return <Loader />;
 
   return (
     <div>

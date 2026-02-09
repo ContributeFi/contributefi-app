@@ -1,7 +1,7 @@
 import BackButton from "@/components/BackButton";
 import { getQuest, getQuests } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { FaLink, FaUsers } from "react-icons/fa";
 import { LuGithub } from "react-icons/lu";
 import { RiInstagramFill, RiTwitterXFill } from "react-icons/ri";
@@ -13,13 +13,12 @@ import Error from "@/components/Error";
 import Empty from "@/components/Empty";
 import { Fragment } from "react";
 import { timeAgo } from "@/utils";
-import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 
 function TaskDetailsPage() {
   const { taskId } = useParams();
-  const { user } = useAuth();
-
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const {
     data: quest,
     isLoading: loadingQuest,
@@ -161,8 +160,8 @@ function TaskDetailsPage() {
 
                   <Button
                     onClick={() => {
-                      if (!user) {
-                        toast.error("You must be logged in to claim a task");
+                      if (!isAuthenticated) {
+                        navigate("/login");
                         return;
                       }
                     }}

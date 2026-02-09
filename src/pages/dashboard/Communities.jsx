@@ -13,19 +13,22 @@ import CreateCommunityForm from "@/components/CreateCommunityForm";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+
 import {
   useGetCommunities,
   useGetMemberCommunities,
 } from "@/hooks/useGetCommunities";
+import { useNavigate } from "react-router";
 
 function Communities() {
   const [sortOrder, setSortOrder] = useState("DESC");
   const [currentPage, setCurrentPage] = useState(1);
   const [communityView, setCommunityView] = useState("all");
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [communityOwnerId, setCommunityOwnerId] = useState("");
   const [displayedCommunities, setDisplayedCommunities] = useState([]);
+
+  const navigate = useNavigate();
 
   const LIMIT = 10;
   const OFFSET = (currentPage - 1) * LIMIT;
@@ -58,8 +61,8 @@ function Communities() {
   }, [memberCommunities, communityView]);
 
   const handleChangeCommunityView = (view) => {
-    if (!user && (view === "created" || view === "joined")) {
-      toast.error(`You must be logged in to view ${view} communities.`);
+    if (!isAuthenticated && (view === "created" || view === "joined")) {
+      navigate("/login");
       return;
     }
     setCommunityView(view);
