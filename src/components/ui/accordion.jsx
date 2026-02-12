@@ -30,7 +30,7 @@ function AccordionTrigger({ className, children, ...props }) {
         {...props}
       >
         {children}
-        <IoChevronDownCircleSharp className="pointer-events-none size-10 shrink-0 translate-y-0.5 text-white transition-transform duration-200" />
+        <IoChevronDownCircleSharp className="pointer-events-none size-[30px] shrink-0 translate-y-0.5 text-white transition-transform duration-200" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   );

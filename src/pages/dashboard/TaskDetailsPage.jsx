@@ -13,7 +13,11 @@ import Error from "@/components/Error";
 import Empty from "@/components/Empty";
 import { Fragment, useState } from "react";
 import { endTime, timeAgo } from "@/utils";
-import { IoIosCheckmarkCircle, IoIosRefreshCircle } from "react-icons/io";
+import {
+  IoIosCheckmarkCircle,
+  IoIosRefresh,
+  IoIosRefreshCircle,
+} from "react-icons/io";
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +31,7 @@ function TaskDetailsPage() {
 
   const [followOnTwitter, setFollowOnTwitter] = useState(false);
   const [likeOnTwitter, setLikeOnOnTwitter] = useState(false);
+  const [joinTelegram, setJoinTelegram] = useState(false);
 
   const handleFollowOnTwitter = (e) => {
     e.stopPropagation();
@@ -42,6 +47,14 @@ function TaskDetailsPage() {
     if (likeOnTwitter) return;
 
     setLikeOnOnTwitter((prev) => !prev);
+  };
+
+  const handleJoinTelegram = (e) => {
+    e.stopPropagation();
+
+    if (joinTelegram) return;
+
+    setJoinTelegram((prev) => !prev);
   };
 
   const {
@@ -196,20 +209,20 @@ function TaskDetailsPage() {
                         <Fragment key={i}>
                           {task.title === "Follow on Twitter" && (
                             <button
-                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${!followOnTwitter ? "bg-[#2F0FD1]" : "bg-[#EDF2FF]"} px-8 py-4`}
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${task?.userProgress?.completed ? "bg-[#EDF2FF]" : "bg-[#2F0FD1]"} px-8 py-4`}
                             >
                               <p
-                                className={`${followOnTwitter ? "text-[#1C097D]" : ""}text-white`}
+                                className={`${task?.userProgress?.completed ? "text-[#1C097D]" : "text-white"}`}
                               >
                                 {task?.title}
                               </p>
 
-                              {followOnTwitter ? (
-                                <IoIosCheckmarkCircle className="text-[40px] text-[#538E11]" />
+                              {task?.userProgress?.completed ? (
+                                <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
                               ) : (
                                 <IoIosRefreshCircle
                                   onClick={handleFollowOnTwitter}
-                                  className="text-[40px] text-white"
+                                  className="text-[30px] text-white"
                                 />
                               )}
                             </button>
@@ -217,20 +230,20 @@ function TaskDetailsPage() {
 
                           {task.title === "Like Tweet" && (
                             <button
-                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${!likeOnTwitter ? "bg-[#2F0FD1]" : "bg-[#EDF2FF]"} px-8 py-4`}
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${task?.userProgress?.completed ? "bg-[#EDF2FF]" : "bg-[#2F0FD1]"} px-8 py-4`}
                             >
                               <p
-                                className={`${likeOnTwitter ? "text-[#1C097D]" : ""}text-white`}
+                                className={`${task?.userProgress?.completed ? "text-[#1C097D]" : "text-white"}`}
                               >
                                 {task?.title}
                               </p>
 
-                              {likeOnTwitter ? (
-                                <IoIosCheckmarkCircle className="text-[40px] text-[#538E11]" />
+                              {task?.userProgress?.completed ? (
+                                <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
                               ) : (
                                 <IoIosRefreshCircle
                                   onClick={handleLikeOnTwitter}
-                                  className="text-[40px] text-white"
+                                  className="text-[30px] text-white"
                                 />
                               )}
                             </button>
@@ -248,30 +261,58 @@ function TaskDetailsPage() {
                                   className={`relative w-full cursor-pointer rounded-[8px] bg-white`}
                                   value={task?.title}
                                 >
-                                  <AccordionTrigger className="cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline">
+                                  <AccordionTrigger
+                                    className={`cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline`}
+                                  >
                                     <p className="flex gap-1">
                                       <span>{task.title}</span>
                                     </p>
                                   </AccordionTrigger>
                                   <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
                                     <div className="space-y-3">
-                                      <div className="flex items-center gap-2">
-                                        <div>1.</div>
-                                        <a
-                                          href="https://x.com"
-                                          target="_blank"
-                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
-                                        >
-                                          Make a Post
-                                        </a>
-                                      </div>
-
-                                      <div className="flex items-center gap-2">
-                                        <div>2.</div>
-                                        <div className="w-full">
-                                          <CustomInput placeholder="Paste Post URL Here" />
-                                        </div>
-                                      </div>
+                                      {task?.userProgress?.completed ? (
+                                        <>
+                                          <CustomInput
+                                            placeholder="Paste Post URL Here"
+                                            value={
+                                              task?.userProgress?.submission
+                                            }
+                                            disabled
+                                            icon={
+                                              <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
+                                            }
+                                          />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="flex items-center gap-2">
+                                            <div>1.</div>
+                                            <a
+                                              href="https://x.com"
+                                              target="_blank"
+                                              className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                            >
+                                              Make a Post
+                                            </a>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <div>2.</div>
+                                            <div className="w-full">
+                                              <CustomInput
+                                                placeholder="Paste Post URL Here"
+                                                icon={
+                                                  <IoIosRefresh
+                                                    // onClick={
+                                                    //   handleLikeOnTwitter
+                                                    // }
+                                                    className="text-[20px] text-[#2F0FD1]"
+                                                  />
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
                                     </div>
                                   </AccordionContent>
                                 </AccordionItem>
@@ -298,23 +339,50 @@ function TaskDetailsPage() {
                                   </AccordionTrigger>
                                   <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
                                     <div className="space-y-3">
-                                      <div className="flex items-center gap-2">
-                                        <div>1.</div>
-                                        <a
-                                          href={task?.payload?.tweetUrl}
-                                          target="_blank"
-                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
-                                        >
-                                          Make a Comment
-                                        </a>
-                                      </div>
+                                      {task?.userProgress?.completed ? (
+                                        <>
+                                          <CustomInput
+                                            placeholder="Paste Post URL Here"
+                                            value={
+                                              task?.userProgress?.submission
+                                            }
+                                            disabled
+                                            icon={
+                                              <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
+                                            }
+                                          />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="flex items-center gap-2">
+                                            <div>1.</div>
+                                            <a
+                                              href={task?.payload?.tweetUrl}
+                                              target="_blank"
+                                              className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                            >
+                                              Make a Comment
+                                            </a>
+                                          </div>
 
-                                      <div className="flex items-center gap-2">
-                                        <div>2.</div>
-                                        <div className="w-full">
-                                          <CustomInput placeholder="Paste Comment URL Here" />
-                                        </div>
-                                      </div>
+                                          <div className="flex items-center gap-2">
+                                            <div>2.</div>
+                                            <div className="w-full">
+                                              <CustomInput
+                                                placeholder="Paste Comment URL Here"
+                                                icon={
+                                                  <IoIosRefresh
+                                                    // onClick={
+                                                    //   handleLikeOnTwitter
+                                                    // }
+                                                    className="text-[20px] text-[#2F0FD1]"
+                                                  />
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
                                     </div>
                                   </AccordionContent>
                                 </AccordionItem>
@@ -341,23 +409,50 @@ function TaskDetailsPage() {
                                   </AccordionTrigger>
                                   <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
                                     <div className="space-y-3">
-                                      <div className="flex items-center gap-2">
-                                        <div>1.</div>
-                                        <a
-                                          href={`${task?.payload?.discordLink}/${task?.payload?.channelId}`}
-                                          target="_blank"
-                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
-                                        >
-                                          Make a Post
-                                        </a>
-                                      </div>
+                                      {task?.userProgress?.completed ? (
+                                        <>
+                                          <CustomInput
+                                            placeholder="Paste Post URL Here"
+                                            value={
+                                              task?.userProgress?.submission
+                                            }
+                                            disabled
+                                            icon={
+                                              <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
+                                            }
+                                          />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="flex items-center gap-2">
+                                            <div>1.</div>
+                                            <a
+                                              href={`${task?.payload?.discordLink}/${task?.payload?.channelId}`}
+                                              target="_blank"
+                                              className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                            >
+                                              Make a Post
+                                            </a>
+                                          </div>
 
-                                      <div className="flex items-center gap-2">
-                                        <div>2.</div>
-                                        <div className="w-full">
-                                          <CustomInput placeholder="Paste Comment URL Here" />
-                                        </div>
-                                      </div>
+                                          <div className="flex items-center gap-2">
+                                            <div>2.</div>
+                                            <div className="w-full">
+                                              <CustomInput
+                                                placeholder="Paste Comment URL Here"
+                                                icon={
+                                                  <IoIosRefresh
+                                                    // onClick={
+                                                    //   handleLikeOnTwitter
+                                                    // }
+                                                    className="text-[20px] text-[#2F0FD1]"
+                                                  />
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
                                     </div>
                                   </AccordionContent>
                                 </AccordionItem>
@@ -367,20 +462,20 @@ function TaskDetailsPage() {
 
                           {task.title === "Join Telegram Channel" && (
                             <button
-                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${!likeOnTwitter ? "bg-[#2F0FD1]" : "bg-[#EDF2FF]"} px-8 py-4`}
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${task?.userProgress?.completed ? "bg-[#EDF2FF]" : "bg-[#2F0FD1]"} px-8 py-4`}
                             >
                               <p
-                                className={`${likeOnTwitter ? "text-[#1C097D]" : ""}text-white`}
+                                className={`${task?.userProgress?.completed ? "text-[#1C097D]" : "text-white"}`}
                               >
                                 {task?.title}
                               </p>
 
-                              {likeOnTwitter ? (
-                                <IoIosCheckmarkCircle className="text-[40px] text-[#538E11]" />
+                              {task?.userProgress?.completed ? (
+                                <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
                               ) : (
                                 <IoIosRefreshCircle
-                                  onClick={handleLikeOnTwitter}
-                                  className="text-[40px] text-white"
+                                  onClick={handleJoinTelegram}
+                                  className="text-[30px] text-white"
                                 />
                               )}
                             </button>
@@ -405,32 +500,56 @@ function TaskDetailsPage() {
                                   </AccordionTrigger>
                                   <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
                                     <div className="space-y-3">
-                                      <div className="flex items-center gap-2">
-                                        <div>1.</div>
-                                        <a
-                                          href={`${task?.payload?.telegramGroupLink}`}
-                                          target="_blank"
-                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
-                                        >
-                                          Make a Post
-                                        </a>
-                                      </div>
+                                      {task?.userProgress?.completed ? (
+                                        <>
+                                          <CustomInput
+                                            placeholder="Paste Post URL Here"
+                                            value={
+                                              task?.userProgress?.submission
+                                            }
+                                            disabled
+                                            icon={
+                                              <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
+                                            }
+                                          />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="flex items-center gap-2">
+                                            <div>1.</div>
+                                            <a
+                                              href={`${task?.payload?.telegramGroupLink}`}
+                                              target="_blank"
+                                              className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                            >
+                                              Make a Post
+                                            </a>
+                                          </div>
 
-                                      <div className="flex items-center gap-2">
-                                        <div>2.</div>
-                                        <div className="w-full">
-                                          <CustomInput placeholder="Paste Comment URL Here" />
-                                        </div>
-                                      </div>
+                                          <div className="flex items-center gap-2">
+                                            <div>2.</div>
+                                            <div className="w-full">
+                                              <CustomInput
+                                                placeholder="Paste Comment URL Here"
+                                                icon={
+                                                  <IoIosRefresh
+                                                    // onClick={
+                                                    //   handleLikeOnTwitter
+                                                    // }
+                                                    className="text-[20px] text-[#2F0FD1]"
+                                                  />
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
                                     </div>
                                   </AccordionContent>
                                 </AccordionItem>
                               </Accordion>
                             </>
                           )}
-                          {/* <div className="rounded-[8px] border bg-[#2F0FD1] px-8 py-4">
-                            <p className="text-white">{task?.title}</p>
-                          </div> */}
                         </Fragment>
                       );
                     })}
