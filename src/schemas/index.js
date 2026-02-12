@@ -28,7 +28,7 @@ export const UsernameSchema = z.object({
   username: z
     .string()
     .nonempty("Username is required")
-    .regex(/^[a-zA-Z0-9_]+$/, "Only letters and numbers allowed"),
+    .regex(/^[a-zA-Z0-9_]+$/, "Only letters, numbers, and underscores allowed"),
 });
 
 const urlSchema = (message) =>
@@ -51,16 +51,12 @@ export const CreateCommunitySchema = z.object({
     .string()
     .nonempty("Community username is required")
     .min(6, "Community must be at least 6 characters")
-    .regex(
-      /^[a-zA-Z0-9_.]+$/,
-      "Community username can only contain letters, numbers, underscores, and dots",
-    ),
+    .regex(/^[a-zA-Z0-9_]+$/, "Only letters, numbers, and underscores allowed"),
   websitePage: urlSchema("Enter a valid Website URL"),
-  githubPage: urlSchema("Enter a valid GitHub URL"),
-  twitterPage: urlSchema("Enter a valid Twitter URL"),
-  instagramPage: urlSchema("Enter a valid Instagram URL"),
+  githubPage: optionalUrlSchema("Enter a valid GitHub URL"),
+  twitterPage: optionalUrlSchema("Enter a valid Twitter URL"),
+  instagramPage: optionalUrlSchema("Enter a valid Instagram URL"),
   communityDescription: z.string().optional(),
-  message: z.string().optional(),
 });
 
 const numberOrNullSchema = z.preprocess(
@@ -75,6 +71,7 @@ const GrowthTaskSchema = z.object({
     .refine(
       (val) =>
         [
+          "Post on Twitter",
           "Follow on Twitter",
           "Comment on Twitter",
           "Like Tweet",

@@ -9,7 +9,7 @@ function TasksCard({ task, tag }) {
   const pathLength = location.pathname.split("/").length;
   let pathname = location.pathname.split("/");
 
-  pathname = pathname[1] + "/" + pathname[2] + "/" + pathname[3];
+  pathname = pathname[1] + "/" + pathname[2];
 
   const handleOpen = () => {
     if (!task.isActive) {
@@ -24,7 +24,7 @@ function TasksCard({ task, tag }) {
         },
       );
       return;
-    } else if (pathLength === 5) {
+    } else if (pathLength === 4) {
       navigate(`/${pathname}/${encodeURIComponent(task.id)}`, {
         replace: false,
       });

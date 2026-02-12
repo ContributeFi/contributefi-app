@@ -25,6 +25,15 @@ function CreateCommunityForm() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(CreateCommunitySchema),
+  });
+
   const [usernameInput, setUsernameInput] = useState("");
   const [debouncedUsername, setDebouncedUsername] = useState("");
 
@@ -38,19 +47,12 @@ function CreateCommunityForm() {
     };
   }, [usernameInput]);
 
+  const isCommunityAliasValid = !errors.communityUsername;
+
   const { data: usernameCheckData, isFetching: checkingUsername } = useQuery({
     queryKey: ["checkUsername", debouncedUsername],
     queryFn: () => checkUsernameAvailability(debouncedUsername),
-    enabled: !!debouncedUsername,
-  });
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    resolver: zodResolver(CreateCommunitySchema),
+    enabled: !!debouncedUsername && isCommunityAliasValid,
   });
 
   const { mutate: createCommunityMutation, isPending: createCommunityPending } =
@@ -83,7 +85,7 @@ function CreateCommunityForm() {
   }, [open, reset]);
 
   const handleUsernameChange = (e) => {
-    e.target.value = e.target.value.replace(/[^a-zA-Z0-9_]/g, "");
+    // e.target.value = e.target.value.replace(/[^a-zA-Z0-9_]/g, "");
     setUsernameInput(e.target.value);
   };
 
@@ -133,24 +135,24 @@ function CreateCommunityForm() {
               {...register("communityUsername", {
                 onChange: handleUsernameChange,
               })}
-              onKeyDown={(e) => {
-                const isAllowed = /^[a-zA-Z0-9_]$/.test(e.key);
+              // onKeyDown={(e) => {
+              //   const isAllowed = /^[a-zA-Z0-9_]$/.test(e.key);
 
-                const allowedKeys = [
-                  "Backspace",
-                  "Tab",
-                  "ArrowLeft",
-                  "ArrowRight",
-                  "Delete",
-                ];
+              //   const allowedKeys = [
+              //     "Backspace",
+              //     "Tab",
+              //     "ArrowLeft",
+              //     "ArrowRight",
+              //     "Delete",
+              //   ];
 
-                if (
-                  e.key === " " ||
-                  (!isAllowed && !allowedKeys.includes(e.key))
-                ) {
-                  e.preventDefault();
-                }
-              }}
+              //   if (
+              //     e.key === " " ||
+              //     (!isAllowed && !allowedKeys.includes(e.key))
+              //   ) {
+              //     e.preventDefault();
+              //   }
+              // }}
               // {...register("communityUsername", {
               //   onChange: (e) => {
               //     e.target.value = e.target.value.replace(/[^a-zA-Z0-9_.]/g, "");
@@ -182,7 +184,7 @@ function CreateCommunityForm() {
             {...register("websitePage")}
           />
           <CustomInput
-            label="Github"
+            label="Github (Optional)"
             placeholder="Paste URL"
             prefix="https://"
             type="text"
@@ -190,7 +192,7 @@ function CreateCommunityForm() {
             {...register("githubPage")}
           />
           <CustomInput
-            label="Twitter"
+            label="Twitter (Optional)"
             placeholder="Paste URL"
             prefix="https://"
             type="text"
@@ -198,7 +200,7 @@ function CreateCommunityForm() {
             {...register("twitterPage")}
           />
           <CustomInput
-            label="Instagram"
+            label="Instagram (Optional)"
             placeholder="Paste URL"
             prefix="https://"
             type="text"
@@ -206,19 +208,8 @@ function CreateCommunityForm() {
             {...register("instagramPage")}
           />
 
-          {/* <FileUpload
-            buttonText="Upload Logo"
-            description="Files supported: PNG, JPEG (Optional)"
-            accept="image/png, image/jpeg"
-          />
-          <FileUpload
-            buttonText="Upload Cover Photo"
-            description="Files supported: PNG, JPEG (Optional)"
-            accept="image/png, image/jpeg"
-          /> */}
-
           <Label className="flex flex-col items-start gap-2 font-light text-[#09032A]">
-            Community Description
+            Community Description (Optional)
             <Textarea
               className="h-[96px] rounded-[12px] border-none bg-[#F7F9FD] px-4 placeholder:text-sm placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0"
               placeholder="What's the community about?"

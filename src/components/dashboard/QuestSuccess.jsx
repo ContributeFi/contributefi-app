@@ -13,11 +13,9 @@ function QuestSuccess({ openQuestSuccess, setOpenQuestSuccess }) {
       <DialogContent className="scrollbar-hidden max-h-[calc(100vh-150px)] overflow-scroll bg-white sm:max-w-[668px]">
         <DialogHeader className="hidden">
           <DialogTitle className="text-left text-[18px] text-[#050215] sm:text-[24px]">
-            New Community
+            Successful
           </DialogTitle>
-          <DialogDescription className="sr-only">
-            Enter the community details here. Click save when you&apos;re done.
-          </DialogDescription>
+          <DialogDescription className="sr-only">Successful</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-10 text-center">

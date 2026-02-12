@@ -3,7 +3,7 @@ import { createContext, useState } from "react";
 // import { getNetwork } from "@stellar/freighter-api";
 import { v4 as uuid } from "uuid";
 // import { Soroban } from "@stellar/stellar-sdk";
-import { useAccount, useSwitchChain, useBalance } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 
 import {
   abi,

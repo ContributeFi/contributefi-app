@@ -6,6 +6,7 @@ export const REWARD_TYPES = [
 ];
 
 export const TASK_TYPES = [
+  { label: "Post on Twitter", value: "Post on Twitter" },
   { label: "Follow on Twitter", value: "Follow on Twitter" },
   { label: "Comment on Twitter", value: "Comment on Twitter" },
   { label: "Like Tweet", value: "Like Tweet" },

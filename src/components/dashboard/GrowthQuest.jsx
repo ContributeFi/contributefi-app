@@ -239,6 +239,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
       removeItemFromLocalStorage("growthQuestStep1Data");
     } catch (error) {
       console.error("Failed to create growth quest", error);
+      setIsSubmitting(false);
       // TODO: toast / error UI
     }
   };
@@ -595,6 +596,17 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                               })}
                             />
                           )}
+
+                        {/* {watch(`tasks.${index}.type`) === "Post on Twitter" && (
+                          <CustomInput
+                            label="Twitter (X) Link"
+                            error={errors.tasks?.[index]?.twitterUrl?.message}
+                            {...register(`tasks.${index}.twitterUrl`)}
+                            placeholder="Paste URL"
+                            prefix="https://"
+                            type="text"
+                          />
+                        )} */}
 
                         {watch(`tasks.${index}.type`) ===
                           "Follow on Twitter" && (

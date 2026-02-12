@@ -108,7 +108,7 @@ function VerifyEmail() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-[32px]">
-        <CustomInput
+        {/* <CustomInput
           className="h-[48px]"
           label="Provide OTP"
           placeholder="Enter OTP"
@@ -129,6 +129,22 @@ function VerifyEmail() {
               e.preventDefault();
             }
           }}
+        /> */}
+
+        <CustomInput
+          className="h-[48px]"
+          label="Provide OTP"
+          placeholder="Enter OTP"
+          type="text"
+          inputMode="numeric"
+          error={errors.otp?.message}
+          maxLength={6}
+          {...register("otp", {
+            onChange: (e) => {
+              const onlyNumbers = e.target.value.replace(/\D/g, "").slice(0, 6);
+              e.target.value = onlyNumbers;
+            },
+          })}
         />
 
         <div className="flex flex-col gap-2">

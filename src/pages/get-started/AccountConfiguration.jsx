@@ -106,7 +106,7 @@ function AccountConfiguration() {
   const handleSaveDetails = async (e) => {
     e.preventDefault();
     if (!bio) {
-      navigate("/dashboard");
+      navigate("/");
     } else {
       setSaving(true);
       try {
@@ -136,7 +136,7 @@ function AccountConfiguration() {
         setSaving(false);
       }
 
-      navigate("/dashboard");
+      navigate("/");
     }
 
     // Save user details logic here
@@ -152,7 +152,7 @@ function AccountConfiguration() {
           Connect your other profiles for maximum access to tasks and engagement
         </p>
         <Link
-          to="/dashboard"
+          to="/"
           onClick={() => {
             login({
               token: token,

@@ -25,6 +25,25 @@ export function timeAgo(date) {
   return new Date(date).toLocaleDateString();
 }
 
+export function endTime(date) {
+  const now = new Date();
+  const end = new Date(date);
+  const diffSeconds = (end - now) / 1000;
+
+  // already ended
+  if (diffSeconds <= 0) return "ended";
+
+  const minutes = diffSeconds / 60;
+  const hours = minutes / 60;
+  const days = Math.ceil(hours / 24);
+
+  if (minutes < 1) return "Ends now";
+  if (minutes < 60) return `Ends in ${Math.ceil(minutes)} minutes`;
+  if (hours < 24) return `Ends in ${Math.ceil(hours)} hours`;
+
+  return `Ends in ${days} day${days > 1 ? "s" : ""}`;
+}
+
 export function shortenString(str, maxLength = 20) {
   if (!str || str.length <= maxLength) return str;
 

@@ -50,7 +50,11 @@ function WalletsModal({ isOpen, onClose }) {
             {connector.name === "WalletConnect" ? (
               <ConnectIcon className="h-12 w-12" />
             ) : (
-              <img className="h-12 w-12" src={connector.icon} alt="" />
+              <img
+                className="h-12 w-12 border-2 border-red-500"
+                src={connector.icon}
+                alt=""
+              />
             )}
             {connector.name}
 

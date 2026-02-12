@@ -1,7 +1,7 @@
 import BackButton from "@/components/BackButton";
 import { getQuest, getQuests } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { FaLink, FaUsers } from "react-icons/fa";
 import { LuGithub } from "react-icons/lu";
 import { RiInstagramFill, RiTwitterXFill } from "react-icons/ri";
@@ -11,14 +11,39 @@ import TasksCard from "@/components/TasksCard";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import Empty from "@/components/Empty";
-import { Fragment } from "react";
-import { timeAgo } from "@/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { Fragment, useState } from "react";
+import { endTime, timeAgo } from "@/utils";
+import { IoIosCheckmarkCircle, IoIosRefreshCircle } from "react-icons/io";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import CustomInput from "@/components/CustomInput";
 
 function TaskDetailsPage() {
   const { taskId } = useParams();
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+
+  const [followOnTwitter, setFollowOnTwitter] = useState(false);
+  const [likeOnTwitter, setLikeOnOnTwitter] = useState(false);
+
+  const handleFollowOnTwitter = (e) => {
+    e.stopPropagation();
+
+    if (followOnTwitter) return;
+
+    setFollowOnTwitter((prev) => !prev);
+  };
+
+  const handleLikeOnTwitter = (e) => {
+    e.stopPropagation();
+
+    if (likeOnTwitter) return;
+
+    setLikeOnOnTwitter((prev) => !prev);
+  };
+
   const {
     data: quest,
     isLoading: loadingQuest,
@@ -89,27 +114,74 @@ function TaskDetailsPage() {
                       <h2 className="text-[20px] font-bold text-[#050215]">
                         {quest?.questTitle}
                       </h2>
-                      <div className="flex flex-wrap gap-2">
+                      {/* <div className="flex flex-wrap gap-2">
                         <div
                           className={`rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[quest.category]}`}
                         >
                           {quest.category}
                         </div>
-                      </div>
+                      </div> */}
 
-                      <div className="flex items-center gap-2">
-                        <p className="flex shrink-0 gap-1.5 font-semibold text-[#2F0FD1]">
-                          <img src="/Gift.svg" alt="" />
-                          {/* {task.amount} XLM */} 80 XLM
-                        </p>
-                        <div className="flex shrink-0 items-center gap-1">
-                          <div className="h-1 w-1 rounded-full bg-[#636366]" />
-                          <p className="flex gap-1.5 font-semibold text-[#8791A7]">
-                            {timeAgo(quest?.createdAt)}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex shrink-0 items-center justify-between">
+                          {/* <div className="h-1 w-1 rounded-full bg-[#636366]" /> */}
+                          <p className="flex gap-1.5 font-normal text-[#525866]">
+                            Published {timeAgo(quest?.createdAt)}
                           </p>
                         </div>
+
+                        <p className="flex shrink-0 gap-1.5 font-semibold text-[#2F0FD1]">
+                          <img src="/Gift.svg" alt="" />
+                          {/* {task.amount} XLM 80 XLM */}
+                        </p>
                       </div>
                     </div>
+                  </div>
+
+                  <div
+                    className={`grid grid-cols-2 divide-x-[3px] divide-y-[3px] divide-[#F0F4FD] overflow-hidden rounded-[8px] border-[3px] border-[#F0F4FD] ${quest?.numberOfWinners && quest?.winnerSelectionMethod ? "lg:grid-cols-4" : "lg:grid-cols-2"} lg:divide-y-0 lg:py-5 [@media(max-width:379px)]:grid-cols-1 [@media(max-width:379px)]:divide-x-0 [@media(max-width:379px)]:divide-y-[3px]`}
+                  >
+                    {quest?.participants && (
+                      <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
+                        <p className="text-[#525866]">Number of Participants</p>
+                        <p className="font-semibold text-[#09032A]">
+                          {quest?.participants.length}
+                        </p>
+                      </div>
+                    )}
+
+                    {quest?.endDate ? (
+                      <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
+                        <p className="text-[#525866]">Quest Duration</p>
+                        <p className="font-semibold text-[#09032A]">
+                          {endTime(quest?.endDate)}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
+                        <p className="text-[#525866]">Quest Duration</p>
+                        <p className="font-semibold text-[#09032A]">
+                          Continuous
+                        </p>
+                      </div>
+                    )}
+                    {quest?.numberOfWinners && (
+                      <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
+                        <p className="text-[#525866]"> Number of Winners</p>
+                        <p className="font-semibold text-[#09032A]">
+                          {quest?.numberOfWinners}
+                        </p>
+                      </div>
+                    )}
+
+                    {quest?.winnerSelectionMethod && (
+                      <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
+                        <p className="text-[#525866]">Selection Method</p>
+                        <p className="font-semibold text-[#09032A]">
+                          {quest?.winnerSelectionMethod}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <p className="font-normal text-[#525866]">
@@ -117,7 +189,255 @@ function TaskDetailsPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                {quest.category === "GROWTH" && (
+                  <div className="space-y-[20px]">
+                    {quest?.tasks.map((task, i) => {
+                      return (
+                        <Fragment key={i}>
+                          {task.title === "Follow on Twitter" && (
+                            <button
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${!followOnTwitter ? "bg-[#2F0FD1]" : "bg-[#EDF2FF]"} px-8 py-4`}
+                            >
+                              <p
+                                className={`${followOnTwitter ? "text-[#1C097D]" : ""}text-white`}
+                              >
+                                {task?.title}
+                              </p>
+
+                              {followOnTwitter ? (
+                                <IoIosCheckmarkCircle className="text-[40px] text-[#538E11]" />
+                              ) : (
+                                <IoIosRefreshCircle
+                                  onClick={handleFollowOnTwitter}
+                                  className="text-[40px] text-white"
+                                />
+                              )}
+                            </button>
+                          )}
+
+                          {task.title === "Like Tweet" && (
+                            <button
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${!likeOnTwitter ? "bg-[#2F0FD1]" : "bg-[#EDF2FF]"} px-8 py-4`}
+                            >
+                              <p
+                                className={`${likeOnTwitter ? "text-[#1C097D]" : ""}text-white`}
+                              >
+                                {task?.title}
+                              </p>
+
+                              {likeOnTwitter ? (
+                                <IoIosCheckmarkCircle className="text-[40px] text-[#538E11]" />
+                              ) : (
+                                <IoIosRefreshCircle
+                                  onClick={handleLikeOnTwitter}
+                                  className="text-[40px] text-white"
+                                />
+                              )}
+                            </button>
+                          )}
+
+                          {task.title === "Post on Twitter" && (
+                            <>
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="rounded-[8px] border border-[#8791A7] p-1"
+                              >
+                                <AccordionItem
+                                  // className="mb-5 rounded-2xl bg-[#F7F9FD] p-6 py-4 shadow-none"
+                                  className={`relative w-full cursor-pointer rounded-[8px] bg-white`}
+                                  value={task?.title}
+                                >
+                                  <AccordionTrigger className="cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline">
+                                    <p className="flex gap-1">
+                                      <span>{task.title}</span>
+                                    </p>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
+                                    <div className="space-y-3">
+                                      <div className="flex items-center gap-2">
+                                        <div>1.</div>
+                                        <a
+                                          href="https://x.com"
+                                          target="_blank"
+                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                        >
+                                          Make a Post
+                                        </a>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <div>2.</div>
+                                        <div className="w-full">
+                                          <CustomInput placeholder="Paste Post URL Here" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            </>
+                          )}
+
+                          {task.title === "Comment on Twitter" && (
+                            <>
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="rounded-[8px] border border-[#8791A7] p-1"
+                              >
+                                <AccordionItem
+                                  // className="mb-5 rounded-2xl bg-[#F7F9FD] p-6 py-4 shadow-none"
+                                  className={`relative w-full cursor-pointer rounded-[8px] bg-white`}
+                                  value={task?.title}
+                                >
+                                  <AccordionTrigger className="cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline">
+                                    <p className="flex gap-1">
+                                      <span>{task.title}</span>
+                                    </p>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
+                                    <div className="space-y-3">
+                                      <div className="flex items-center gap-2">
+                                        <div>1.</div>
+                                        <a
+                                          href={task?.payload?.tweetUrl}
+                                          target="_blank"
+                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                        >
+                                          Make a Comment
+                                        </a>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <div>2.</div>
+                                        <div className="w-full">
+                                          <CustomInput placeholder="Paste Comment URL Here" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            </>
+                          )}
+
+                          {task.title === "Post on Discord" && (
+                            <>
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="rounded-[8px] border border-[#8791A7] p-1"
+                              >
+                                <AccordionItem
+                                  // className="mb-5 rounded-2xl bg-[#F7F9FD] p-6 py-4 shadow-none"
+                                  className={`relative w-full cursor-pointer rounded-[8px] bg-white`}
+                                  value={task?.title}
+                                >
+                                  <AccordionTrigger className="cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline">
+                                    <p className="flex gap-1">
+                                      <span>{task.title}</span>
+                                    </p>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
+                                    <div className="space-y-3">
+                                      <div className="flex items-center gap-2">
+                                        <div>1.</div>
+                                        <a
+                                          href={`${task?.payload?.discordLink}/${task?.payload?.channelId}`}
+                                          target="_blank"
+                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                        >
+                                          Make a Post
+                                        </a>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <div>2.</div>
+                                        <div className="w-full">
+                                          <CustomInput placeholder="Paste Comment URL Here" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            </>
+                          )}
+
+                          {task.title === "Join Telegram Channel" && (
+                            <button
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-[8px] border ${!likeOnTwitter ? "bg-[#2F0FD1]" : "bg-[#EDF2FF]"} px-8 py-4`}
+                            >
+                              <p
+                                className={`${likeOnTwitter ? "text-[#1C097D]" : ""}text-white`}
+                              >
+                                {task?.title}
+                              </p>
+
+                              {likeOnTwitter ? (
+                                <IoIosCheckmarkCircle className="text-[40px] text-[#538E11]" />
+                              ) : (
+                                <IoIosRefreshCircle
+                                  onClick={handleLikeOnTwitter}
+                                  className="text-[40px] text-white"
+                                />
+                              )}
+                            </button>
+                          )}
+
+                          {task.title === "Post on Telegram Group" && (
+                            <>
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="rounded-[8px] border border-[#8791A7] p-1"
+                              >
+                                <AccordionItem
+                                  // className="mb-5 rounded-2xl bg-[#F7F9FD] p-6 py-4 shadow-none"
+                                  className={`relative w-full cursor-pointer rounded-[8px] bg-white`}
+                                  value={task?.title}
+                                >
+                                  <AccordionTrigger className="cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline">
+                                    <p className="flex gap-1">
+                                      <span>{task.title}</span>
+                                    </p>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
+                                    <div className="space-y-3">
+                                      <div className="flex items-center gap-2">
+                                        <div>1.</div>
+                                        <a
+                                          href={`${task?.payload?.telegramGroupLink}`}
+                                          target="_blank"
+                                          className="flex h-[48px] w-full items-center rounded-[8px] border px-4 py-4 text-sm text-[#2F0FD1]"
+                                        >
+                                          Make a Post
+                                        </a>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <div>2.</div>
+                                        <div className="w-full">
+                                          <CustomInput placeholder="Paste Comment URL Here" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            </>
+                          )}
+                          {/* <div className="rounded-[8px] border bg-[#2F0FD1] px-8 py-4">
+                            <p className="text-white">{task?.title}</p>
+                          </div> */}
+                        </Fragment>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap gap-2">
                     {quest?.community?.communityLinks.map((link, i) => {
                       return (
@@ -169,32 +489,32 @@ function TaskDetailsPage() {
                   >
                     Claim Task
                   </Button>
-                </div>
+                </div> */}
               </div>
             </div>
           )}
+        </div>
 
-          <div className="space-y-3">
-            <h2 className="text-[20px] font-semibold text-[#050215]">
-              Similar Tasks
-            </h2>
+        <div className="space-y-3">
+          <h2 className="text-[20px] font-semibold text-[#050215]">
+            Similar Tasks
+          </h2>
 
-            {loadingQuests ? (
-              <Loader />
-            ) : errorLoadingQuests ? (
-              <Error title="Failed to load quests..." />
-            ) : quests.length === 0 ? (
-              <Empty title="No quests found..." />
-            ) : (
-              <>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                  {quests.slice(0, 3).map((task, i) => (
-                    <TasksCard task={task} key={i} />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          {loadingQuests ? (
+            <Loader />
+          ) : errorLoadingQuests ? (
+            <Error title="Failed to load quests..." />
+          ) : quests.length === 0 ? (
+            <Empty title="No quests found..." />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {quests.slice(0, 3).map((task, i) => (
+                  <TasksCard task={task} key={i} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
