@@ -1,17 +1,13 @@
 import BackButton from "@/components/BackButton";
 import { getQuest, getQuests } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router";
-import { FaLink, FaUsers } from "react-icons/fa";
-import { LuGithub } from "react-icons/lu";
-import { RiInstagramFill, RiTwitterXFill } from "react-icons/ri";
-import { TASK_TAG_BG } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
+import { useParams } from "react-router";
+import { FaUsers } from "react-icons/fa";
 import TasksCard from "@/components/TasksCard";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import Empty from "@/components/Empty";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { endTime, timeAgo } from "@/utils";
 import {
   IoIosCheckmarkCircle,
@@ -25,36 +21,21 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import CustomInput from "@/components/CustomInput";
+import { useCompleteTask } from "@/hooks/useCompleteTask";
+import TaskSubmissionForm from "@/components/dashboard/TaskSubmissionForm";
 
 function TaskDetailsPage() {
   const { taskId } = useParams();
 
-  const [followOnTwitter, setFollowOnTwitter] = useState(false);
-  const [likeOnTwitter, setLikeOnOnTwitter] = useState(false);
-  const [joinTelegram, setJoinTelegram] = useState(false);
+  const { mutateAsync: completeTask } = useCompleteTask();
 
-  const handleFollowOnTwitter = (e) => {
+  const handleCompleteTask = async (e, task) => {
     e.stopPropagation();
 
-    if (followOnTwitter) return;
+    const taskId = task.id;
 
-    setFollowOnTwitter((prev) => !prev);
-  };
-
-  const handleLikeOnTwitter = (e) => {
-    e.stopPropagation();
-
-    if (likeOnTwitter) return;
-
-    setLikeOnOnTwitter((prev) => !prev);
-  };
-
-  const handleJoinTelegram = (e) => {
-    e.stopPropagation();
-
-    if (joinTelegram) return;
-
-    setJoinTelegram((prev) => !prev);
+    // await createGrowthQuest(payload, communityId);
+    await completeTask({ taskId });
   };
 
   const {
@@ -221,7 +202,7 @@ function TaskDetailsPage() {
                                 <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
                               ) : (
                                 <IoIosRefreshCircle
-                                  onClick={handleFollowOnTwitter}
+                                  onClick={(e) => handleCompleteTask(e, task)}
                                   className="text-[30px] text-white"
                                 />
                               )}
@@ -242,7 +223,7 @@ function TaskDetailsPage() {
                                 <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
                               ) : (
                                 <IoIosRefreshCircle
-                                  onClick={handleLikeOnTwitter}
+                                  onClick={(e) => handleCompleteTask(e, task)}
                                   className="text-[30px] text-white"
                                 />
                               )}
@@ -297,19 +278,7 @@ function TaskDetailsPage() {
                                           </div>
                                           <div className="flex items-center gap-2">
                                             <div>2.</div>
-                                            <div className="w-full">
-                                              <CustomInput
-                                                placeholder="Paste Post URL Here"
-                                                icon={
-                                                  <IoIosRefresh
-                                                    // onClick={
-                                                    //   handleLikeOnTwitter
-                                                    // }
-                                                    className="text-[20px] text-[#2F0FD1]"
-                                                  />
-                                                }
-                                              />
-                                            </div>
+                                            <TaskSubmissionForm task={task} />
                                           </div>
                                         </>
                                       )}
@@ -367,19 +336,7 @@ function TaskDetailsPage() {
 
                                           <div className="flex items-center gap-2">
                                             <div>2.</div>
-                                            <div className="w-full">
-                                              <CustomInput
-                                                placeholder="Paste Comment URL Here"
-                                                icon={
-                                                  <IoIosRefresh
-                                                    // onClick={
-                                                    //   handleLikeOnTwitter
-                                                    // }
-                                                    className="text-[20px] text-[#2F0FD1]"
-                                                  />
-                                                }
-                                              />
-                                            </div>
+                                            <TaskSubmissionForm task={task} />
                                           </div>
                                         </>
                                       )}
@@ -437,19 +394,7 @@ function TaskDetailsPage() {
 
                                           <div className="flex items-center gap-2">
                                             <div>2.</div>
-                                            <div className="w-full">
-                                              <CustomInput
-                                                placeholder="Paste Comment URL Here"
-                                                icon={
-                                                  <IoIosRefresh
-                                                    // onClick={
-                                                    //   handleLikeOnTwitter
-                                                    // }
-                                                    className="text-[20px] text-[#2F0FD1]"
-                                                  />
-                                                }
-                                              />
-                                            </div>
+                                            <TaskSubmissionForm task={task} />
                                           </div>
                                         </>
                                       )}
@@ -474,7 +419,7 @@ function TaskDetailsPage() {
                                 <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
                               ) : (
                                 <IoIosRefreshCircle
-                                  onClick={handleJoinTelegram}
+                                  onClick={(e) => handleCompleteTask(e, task)}
                                   className="text-[30px] text-white"
                                 />
                               )}
@@ -528,19 +473,7 @@ function TaskDetailsPage() {
 
                                           <div className="flex items-center gap-2">
                                             <div>2.</div>
-                                            <div className="w-full">
-                                              <CustomInput
-                                                placeholder="Paste Comment URL Here"
-                                                icon={
-                                                  <IoIosRefresh
-                                                    // onClick={
-                                                    //   handleLikeOnTwitter
-                                                    // }
-                                                    className="text-[20px] text-[#2F0FD1]"
-                                                  />
-                                                }
-                                              />
-                                            </div>
+                                            <TaskSubmissionForm task={task} />
                                           </div>
                                         </>
                                       )}

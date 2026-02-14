@@ -13,7 +13,7 @@ function TasksCard({ task, tag }) {
 
   const handleOpen = () => {
     if (!task.isActive) {
-      toast.error("Task is no longer active");
+      toast.error("Quest is no longer available");
       return;
     }
     if (pathLength === 3 && location.pathname.startsWith("/communities")) {

@@ -21,7 +21,7 @@ function CreateAccount() {
   const [revealPassword, setRevealPassword] = useState(false);
   const { setIsOpen } = useContext(WalletContext);
 
-  const handleRevealPassword = () => {
+  const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);
   };
 
@@ -153,7 +153,7 @@ function CreateAccount() {
             placeholder="Enter Password"
             type={revealPassword ? "text" : "password"}
             icon={revealPassword ? <IoMdEyeOff /> : <IoEye />}
-            handleRevealPassword={handleRevealPassword}
+            handleClickIcon={handleClickIcon}
             error={errors.password?.message}
             {...register("password")}
             disabled={createAccountPending}

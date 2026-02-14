@@ -8,7 +8,7 @@ export default function CustomInput({
   type = "text",
   className = "",
   icon,
-  handleRevealPassword,
+  handleClickIcon,
   error,
   token,
   ...props
@@ -30,7 +30,7 @@ export default function CustomInput({
           />
           {icon && (
             <span
-              onClick={() => handleRevealPassword()}
+              onClick={handleClickIcon}
               className="absolute top-0 right-0 bottom-0 flex h-full items-center rounded-l-sm bg-[#EDF2FF] px-4 pt-2 text-sm text-[#8791A7]"
             >
               {icon}
@@ -48,7 +48,7 @@ export default function CustomInput({
             />
             {icon && (
               <span
-                onClick={() => handleRevealPassword()}
+                onClick={handleClickIcon}
                 className="absolute top-0 right-0 bottom-0 flex cursor-pointer items-center px-4 text-2xl text-[#B2B9C7]"
               >
                 {icon}

@@ -798,3 +798,7 @@ export const CreateTechnicalQuestSchema = z
       }
     });
   });
+
+export const TaskSubmissionSchema = z.object({
+  submission: z.string().min(1, "Submission is required"),
+});

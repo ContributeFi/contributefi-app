@@ -323,7 +323,7 @@ function TechnicalQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
                         : ""
                   }
                   onFocus={handleChangeToken}
-                  handleRevealPassword={() => {}}
+                  handleClickIcon={() => {}}
                   icon={<RxCaretDown />}
                   token={
                     rewardToken && (

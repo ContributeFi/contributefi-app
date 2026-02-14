@@ -98,6 +98,14 @@ export function createGrowthQuest(payload, communityId) {
   );
 }
 
+export function completeTask(payload, taskId) {
+  console.log({ payload, taskId });
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/quests/tasks/${taskId}/complete`,
+    payload,
+  );
+}
+
 export function createOnChainQuest(payload, communityId) {
   return api.post(
     `${import.meta.env.VITE_BASE_URL}/quests/${communityId}/on-chain`,
