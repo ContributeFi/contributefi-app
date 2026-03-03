@@ -1,6 +1,6 @@
 import CustomInput from "@/components/CustomInput";
 import { Button } from "@/components/ui/button";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { IoMdEyeOff } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
@@ -10,13 +10,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import {
-  loginUser,
-  // requestWalletChallenge,
-  // verifyWalletLogin,
-} from "@/services";
+import { loginUser } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
-import Loader from "@/components/Loader";
 import { useWallet } from "@/hooks/useWallet";
 
 function Login() {
@@ -24,7 +19,7 @@ function Login() {
   const searchParams = new URLSearchParams(location.search);
   const redirectParam = searchParams.get("redirect");
   const from = location.state?.from?.pathname || redirectParam || "/";
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
 
@@ -40,7 +35,9 @@ function Login() {
   } = useForm({
     resolver: zodResolver(LoginSchema),
   });
-  const { handleConnectStellarKit } = useWallet();
+  const { handleConnectStellarKit, userKey, network } = useWallet();
+
+  console.log({ userKey, network });
 
   const { mutate: loginMutation, isPending: loginPending } = useMutation({
     mutationFn: (data) => loginUser(data),
@@ -74,7 +71,7 @@ function Login() {
             otp: variable.otp,
             username: null,
           });
-          navigate("/");
+          navigate(from, { replace: true });
           toast.success("Login successful");
           reset();
         }
@@ -88,68 +85,13 @@ function Login() {
     },
   });
 
-  // const { mutate: loginWithWalletMutation, isPending: walletLoginPending } =
-  //   useMutation({
-  //     mutationFn: (signedXdr) => verifyWalletLogin(signedXdr),
-
-  //     onSuccess: async (data) => {
-  //       if (data.status === 200) {
-  //         const content = data.data.content;
-
-  //         if (!content.isVerified) {
-  //           login({
-  //             token: content.accessToken.token,
-  //             email: content.email,
-  //             user: null,
-  //             otp: null,
-  //             username: null,
-  //           });
-  //           navigate("/get-started/verify-email");
-  //           toast.success("Kindly verify your email address");
-  //         } else if (!content.username) {
-  //           login({
-  //             token: content.accessToken.token,
-  //             email: content.email,
-  //             user: null,
-  //             otp: "123456",
-  //             username: null,
-  //           });
-  //           navigate("/get-started/username");
-  //           toast.error("Kindly select a username");
-  //         } else {
-  //           login({
-  //             token: content.accessToken.token,
-  //             email: null,
-  //             user: content,
-  //             otp: null,
-  //             username: null,
-  //           });
-  //           navigate("/");
-  //           toast.success("Login successful");
-  //         }
-  //       }
-  //     },
-
-  //     onError: (error) => {
-  //       toast.error(error.response?.data?.message || "Wallet login failed");
-  //     },
-  //   });
-
   const onSubmit = (data) => {
     loginMutation(data);
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
-    }
-  }, [navigate, isAuthenticated, from]);
-
   const handleGoogleLogin = () => {
     window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
   };
-
-  if (isAuthenticated) return <Loader />;
 
   return (
     <div>
@@ -171,15 +113,14 @@ function Login() {
             className="group w-full border-none bg-[#F7F9FD] text-[#09032A]"
             variant="outline"
             size="lg"
-            // onClick={() => setIsOpen(true)}
             onClick={handleConnectStellarKit}
           >
             <img
-              className="h-auto w-10 rounded-full"
+              className="h-auto w-7 rounded-full"
               src="/cryptoIcons/12000000.svg"
               alt=""
             />
-            Sign in with Stellar Wallet Kit
+            Sign in with Wallet
           </Button>
 
           <Button

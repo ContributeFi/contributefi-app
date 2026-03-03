@@ -22,9 +22,13 @@ import { Input } from "../ui/input";
 import { FaPlus } from "react-icons/fa";
 import { ImSpinner5 } from "react-icons/im";
 import ScrollToTop from "../ScrollToTop";
+import { useWallet } from "@/hooks/useWallet";
 
 function DashboardLayout() {
   const { user, isAuthenticated, setUser } = useAuth();
+  const { userKey } = useWallet();
+
+  console.log("DashboardLayout render - userKey:", userKey);
 
   const [sheetIsOpen, setSheetIsOpen] = useState(false);
 

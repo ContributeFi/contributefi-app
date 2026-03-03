@@ -29,6 +29,7 @@
     "@tanstack/react-query-devtools": "^5.91.1",
     "@walletconnect/ethereum-provider": "^2.23.6",
     "axios": "^1.12.2",
+    "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -46,6 +47,7 @@
     "tailwindcss": "^4.1.13",
     "uuid": "^13.0.0",
     "viem": "^2.46.2",
+    "vite-plugin-node-polyfills": "^0.25.0",
     "vite-plugin-svgr": "^4.5.0",
     "zod": "^4.1.12"
   },

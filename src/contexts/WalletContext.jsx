@@ -6,9 +6,7 @@ export const WalletProvider = ({ children }) => {
   const [userKey, setUserKey] = useState("");
   const [network, setNetwork] = useState("");
   const [walletKitIsOpen, setWalletKitIsOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState(null);
-
-  console.log("the connected wallet and userkey are", userKey, network);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleConnectStellarKit() {
     setIsOpen(false);
@@ -24,11 +22,11 @@ export const WalletProvider = ({ children }) => {
         setNetwork,
         isOpen,
         setIsOpen,
-        selectedNetwork,
-        setSelectedNetwork,
         walletKitIsOpen,
         setWalletKitIsOpen,
         handleConnectStellarKit,
+        isLoading,
+        setIsLoading,
       }}
     >
       {children}

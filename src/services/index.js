@@ -89,15 +89,16 @@ export function loginUser(data) {
 //   return api.post(`${import.meta.env.VITE_BASE_URL}/auth`, requestPayload);
 // }
 
-export function requestWalletChallenge(walletId) {
+export function requestWalletChallenge(walletId, network) {
   return api.get(
-    `${import.meta.env.VITE_BASE_URL}/auth/wallet/challenge/${walletId}`,
+    `${import.meta.env.VITE_BASE_URL}/auth/wallet/challenge/${walletId}/${network}`,
   );
 }
 
-export function verifyWalletLogin(signedXdr) {
+export function verifyWalletLogin(signedXdr, network) {
   return api.post(`${import.meta.env.VITE_BASE_URL}/auth/wallet/verify`, {
     signedXdr,
+    network,
   });
 }
 

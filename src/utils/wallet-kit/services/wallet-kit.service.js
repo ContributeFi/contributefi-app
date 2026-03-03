@@ -41,6 +41,7 @@ export default class WalletKitServiceClass {
   }
 
   async startFreighterWatching(publicKey, setUserKey, setNetwork) {
+    console.log("starting freighter watching", publicKey);
     if (!this.watcher) {
       this.watcher = new WatchWalletChanges(1000);
     }
@@ -50,6 +51,8 @@ export default class WalletKitServiceClass {
       }
 
       const network = await this.walletKit.getNetwork();
+
+      console.log("the network in watching is", network);
 
       setNetwork(network);
       setUserKey(address);
@@ -67,6 +70,12 @@ export default class WalletKitServiceClass {
   }
 
   async login(id, selectedSourceChain, setUserKey, setNetwork) {
+    console.log("the selected source chain and id are", {
+      selectedSourceChain,
+      id,
+      setUserKey,
+      setNetwork,
+    });
     try {
       this.walletKit.setWallet(id);
 

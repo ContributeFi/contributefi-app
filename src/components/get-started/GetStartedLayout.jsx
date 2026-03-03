@@ -16,6 +16,7 @@ function GetStartedLayout() {
   }, [navigate, isAuthenticated]);
 
   if (isAuthenticated) return <Loader />;
+
   return (
     <>
       <ScrollToTop />

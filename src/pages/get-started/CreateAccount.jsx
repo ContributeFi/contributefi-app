@@ -13,12 +13,15 @@ import { createAccount } from "@/services";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
+import WalletKitService from "@/utils/wallet-kit/services/wallet-kit.service";
 
 function CreateAccount() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
-  const { handleConnectStellarKit } = useWallet();
+  const { handleConnectStellarKit, userKey, network } = useWallet();
+
+  console.log({ userKey, network });
 
   const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);
@@ -118,7 +121,7 @@ function CreateAccount() {
               src="/cryptoIcons/12000000.svg"
               alt=""
             />
-            Sign up with Stellar Wallet Kit
+            Sign up with Wallet
           </Button>
 
           <Button
