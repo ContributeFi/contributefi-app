@@ -21,7 +21,6 @@ function Login() {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
-  const { setIsOpen } = useContext(WalletContext);
 
   const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);
@@ -35,7 +34,8 @@ function Login() {
   } = useForm({
     resolver: zodResolver(LoginSchema),
   });
-
+  const { handleConnectStellarKit, selectedSourceChain } =
+    useContext(WalletContext);
   // const { resendOTPMutation, resendOTPPending } = useSendOtp();
 
   const { mutate: loginMutation, isPending: loginPending } = useMutation({
@@ -117,10 +117,15 @@ function Login() {
             className="group w-full border-none bg-[#F7F9FD] text-[#09032A]"
             variant="outline"
             size="lg"
-            onClick={() => setIsOpen(true)}
+            // onClick={() => setIsOpen(true)}
+            onClick={handleConnectStellarKit}
           >
-            <PiPlugsConnectedFill className="text-[#2F0FD1] group-hover:text-white" />
-            Connect Wallet
+            <img
+              className="h-auto w-10 rounded-full"
+              src="/cryptoIcons/12000000.svg"
+              alt=""
+            />
+            Sign in with Stellar Wallet Kit
           </Button>
 
           <Button
@@ -128,7 +133,7 @@ function Login() {
             variant="outline"
             size="lg"
           >
-            <FcGoogle />
+            <FcGoogle style={{ width: "24px", height: "24px" }} />
             Sign in with Google
           </Button>
         </div>

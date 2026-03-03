@@ -63,7 +63,7 @@ export default function WalletKitModal() {
         }`}
       >
         <svg
-          className="absolute top-0 right-0 mt-4 mr-4 h-auto w-5 cursor-pointer text-gray-500"
+          className="absolute right-0 top-0 mr-4 mt-4 h-auto w-5 cursor-pointer text-gray-500"
           onClick={closeHandler} // Close on click
           viewBox="0 0 32 32"
           fill="currentColor"

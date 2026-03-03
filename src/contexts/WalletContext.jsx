@@ -52,6 +52,8 @@ const WalletContextProvider = ({ children }) => {
   // const [depositBalances, setDepositBalances] = useState(null);
   // const [walletInTestnet, setWalletInTestnet] = useState(false);
 
+  console.log("the connected wallet and userkey are", userKey, network);
+
   const [nativeBalance, setNativeBalance] = useState(null);
 
   // const { data } = useBalance({

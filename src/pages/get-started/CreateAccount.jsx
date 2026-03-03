@@ -19,7 +19,8 @@ function CreateAccount() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
-  const { setIsOpen } = useContext(WalletContext);
+  const { handleConnectStellarKit, selectedSourceChain } =
+    useContext(WalletContext);
 
   const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);
@@ -116,10 +117,15 @@ function CreateAccount() {
             className="group w-full border-none bg-[#F7F9FD] text-[#09032A]"
             variant="outline"
             size="lg"
-            onClick={() => setIsOpen(true)}
+            // onClick={() => setIsOpen(true)}
+            onClick={handleConnectStellarKit}
           >
-            <PiPlugsConnectedFill className="text-[#2F0FD1] group-hover:text-white" />
-            Connect Wallet
+            <img
+              className="h-auto w-10 rounded-full"
+              src="/cryptoIcons/12000000.svg"
+              alt=""
+            />
+            Sign up with Stellar Wallet Kit
           </Button>
 
           <Button
@@ -127,8 +133,8 @@ function CreateAccount() {
             variant="outline"
             size="lg"
           >
-            <FcGoogle />
-            Use Google
+            <FcGoogle style={{ width: "24px", height: "24px" }} />
+            Sign up with Google
           </Button>
         </div>
 
