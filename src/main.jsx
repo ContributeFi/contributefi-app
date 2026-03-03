@@ -15,15 +15,11 @@ import Username from "./pages/get-started/Username";
 import Login from "./pages/login/Login";
 import AccountConfiguration from "./pages/get-started/AccountConfiguration";
 import { ToastContainer } from "react-toastify";
-import ReactQueryProviders from "./components/providers";
+import ReactQueryProviders from "./components/ReactQueryProviders";
 import { AuthProvider } from "./contexts/AuthContext";
-import { WalletContextProvider } from "./contexts/WalletContext";
+import { WalletProvider } from "./contexts/WalletContext";
 import CommunityDetailsPage from "./pages/dashboard/CommunityDetailsPage";
 import TaskDetailsPage from "./pages/dashboard/TaskDetailsPage";
-import { WagmiContextProvider } from "./contexts/WagmiContext";
-import { WagmiProvider } from "wagmi";
-// import { config } from "./lib/wagmiConfig";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import GoogleCallback from "./components/GoogleCallback";
 
 const router = createBrowserRouter([
@@ -32,7 +28,6 @@ const router = createBrowserRouter([
     Component: DashboardLayout,
     children: [
       { index: true, Component: Overview },
-      // { path: "overview", Component: Overview },
       { path: "communities", Component: Communities },
       { path: "communities/:communityAlias", Component: CommunityDetailsPage },
       {
@@ -77,15 +72,13 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    {/* <Wagmi> */}
     <ReactQueryProviders>
       <AuthProvider>
-        <WalletContextProvider>
+        <WalletProvider>
           <RouterProvider router={router} />
           <ToastContainer />
-        </WalletContextProvider>
+        </WalletProvider>
       </AuthProvider>
     </ReactQueryProviders>
-    {/* </Wagmi> */}
   </StrictMode>,
 );

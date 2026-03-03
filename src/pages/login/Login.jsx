@@ -1,6 +1,6 @@
 import CustomInput from "@/components/CustomInput";
 import { Button } from "@/components/ui/button";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoMdEyeOff } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
@@ -16,8 +16,8 @@ import {
   // verifyWalletLogin,
 } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
-import { WalletContext } from "@/contexts/WalletContext";
 import Loader from "@/components/Loader";
+import { useWallet } from "@/hooks/useWallet";
 
 function Login() {
   const location = useLocation();
@@ -40,7 +40,7 @@ function Login() {
   } = useForm({
     resolver: zodResolver(LoginSchema),
   });
-  const { handleConnectStellarKit } = useContext(WalletContext);
+  const { handleConnectStellarKit } = useWallet();
 
   const { mutate: loginMutation, isPending: loginPending } = useMutation({
     mutationFn: (data) => loginUser(data),

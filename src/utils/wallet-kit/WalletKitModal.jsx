@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { WalletKitService } from "./services/global-service";
-import { WalletContext } from "@/contexts/WalletContext";
+import { useWallet } from "@/hooks/useWallet";
 
 export default function WalletKitModal() {
   const [isAvailableMap, setIsAvailableMap] = useState(null);
@@ -13,7 +13,7 @@ export default function WalletKitModal() {
     setUserKey,
     setNetwork,
     selectedSourceChain,
-  } = useContext(WalletContext);
+  } = useWallet();
   const stellarWalletKitOptions = WalletKitService.walletKit.modules;
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function WalletKitModal() {
         }`}
       >
         <svg
-          className="absolute right-0 top-0 mr-4 mt-4 h-auto w-5 cursor-pointer text-gray-500"
+          className="absolute top-0 right-0 mt-4 mr-4 h-auto w-5 cursor-pointer text-gray-500"
           onClick={closeHandler} // Close on click
           viewBox="0 0 32 32"
           fill="currentColor"
