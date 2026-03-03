@@ -2,18 +2,19 @@ import React, { useContext, useEffect, useState } from "react";
 import { WalletKitService } from "./services/global-service";
 import { WalletContext } from "@/contexts/WalletContext";
 
-export default function WalletKitModal() {
+export default function StellarWalletKitModal() {
   const [isAvailableMap, setIsAvailableMap] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
   const {
-    walletKitIsOpen,
-    setWalletKitIsOpen,
+    stellarWalletKitIsOpen,
+    setStellarWalletKitIsOpen,
     setUserKey,
     setNetwork,
     selectedSourceChain,
   } = useContext(WalletContext);
+
   const stellarWalletKitOptions = WalletKitService.walletKit.modules;
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function WalletKitModal() {
 
   // Mount and show modal
   useEffect(() => {
-    if (walletKitIsOpen) {
+    if (stellarWalletKitIsOpen) {
       setShouldRender(true);
       // small timeout to trigger enter transition
       setTimeout(() => setIsVisible(true), 20);
@@ -38,10 +39,10 @@ export default function WalletKitModal() {
       setIsVisible(false);
       setTimeout(() => setShouldRender(false), 300); // Match transition duration
     }
-  }, [walletKitIsOpen]);
+  }, [stellarWalletKitIsOpen]);
 
   const closeHandler = () => {
-    setWalletKitIsOpen(false);
+    setStellarWalletKitIsOpen(false);
   };
 
   const handleDownload = (url) => {
@@ -63,7 +64,7 @@ export default function WalletKitModal() {
         }`}
       >
         <svg
-          className="absolute right-0 top-0 mr-4 mt-4 h-auto w-5 cursor-pointer text-gray-500"
+          className="absolute top-0 right-0 mt-4 mr-4 h-auto w-5 cursor-pointer text-gray-500"
           onClick={closeHandler} // Close on click
           viewBox="0 0 32 32"
           fill="currentColor"
@@ -94,7 +95,7 @@ export default function WalletKitModal() {
                         setNetwork,
                       )
                     : handleDownload(option?.productUrl);
-                  setWalletKitIsOpen(false);
+                  setStellarWalletKitIsOpen(false);
                 }}
                 key={option?.productName}
                 className="transform cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-transform duration-300 hover:translate-x-1 hover:translate-y-1"

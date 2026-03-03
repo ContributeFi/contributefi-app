@@ -1,16 +1,15 @@
 import { useContext, useEffect } from "react";
 import Modal from "./Modal";
 import { toast } from "react-toastify";
-
-import { useConnect } from "wagmi";
+import { useConnect, useConnectors } from "wagmi";
 import { avalancheFuji } from "viem/chains";
 import ConnectIcon from "../assets/svg/connect.svg";
 import { WalletContext } from "@/contexts/WalletContext";
 import { ArrowRight } from "lucide-react";
 
-function WalletsModal({ isOpen, onClose }) {
-  const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect();
+function WalletsOptions({ isOpen, onClose }) {
+  const { connect, error, isLoading, pendingConnector } = useConnect();
+  const connectors = useConnectors();
 
   const { handleConnectStellarKit, selectedSourceChain } =
     useContext(WalletContext);
@@ -51,7 +50,7 @@ function WalletsModal({ isOpen, onClose }) {
               <ConnectIcon className="h-12 w-12" />
             ) : (
               <img
-                className="h-12 w-12 border-2 border-red-500"
+                className="h-12 w-12 border-2 rounded-full"
                 src={connector.icon}
                 alt=""
               />
@@ -70,4 +69,4 @@ function WalletsModal({ isOpen, onClose }) {
   );
 }
 
-export default WalletsModal;
+export default WalletsOptions;

@@ -1,14 +1,15 @@
 import { WalletContext } from "@/contexts/WalletContext";
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
-import WalletsModal from "../WalletsModal";
+
 import WalletKitModal from "@/utils/wallet-kit/WalletKitModal";
 import ScrollToTop from "../ScrollToTop";
 import { useAuth } from "@/hooks/useAuth";
 import Loader from "../Loader";
 
 function GetStartedLayout() {
-  const { isOpen, setIsOpen } = useContext(WalletContext);
+  // const { isWalletOptionsOpen, setIsWalletOptionsOpen } =
+  //   useContext(WalletContext);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
@@ -28,7 +29,6 @@ function GetStartedLayout() {
           <Outlet />
         </div>
 
-        <WalletsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
         <WalletKitModal />
       </div>
     </>
