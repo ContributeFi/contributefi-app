@@ -19,9 +19,7 @@ function CreateAccount() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
-  const { handleConnectStellarKit, userKey, network } = useWallet();
-
-  console.log({ userKey, network });
+  const { handleConnectStellarKit } = useWallet();
 
   const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);

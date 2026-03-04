@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { WalletKitService } from "../utils/wallet-kit/services/global-service";
 import { useWallet } from "@/hooks/useWallet";
+import { useMutation } from "@tanstack/react-query";
+import { requestWalletChallenge, verifyWalletLogin } from "@/services";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function WalletKitModal() {
   const [isAvailableMap, setIsAvailableMap] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const {
     walletKitIsOpen,
@@ -13,8 +20,92 @@ export default function WalletKitModal() {
     setUserKey,
     setNetwork,
     selectedSourceChain,
+    userKey,
+    network,
   } = useWallet();
   const stellarWalletKitOptions = WalletKitService.walletKit.modules;
+
+  console.log({ userKey, network });
+
+  const { mutate: walletChallengeMutation } = useMutation({
+    mutationFn: ({ publicKey, network }) =>
+      requestWalletChallenge(publicKey, network.network),
+    onSuccess: async (challengeData) => {
+      console.log({ challengeData });
+      if (challengeData?.data?.content) {
+        try {
+          const signedChallengeXdr = await WalletKitService.signTx(
+            challengeData.data.content,
+            network,
+          );
+
+          console.log({ signedChallengeXdr });
+          verifyWalletMutation({
+            signedChallengeXdr,
+            publicKey: userKey,
+            network: network.network,
+          });
+        } catch (error) {
+          console.error("Signing error:", error);
+          toast.error("Failed to sign transaction");
+        }
+      }
+    },
+    onError: (error) => {
+      console.error("Wallet challenge error:", error);
+      toast.error("Failed to initiate wallet login");
+    },
+  });
+
+  const { mutate: verifyWalletMutation } = useMutation({
+    mutationFn: ({ signedChallengeXdr, publicKey, network }) =>
+      verifyWalletLogin(signedChallengeXdr, publicKey, network),
+    onSuccess: async (data) => {
+      if (data.status === 200) {
+        const content = data.data.content;
+        if (!content.isVerified) {
+          login({
+            token: content.accessToken.token,
+            email: content.email,
+            user: null,
+            otp: null,
+            username: null,
+          });
+          navigate("/get-started/verify-email");
+          toast.success("Kindly verify your email address");
+        } else if (!content.username) {
+          login({
+            token: content.accessToken.token,
+            email: content.email,
+            user: null,
+            otp: "123456",
+            username: null,
+          });
+          navigate("/get-started/username");
+          toast.error("Kindly select a username");
+        } else {
+          login({
+            token: content.accessToken.token,
+            email: null,
+            user: content,
+            otp: null,
+            username: null,
+          });
+          navigate("/", { replace: true });
+          toast.success("Login successful");
+        }
+      }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Wallet login failed");
+    },
+  });
+
+  useEffect(() => {
+    if (userKey && network) {
+      walletChallengeMutation({ publicKey: userKey, network });
+    }
+  }, [userKey, network, walletChallengeMutation]);
 
   useEffect(() => {
     Promise.all(

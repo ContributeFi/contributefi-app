@@ -70,34 +70,19 @@ export function loginUser(data) {
   return api.post(`${import.meta.env.VITE_BASE_URL}/auth`, requestPayload);
 }
 
-// export function loginWithWallet(data) {
-//   const requestPayload = {
-//     method: "WALLET",
-//     walletId: data.walletAddress,
-//   };
-
-//   return api.post(`${import.meta.env.VITE_BASE_URL}/auth`, requestPayload);
-// }
-
-// export function registerWithWallet(data) {
-//   console.log({ data });
-//   const requestPayload = {
-//     method: "WALLET",
-//     walletId: data.walletAddress,
-//   };
-
-//   return api.post(`${import.meta.env.VITE_BASE_URL}/auth`, requestPayload);
-// }
-
-export function requestWalletChallenge(walletId, network) {
-  return api.get(
-    `${import.meta.env.VITE_BASE_URL}/auth/wallet/challenge/${walletId}/${network}`,
-  );
+export function requestWalletChallenge(publicKey, network) {
+  console.log({ publicKey, network });
+  return api.post(`${import.meta.env.VITE_BASE_URL}/auth/init-wallet`, {
+    publicKey,
+    network,
+  });
 }
 
-export function verifyWalletLogin(signedXdr, network) {
-  return api.post(`${import.meta.env.VITE_BASE_URL}/auth/wallet/verify`, {
-    signedXdr,
+export function verifyWalletLogin(signedChallengeXdr, publicKey, network) {
+  return api.post(`${import.meta.env.VITE_BASE_URL}/auth/`, {
+    method: "WALLET",
+    signedChallengeXdr,
+    publicKey,
     network,
   });
 }

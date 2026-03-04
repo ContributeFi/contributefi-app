@@ -35,9 +35,7 @@ function Login() {
   } = useForm({
     resolver: zodResolver(LoginSchema),
   });
-  const { handleConnectStellarKit, userKey, network } = useWallet();
-
-  console.log({ userKey, network });
+  const { handleConnectStellarKit } = useWallet();
 
   const { mutate: loginMutation, isPending: loginPending } = useMutation({
     mutationFn: (data) => loginUser(data),
