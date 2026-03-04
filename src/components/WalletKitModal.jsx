@@ -1,21 +1,111 @@
-import React, { useContext, useEffect, useState } from "react";
-import { WalletKitService } from "./services/global-service";
-import { WalletContext } from "@/contexts/WalletContext";
+import { useEffect, useState } from "react";
+import { WalletKitService } from "../utils/wallet-kit/services/global-service";
+import { useWallet } from "@/hooks/useWallet";
+import { useMutation } from "@tanstack/react-query";
+import { requestWalletChallenge, verifyWalletLogin } from "@/services";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function StellarWalletKitModal() {
+export default function WalletKitModal() {
   const [isAvailableMap, setIsAvailableMap] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const {
-    stellarWalletKitIsOpen,
-    setStellarWalletKitIsOpen,
+    walletKitIsOpen,
+    setWalletKitIsOpen,
     setUserKey,
     setNetwork,
     selectedSourceChain,
-  } = useContext(WalletContext);
-
+    userKey,
+    network,
+  } = useWallet();
   const stellarWalletKitOptions = WalletKitService.walletKit.modules;
+
+  console.log({ userKey, network });
+
+  const { mutate: walletChallengeMutation } = useMutation({
+    mutationFn: ({ publicKey, network }) =>
+      requestWalletChallenge(publicKey, network.network),
+    onSuccess: async (challengeData) => {
+      console.log({ challengeData });
+      if (challengeData?.data?.content) {
+        try {
+          const signedChallengeXdr = await WalletKitService.signTx(
+            challengeData.data.content,
+            network,
+          );
+
+          console.log({ signedChallengeXdr });
+          verifyWalletMutation({
+            signedChallengeXdr,
+            publicKey: userKey,
+            network: network.network,
+          });
+        } catch (error) {
+          console.error("Signing error:", error);
+          toast.error("Failed to sign transaction");
+        }
+      }
+    },
+    onError: (error) => {
+      console.error("Wallet challenge error:", error);
+      toast.error("Failed to initiate wallet login");
+    },
+  });
+
+  const { mutate: verifyWalletMutation } = useMutation({
+    mutationFn: ({ signedChallengeXdr, publicKey, network }) =>
+      verifyWalletLogin(signedChallengeXdr, publicKey, network),
+    onSuccess: async (data) => {
+      if (data.status === 200) {
+        const content = data.data.content;
+        if (!content.isVerified) {
+          login({
+            token: content.accessToken.token,
+            email: content.email,
+            user: null,
+            otp: null,
+            username: null,
+          });
+          navigate("/get-started/verify-email");
+          toast.success("Kindly verify your email address");
+        } else if (!content.username) {
+          login({
+            token: content.accessToken.token,
+            email: content.email,
+            user: null,
+            otp: "123456",
+            username: null,
+          });
+          navigate("/get-started/username");
+          toast.error("Kindly select a username");
+        } else {
+          login({
+            token: content.accessToken.token,
+            email: null,
+            user: content,
+            otp: null,
+            username: null,
+          });
+          navigate("/", { replace: true });
+          toast.success("Login successful");
+        }
+      }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Wallet login failed");
+    },
+  });
+
+  useEffect(() => {
+    if (userKey && network) {
+      walletChallengeMutation({ publicKey: userKey, network });
+    }
+  }, [userKey, network, walletChallengeMutation]);
 
   useEffect(() => {
     Promise.all(
@@ -31,7 +121,7 @@ export default function StellarWalletKitModal() {
 
   // Mount and show modal
   useEffect(() => {
-    if (stellarWalletKitIsOpen) {
+    if (walletKitIsOpen) {
       setShouldRender(true);
       // small timeout to trigger enter transition
       setTimeout(() => setIsVisible(true), 20);
@@ -39,10 +129,10 @@ export default function StellarWalletKitModal() {
       setIsVisible(false);
       setTimeout(() => setShouldRender(false), 300); // Match transition duration
     }
-  }, [stellarWalletKitIsOpen]);
+  }, [walletKitIsOpen]);
 
   const closeHandler = () => {
-    setStellarWalletKitIsOpen(false);
+    setWalletKitIsOpen(false);
   };
 
   const handleDownload = (url) => {
@@ -95,7 +185,7 @@ export default function StellarWalletKitModal() {
                         setNetwork,
                       )
                     : handleDownload(option?.productUrl);
-                  setStellarWalletKitIsOpen(false);
+                  setWalletKitIsOpen(false);
                 }}
                 key={option?.productName}
                 className="transform cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-transform duration-300 hover:translate-x-1 hover:translate-y-1"

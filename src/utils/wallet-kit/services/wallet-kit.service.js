@@ -8,20 +8,10 @@ import {
   RabetModule,
   HotWalletModule,
 } from "@creit.tech/stellar-wallets-kit";
-
 import { WatchWalletChanges } from "@stellar/freighter-api";
-
-import { TransactionBuilder, Networks } from "@stellar/stellar-sdk";
-// import { toast } from "sonner";
+import { Networks } from "@stellar/stellar-sdk";
 import EventService from "./event.service";
 import { toast } from "react-toastify";
-
-// import { getNetworkPassphrase } from "helpers/env";
-
-// import { ModalService, ToastService } from "services/globalServices";
-
-// import ChooseLoginMethodModal from "components/ChooseLoginMethodModal";
-// import WalletKitModal from "components/WalletKitModal";
 
 export const WalletKitEvents = {
   login: "login",
@@ -51,6 +41,7 @@ export default class WalletKitServiceClass {
   }
 
   async startFreighterWatching(publicKey, setUserKey, setNetwork) {
+    console.log("starting freighter watching", publicKey);
     if (!this.watcher) {
       this.watcher = new WatchWalletChanges(1000);
     }
@@ -60,6 +51,8 @@ export default class WalletKitServiceClass {
       }
 
       const network = await this.walletKit.getNetwork();
+
+      console.log("the network in watching is", network);
 
       setNetwork(network);
       setUserKey(address);
@@ -76,19 +69,13 @@ export default class WalletKitServiceClass {
     this.watcher = null;
   }
 
-  // showWalletKitModal() {
-  //   ModalService.closeAllModals();
-  //   ModalService.openModal(
-  //     WalletKitModal,
-  //     { modules: this.walletKit.modules },
-  //     false,
-  //     null,
-  //     false,
-  //     () => ModalService.openModal(ChooseLoginMethodModal),
-  //   );
-  // }
-
   async login(id, selectedSourceChain, setUserKey, setNetwork) {
+    console.log("the selected source chain and id are", {
+      selectedSourceChain,
+      id,
+      setUserKey,
+      setNetwork,
+    });
     try {
       this.walletKit.setWallet(id);
 
@@ -136,10 +123,6 @@ export default class WalletKitServiceClass {
   }
 
   async signTx(xdrRaw, network) {
-    // const tx = TransactionBuilder.fromXDR(xdrRaw, network?.networkPassphrase);
-
-    // const xdr = tx.toEnvelope().toXDR("base64");
-
     const { signedTxXdr } = await this.walletKit.signTransaction(xdrRaw, {
       networkPassphrase: network?.networkPassphrase,
     });

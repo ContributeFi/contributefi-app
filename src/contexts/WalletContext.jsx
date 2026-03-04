@@ -1,15 +1,12 @@
-import { createContext, useState } from "react";
+import { WalletContext } from "@/hooks/useWallet";
+import { useState } from "react";
 
-const WalletContext = createContext();
-
-const WalletContextProvider = ({ children }) => {
+export const WalletProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [userKey, setUserKey] = useState("");
   const [network, setNetwork] = useState("");
   const [walletKitIsOpen, setWalletKitIsOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState(null);
-
-  console.log("the connected wallet and userkey are", userKey, network);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleConnectStellarKit() {
     setIsOpen(false);
@@ -25,16 +22,14 @@ const WalletContextProvider = ({ children }) => {
         setNetwork,
         isOpen,
         setIsOpen,
-        selectedNetwork,
-        setSelectedNetwork,
         walletKitIsOpen,
         setWalletKitIsOpen,
         handleConnectStellarKit,
+        isLoading,
+        setIsLoading,
       }}
     >
       {children}
     </WalletContext.Provider>
   );
 };
-
-export { WalletContext, WalletContextProvider };

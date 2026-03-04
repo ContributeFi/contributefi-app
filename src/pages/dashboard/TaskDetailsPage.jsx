@@ -31,10 +31,6 @@ function TaskDetailsPage() {
 
   const { user } = useAuth();
 
-  // const { handleConnectStellarKit } = useContext(WalletContext);
-
-  // const { address, isConnected } = useContext(WagmiContext);
-
   const handleCompleteTask = async (e, task) => {
     e.stopPropagation();
 

@@ -1,6 +1,6 @@
 import CustomInput from "@/components/CustomInput";
 import { Button } from "@/components/ui/button";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { IoMdEyeOff } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
@@ -12,13 +12,14 @@ import { useMutation } from "@tanstack/react-query";
 import { createAccount } from "@/services";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
-import { WalletContext } from "@/contexts/WalletContext";
+import { useWallet } from "@/hooks/useWallet";
+import WalletKitService from "@/utils/wallet-kit/services/wallet-kit.service";
 
 function CreateAccount() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
-  const { handleConnectStellarKit } = useContext(WalletContext);
+  const { handleConnectStellarKit } = useWallet();
 
   const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);
@@ -118,7 +119,7 @@ function CreateAccount() {
               src="/cryptoIcons/12000000.svg"
               alt=""
             />
-            Sign up with Stellar Wallet Kit
+            Sign up with Wallet
           </Button>
 
           <Button
