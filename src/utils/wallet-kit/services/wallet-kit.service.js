@@ -39,7 +39,7 @@ export default class WalletKitServiceClass {
     });
   }
 
-  async startFreighterWatching(publicKey, setUserKey, setNetwork) {
+  async startFreighterWatching(publicKey, setPublicKey, setNetwork) {
     if (!this.watcher) {
       this.watcher = new WatchWalletChanges(1000);
     }
@@ -51,7 +51,7 @@ export default class WalletKitServiceClass {
       const network = await this.walletKit.getNetwork();
 
       setNetwork(network);
-      setUserKey(address);
+      setPublicKey(address);
 
       this.event.trigger({
         type: WalletKitEvents.accountChanged,
@@ -65,31 +65,22 @@ export default class WalletKitServiceClass {
     this.watcher = null;
   }
 
-  async login(id, selectedSourceChain, setUserKey, setNetwork, onComplete) {
+  async login(id, setPublicKey, setNetwork, onComplete) {
     try {
       this.walletKit.setWallet(id);
 
       const { address } = await this.walletKit.getAddress();
 
-      let network;
-
-      if (id === FREIGHTER_ID) {
-        network = await this.walletKit.getNetwork();
-      } else {
-        const selectedNetwork = selectedSourceChain?.testnet
-          ? "TESTNET"
-          : "PUBLIC";
-        network = {
-          network: selectedNetwork,
-          networkPassphrase: Networks[selectedNetwork],
-        };
-      }
+      const network = {
+        network: "TESTNET",
+        networkPassphrase: Networks["TESTNET"],
+      };
 
       setNetwork(network);
-      setUserKey(address);
+      setPublicKey(address);
 
       if (id === FREIGHTER_ID) {
-        this.startFreighterWatching(address, setUserKey, setNetwork);
+        this.startFreighterWatching(address, setPublicKey, setNetwork);
       }
 
       if (onComplete) {

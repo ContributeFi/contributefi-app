@@ -8,7 +8,7 @@ import Overview from "./pages/dashboard/Overview";
 import Communities from "./pages/dashboard/Communities";
 import Tasks from "./pages/dashboard/Tasks";
 import NotFound from "./components/NotFound";
-import GetStartedLayout from "./components/get-started/GetStartedLayout";
+import AuthLayout from "./components/auth/AuthLayout";
 import CreateAccount from "./pages/get-started/CreateAccount";
 import VerifyEmail from "./pages/get-started/VerifyEmail";
 import Username from "./pages/get-started/Username";
@@ -16,11 +16,14 @@ import Login from "./pages/login/Login";
 import AccountConfiguration from "./pages/get-started/AccountConfiguration";
 import { ToastContainer } from "react-toastify";
 import ReactQueryProviders from "./components/ReactQueryProviders";
-import { AuthProvider } from "./contexts/AuthContext";
-import { WalletProvider } from "./contexts/WalletContext";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./store";
 import CommunityDetailsPage from "./pages/dashboard/CommunityDetailsPage";
 import TaskDetailsPage from "./pages/dashboard/TaskDetailsPage";
 import GoogleCallback from "./components/GoogleCallback";
+import BindEmail from "./pages/get-started/BindEmail";
+import CreateWallet from "./pages/get-started/CreateWallet";
 
 const router = createBrowserRouter([
   {
@@ -46,23 +49,59 @@ const router = createBrowserRouter([
   },
   {
     path: "get-started",
-    Component: GetStartedLayout,
+    Component: AuthLayout,
     children: [
       { index: true, Component: CreateAccount },
       { path: "verify-email", Component: VerifyEmail },
       { path: "username", Component: Username },
+      { path: "bind-email", Component: BindEmail },
+      { path: "create-wallet", Component: CreateWallet },
       { path: "account-configuration", Component: AccountConfiguration },
+      {
+        path: "*",
+        element: (
+          <div className="flex items-center justify-center">
+            <h1 className="text-3xl font-bold text-red-500">
+              404 – Page Not Found
+            </h1>
+          </div>
+        ),
+      },
     ],
   },
   {
     path: "login",
-    Component: GetStartedLayout,
-    children: [{ index: true, Component: Login }],
+    Component: AuthLayout,
+    children: [
+      { index: true, Component: Login },
+      {
+        path: "*",
+        element: (
+          <div className="flex items-center justify-center">
+            <h1 className="text-3xl font-bold text-red-500">
+              404 – Page Not Found
+            </h1>
+          </div>
+        ),
+      },
+    ],
   },
   {
     path: "google",
-    Component: GetStartedLayout,
-    children: [{ index: true, Component: GoogleCallback }],
+    Component: AuthLayout,
+    children: [
+      { index: true, Component: GoogleCallback },
+      {
+        path: "*",
+        element: (
+          <div className="flex items-center justify-center">
+            <h1 className="text-3xl font-bold text-red-500">
+              404 – Page Not Found
+            </h1>
+          </div>
+        ),
+      },
+    ],
   },
   {
     path: "*",
@@ -72,13 +111,13 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ReactQueryProviders>
-      <AuthProvider>
-        <WalletProvider>
+    <Provider store={store}>
+      <PersistGate loading={<>Loading....</>} persistor={persistor}>
+        <ReactQueryProviders>
           <RouterProvider router={router} />
           <ToastContainer />
-        </WalletProvider>
-      </AuthProvider>
-    </ReactQueryProviders>
+        </ReactQueryProviders>
+      </PersistGate>
+    </Provider>
   </StrictMode>,
 );

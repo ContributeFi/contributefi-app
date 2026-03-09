@@ -13,12 +13,14 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 function VerifyEmail() {
-  const { login, token, email, otp } = useAuth();
+  const { login, token, email, otp, username } = useAuth();
 
   const RESEND_OTP_TIME = 60;
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_OTP_TIME);
   const [canResend, setCanResend] = useState(false);
+
+  console.log({ email, otp, username });
 
   useEffect(() => {
     if (canResend) return;
@@ -38,10 +40,12 @@ function VerifyEmail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!email) {
+    if (!email && username) {
+      navigate("/get-started/bind-email");
+    } else if (!email) {
       navigate("/get-started");
     }
-  }, [navigate, email]);
+  }, [navigate, email, username]);
 
   useEffect(() => {
     if (otp) {
@@ -62,22 +66,39 @@ function VerifyEmail() {
     useMutation({
       mutationFn: (data) => verifyEmail(data),
       onSuccess: async (data, variable) => {
+        console.log({ data });
         if (data.status === 200) {
-          login({
-            token: token,
-            email: email,
-            user: null,
-            otp: variable.otp,
-            username: null,
-          });
-          navigate("/get-started/username");
-          toast.success("Email verified successfully");
+          const content = data.data.content;
+
+          if (!content.username) {
+            login({
+              token,
+              email: email,
+              user: null,
+              otp: variable.otp,
+              username: null,
+            });
+            navigate("/get-started/username");
+            toast.success("Email verified successfully");
+          } else {
+            login({
+              token,
+              email: email,
+              user: null,
+              otp: null,
+              username: content.username,
+            });
+            navigate("/get-started/account-configuration");
+            toast.success("Email verified successfully");
+          }
+
           reset();
         } else {
           toast.error("Something went wrong");
         }
       },
       onError: (error) => {
+        console.error("Error:", error);
         console.error("Error:", error.response.data.message);
         toast.error(error.response.data.message);
       },

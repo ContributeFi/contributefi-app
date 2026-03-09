@@ -1,26 +1,32 @@
 import { useAuth } from "@/hooks/useAuth";
-import { setItemInLocalStorage } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/services";
 import { PiWarningCircle } from "react-icons/pi";
+import { useDispatch } from "react-redux";
+import { setToken } from "@/store/authSlice";
 
 function GoogleCallback() {
   const { login } = useAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [token, setToken] = useState(null);
+  const [token, setTokenState] = useState(null);
+  const processedRef = useRef(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get("token");
 
     if (tokenFromUrl) {
-      setItemInLocalStorage("accessToken", tokenFromUrl);
-      setToken(tokenFromUrl);
+      dispatch(setToken(tokenFromUrl));
+      setTokenState(tokenFromUrl);
+    } else {
+      // toast.error("Authentication token not found");
+      navigate("/login", { replace: true });
     }
-  }, []);
+  }, [navigate, dispatch]);
 
   const { data, isSuccess, isLoading, isError } = useQuery({
     queryKey: ["getUser"],
@@ -29,7 +35,8 @@ function GoogleCallback() {
   });
 
   useEffect(() => {
-    if (isSuccess && data) {
+    if (isSuccess && data && !processedRef.current) {
+      processedRef.current = true;
       const user = data.data.content;
 
       if (!user.username) {
@@ -40,7 +47,6 @@ function GoogleCallback() {
           otp: "123456",
           username: user.username,
         });
-        toast.error("Kindly select a username");
         navigate("/get-started/username", { replace: true });
       } else if (!user.bio && !user.lastLogin) {
         login({
@@ -59,8 +65,8 @@ function GoogleCallback() {
           otp: null,
           username: null,
         });
-        navigate("/", { replace: true });
         toast.success("Login successful");
+        navigate("/", { replace: true });
       }
     }
   }, [isSuccess, data, login, navigate, token]);

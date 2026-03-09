@@ -39,18 +39,17 @@ const ACCOUNTS_TO_LINK = [
     title: "Telegram",
     icon: <FaTelegram className="text-[27px] text-[#23B7EC]" />,
   },
-  {
-    title: "Wallet",
-    icon: <PiPlugsConnectedFill className="text-[27px] text-[#2F0FD1]" />,
-  },
 ];
 
 function AccountConfiguration() {
-  const { login, token, email, otp, username, user } = useAuth();
+  const { login, token, username } = useAuth();
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(
+    () => getItemFromSessionStorage("imageUrl") || null,
+  );
   const [saving, setSaving] = useState(false);
+  const [user] = useState(() => getItemFromSessionStorage("user"));
 
   useEffect(() => {
     if (!username) {
@@ -63,6 +62,8 @@ function AccountConfiguration() {
   const handleImageSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (uploading) return;
 
     if (!file.type.startsWith("image/")) {
       toast.error("Please select a valid image");
@@ -80,16 +81,14 @@ function AccountConfiguration() {
       const response = await uploadProfilePicture(file);
 
       if (response?.data?.content?.profileImageUrl) {
-        const user = getItemFromSessionStorage("user");
-        setItemInSessionStorage("user", {
-          ...user,
-          profileImageUrl: response.data.content.profileImageUrl,
-        });
         setImageUrl(response.data.content.profileImageUrl);
+        setItemInSessionStorage(
+          "imageUrl",
+          response.data.content.profileImageUrl,
+        );
         toast.success("Profile picture updated");
       } else {
         toast.error("Failed to upload profile picture");
-        return;
       }
     } catch (error) {
       console.error(error);
@@ -103,28 +102,27 @@ function AccountConfiguration() {
 
   const handleSaveDetails = async (e) => {
     e.preventDefault();
+
     if (!bio) {
       navigate("/");
       login({
-        token: token,
-        email: email,
-        user: getItemFromSessionStorage("user"),
-        otp: otp,
-        username: username,
+        token,
+        email: null,
+        user: {
+          ...user,
+          ...(imageUrl && { profileImageUrl: imageUrl }),
+        },
+        otp: null,
+        username: null,
       });
-
       removeItemFromSessionStorage("user");
+      removeItemFromSessionStorage("imageUrl");
     } else {
       setSaving(true);
       try {
         const res = await updateBio(bio);
 
         if (res?.data?.content?.bio) {
-          const user = getItemFromSessionStorage("user");
-          setItemInSessionStorage("user", {
-            ...user,
-            bio: res.data.content.bio,
-          });
           toast.success("Bio updated successfully");
         } else {
           toast.error("Failed to save bio");
@@ -141,14 +139,18 @@ function AccountConfiguration() {
 
       navigate("/");
       login({
-        token: token,
-        email: email,
-        user: getItemFromSessionStorage("user"),
-        otp: otp,
-        username: username,
+        token,
+        email: null,
+        user: {
+          ...user,
+          ...(imageUrl && { profileImageUrl: imageUrl }),
+          bio,
+        },
+        otp: null,
+        username: null,
       });
-
       removeItemFromSessionStorage("user");
+      removeItemFromSessionStorage("imageUrl");
     }
   };
 
@@ -165,14 +167,17 @@ function AccountConfiguration() {
           to="/"
           onClick={() => {
             login({
-              token: token,
-              email: email,
-              user: getItemFromSessionStorage("user"),
-              otp: otp,
-              username: username,
+              token,
+              email: null,
+              user: {
+                ...user,
+                ...(imageUrl && { profileImageUrl: imageUrl }),
+              },
+              otp: null,
+              username: null,
             });
-
             removeItemFromSessionStorage("user");
+            removeItemFromSessionStorage("imageUrl");
           }}
           className="absolute top-5 right-10 text-base font-medium text-[#2F0FD1] sm:top-10"
         >
@@ -186,13 +191,7 @@ function AccountConfiguration() {
             htmlFor="image"
             className="relative flex h-[80px] w-[80px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#F7F9FD]"
           >
-            {user?.profileImageUrl ? (
-              <img
-                src={user.profileImageUrl}
-                alt="Selected avatar"
-                className="h-[50px] w-[50px] rounded-full"
-              />
-            ) : imageUrl ? (
+            {imageUrl ? (
               <img
                 src={imageUrl}
                 alt="Selected avatar"
@@ -241,11 +240,7 @@ function AccountConfiguration() {
                   account.icon
                 )}
                 <span className="text-base font-normal text-[#09032A]">
-                  {account.title === "Wallet"
-                    ? getItemFromLocalStorage("email")
-                      ? "Wallet"
-                      : "Email"
-                    : account.title}
+                  {account.title}
                 </span>
               </div>
 
@@ -253,8 +248,10 @@ function AccountConfiguration() {
             </div>
           ))}
 
+          <div />
+
           <Button
-            className="ml-auto w-full sm:w-fit"
+            className="ml-auto w-full"
             disabled={
               uploading || (!imageUrl && bio.trim().length === 0) || saving
             }

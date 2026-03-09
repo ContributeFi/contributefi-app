@@ -26,6 +26,18 @@ export function resendOTP(data) {
   );
 }
 
+export function bindEmail(data) {
+  const requestPayload = {
+    otpPurpose: "EMAIL_VERIFICATION",
+    email: data.email,
+  };
+
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/auth/check-email-before-send-otp`,
+    requestPayload,
+  );
+}
+
 export function verifyEmail(data) {
   const requestPayload = {
     otpPurpose: "EMAIL_VERIFICATION",
@@ -60,7 +72,7 @@ export function getUser() {
   return api.get(`${import.meta.env.VITE_BASE_URL}/users/user`);
 }
 
-export function loginUser(data) {
+export function loginWithEmail(data) {
   const requestPayload = {
     method: "EMAIL",
     email: data.email,
@@ -70,15 +82,14 @@ export function loginUser(data) {
   return api.post(`${import.meta.env.VITE_BASE_URL}/auth`, requestPayload);
 }
 
-export function requestWalletChallenge(publicKey, network) {
-  console.log({ publicKey, network });
+export function initiateWalletChallenge(publicKey, network) {
   return api.post(`${import.meta.env.VITE_BASE_URL}/auth/init-wallet`, {
     publicKey,
     network,
   });
 }
 
-export function verifyWalletLogin(signedChallengeXdr, publicKey, network) {
+export function verifyWalletChallenge(signedChallengeXdr, publicKey, network) {
   return api.post(`${import.meta.env.VITE_BASE_URL}/auth/`, {
     method: "WALLET",
     signedChallengeXdr,
