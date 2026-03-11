@@ -13,13 +13,13 @@ import { createAccount } from "@/services";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
-import WalletKitService from "@/utils/wallet-kit/services/wallet-kit.service";
 
 function CreateAccount() {
   const { login } = useAuth();
+  const { handleOpenStellarWalletKitModal } = useWallet();
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
-  const { handleConnectStellarKit } = useWallet();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleClickIcon = () => {
     setRevealPassword((revealPassword) => !revealPassword);
@@ -37,35 +37,40 @@ function CreateAccount() {
   const { mutate: createAccountMutation, isPending: createAccountPending } =
     useMutation({
       mutationFn: (data) => createAccount(data),
-      onSuccess: async (data, variable) => {
+      onSuccess: async (data) => {
         if (data.status === 200) {
-          if (!data.data.content.isVerified) {
+          const content = data.data.content;
+          const token = content.accessToken?.token;
+          const email = content.email;
+
+          if (!content.isVerified) {
             login({
-              token: data.data.content.accessToken.token,
-              email: variable.email,
+              token,
+              email,
               user: null,
               otp: null,
               username: null,
+              authMethod: "EMAIL",
             });
             navigate("/get-started/verify-email");
-            toast.success("Kindly verify your email address");
-          } else if (!data.data.content.username) {
+          } else if (!content.username) {
             login({
-              token: data.data.content.accessToken.token,
-              email: variable.email,
+              token,
+              email,
               user: null,
               otp: "123456",
               username: null,
+              authMethod: "EMAIL",
             });
             navigate("/get-started/username");
-            toast.error("Kindly select a username");
           } else {
             login({
-              token: data.data.content.accessToken.token,
+              token,
               email: null,
-              user: data.data.content,
-              otp: variable.otp,
+              user: content,
+              otp: null,
               username: null,
+              authMethod: "EMAIL",
             });
             navigate("/");
             toast.success("Login successful");
@@ -86,6 +91,7 @@ function CreateAccount() {
   };
 
   const handleGoogleSignup = () => {
+    setIsGoogleLoading(true);
     window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
   };
 
@@ -97,7 +103,14 @@ function CreateAccount() {
         </h2>
         <p className="text-base font-light text-[#525866] md:text-[18px]">
           Get started with a preferred option or{" "}
-          <Link className="text-[#2F0FD1] hover:underline" to="/login">
+          <Link
+            className="text-[#2F0FD1] hover:underline"
+            to={
+              isGoogleLoading || createAccountPending
+                ? "/get-started"
+                : "/login"
+            }
+          >
             Login
           </Link>
         </p>
@@ -106,13 +119,11 @@ function CreateAccount() {
       <div className="space-y-[32px]">
         <div className="space-y-[16px]">
           <Button
-            // onClick={handleWalletRegister}
-            // disabled={walletRegisterPending}
             className="w-full border-none bg-[#F7F9FD] text-[#09032A]"
             variant="outline"
             size="lg"
-            // onClick={() => setIsOpen(true)}
-            onClick={handleConnectStellarKit}
+            onClick={handleOpenStellarWalletKitModal}
+            disabled={createAccountPending || isGoogleLoading}
           >
             <img
               className="h-auto w-10 rounded-full"
@@ -127,9 +138,20 @@ function CreateAccount() {
             className="w-full border-none bg-[#F7F9FD] text-[#09032A]"
             variant="outline"
             size="lg"
+            disabled={
+              createAccountPending ||
+              !import.meta.env.VITE_GOOGLE_AUTH_URL ||
+              isGoogleLoading
+            }
           >
             <FcGoogle style={{ width: "24px", height: "24px" }} />
-            Sign up with Google
+            {isGoogleLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="h-5 w-5 animate-spin rounded-full border-4 border-gray-300 border-t-[#1082E4]" />
+              </div>
+            ) : (
+              "Sign up with Google"
+            )}
           </Button>
         </div>
 
@@ -145,7 +167,7 @@ function CreateAccount() {
             type="email"
             error={errors.email?.message}
             {...register("email")}
-            disabled={createAccountPending}
+            disabled={createAccountPending || isGoogleLoading}
           />
 
           <CustomInput
@@ -157,7 +179,7 @@ function CreateAccount() {
             handleClickIcon={handleClickIcon}
             error={errors.password?.message}
             {...register("password")}
-            disabled={createAccountPending}
+            disabled={createAccountPending || isGoogleLoading}
           />
 
           <div className="flex flex-col gap-2">
@@ -166,7 +188,7 @@ function CreateAccount() {
               variant="secondary"
               size="lg"
               type="submit"
-              disabled={createAccountPending}
+              disabled={createAccountPending || isGoogleLoading}
             >
               {createAccountPending ? "Processing..." : "Continue"}
             </Button>

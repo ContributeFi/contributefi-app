@@ -12,7 +12,7 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 function Username() {
-  const { login, token, email, otp } = useAuth();
+  const { login, token, otp, username, email } = useAuth();
   const navigate = useNavigate();
 
   const [usernameInput, setUsernameInput] = useState("");
@@ -29,10 +29,22 @@ function Username() {
   }, [usernameInput]);
 
   useEffect(() => {
-    if (!otp) {
+    if (!otp && username) {
+      navigate("/get-started/bind-email");
+    } else if (!otp) {
       navigate("/get-started/verify-email");
     }
-  }, [navigate, otp]);
+  }, [navigate, otp, username]);
+
+  useEffect(() => {
+    if (username && !email) {
+      navigate("/get-started/bind-email");
+    } else if (username && email) {
+      navigate("/get-started/create-wallet");
+    }
+  }, [navigate, username, email, otp]);
+
+  console.log({ otp, username, email });
 
   const {
     register,
@@ -41,22 +53,38 @@ function Username() {
     reset,
   } = useForm({
     resolver: zodResolver(UsernameSchema),
+    mode: "onChange",
   });
 
-  const { mutate: createUserMutation, isPending: createUsernamePending } =
+  const { mutate: createUserNameMutation, isPending: createUsernamePending } =
     useMutation({
       mutationFn: (data) => createUsername(data),
       onSuccess: async (data, variable) => {
+        console.log({ data });
         if (data.status === 200) {
-          setItemInSessionStorage("user", data.data.content);
-          login({
-            token: token,
-            email: email,
-            user: null,
-            otp: otp,
-            username: variable.username,
-          });
-          navigate("/get-started/account-configuration");
+          const content = data.data.content;
+
+          setItemInSessionStorage("user", content);
+
+          if (content.authMethod === "WALLET") {
+            login({
+              token,
+              email: null,
+              user: null,
+              otp: null,
+              username: variable.username,
+            });
+            navigate("/get-started/bind-email", { replace: true });
+          } else {
+            login({
+              token,
+              email,
+              user: null,
+              otp,
+              username: variable.username,
+            });
+            navigate("/get-started/create-wallet", { replace: true });
+          }
           toast.success("Username created successfully");
           reset();
         } else {
@@ -70,7 +98,7 @@ function Username() {
     });
 
   const onSubmit = (data) => {
-    createUserMutation(data);
+    createUserNameMutation(data);
   };
 
   const isUsernameValid = !errors.username;

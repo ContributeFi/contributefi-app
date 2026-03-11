@@ -1,8 +1,7 @@
 import axios from "axios";
-import {
-  getItemFromLocalStorage,
-  removeItemFromLocalStorage,
-} from "@/lib/utils";
+import { store } from "@/store";
+import { logout } from "@/store/authSlice";
+import { removeItemFromLocalStorage } from "@/lib/utils";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -13,7 +12,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = getItemFromLocalStorage("accessToken");
+    const state = store.getState();
+    const token = state.auth.token;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -27,12 +27,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = error.config?.url?.includes("/auth/");
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      store.dispatch(logout());
       removeItemFromLocalStorage("accessToken");
       removeItemFromLocalStorage("user");
-      removeItemFromLocalStorage("email");
-      removeItemFromLocalStorage("otp");
-      removeItemFromLocalStorage("username");
+      removeItemFromLocalStorage("network");
+      removeItemFromLocalStorage("publicKey");
 
       const currentPath = window.location.pathname;
       const redirectUrl =

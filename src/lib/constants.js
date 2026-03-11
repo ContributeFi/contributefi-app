@@ -762,7 +762,7 @@ export const DASHBOARD_NAV_LINKS = [
         icon: HiSquare3Stack3D,
       },
       { title: "Tasks", href: "/tasks", icon: FaNewspaper },
-      { title: "Earnings", href: "/earnings", icon: FaCreditCard },
+
       {
         title: "Analytics",
         href: "/analytics",
@@ -774,6 +774,7 @@ export const DASHBOARD_NAV_LINKS = [
     heading: "PERSONAL",
     links: [
       { title: "Profile", href: "/profile", icon: FaUser },
+      { title: "Earnings", href: "/earnings", icon: FaCreditCard },
       {
         title: "Notifications",
         href: "/notifications",

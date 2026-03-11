@@ -14,7 +14,6 @@ import CreateCommunityForm from "../CreateCommunityForm";
 import DashboardLogo from "./DashboardLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { Label } from "../ui/label";
-import { setItemInLocalStorage } from "@/lib/utils";
 import { uploadProfilePicture } from "@/services";
 import { toast } from "react-toastify";
 import { FaUserLarge } from "react-icons/fa6";
@@ -26,9 +25,9 @@ import { useWallet } from "@/hooks/useWallet";
 
 function DashboardLayout() {
   const { user, isAuthenticated, setUser } = useAuth();
-  const { userKey } = useWallet();
+  const { publicKey } = useWallet();
 
-  console.log("DashboardLayout render - userKey:", userKey);
+  console.log("DashboardLayout render - publicKey:", publicKey);
 
   const [sheetIsOpen, setSheetIsOpen] = useState(false);
 
@@ -62,14 +61,11 @@ function DashboardLayout() {
       const response = await uploadProfilePicture(file);
 
       if (response?.data?.content?.profileImageUrl) {
-        setUser((prevUser) => {
-          const updatedUser = {
-            ...prevUser,
-            profileImageUrl: response.data.content.profileImageUrl,
-          };
-          setItemInLocalStorage("user", updatedUser);
-          return updatedUser;
-        });
+        const updatedUser = {
+          ...user,
+          profileImageUrl: response.data.content.profileImageUrl,
+        };
+        setUser(updatedUser);
       } else {
         toast.error("Failed to upload profile picture");
         return;

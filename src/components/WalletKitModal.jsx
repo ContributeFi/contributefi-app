@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { WalletKitService } from "../utils/wallet-kit/services/global-service";
 import { useWallet } from "@/hooks/useWallet";
 import { useMutation } from "@tanstack/react-query";
-import { requestWalletChallenge, verifyWalletLogin } from "@/services";
+import { initiateWalletChallenge, verifyWalletChallenge } from "@/services";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,36 +13,31 @@ export default function WalletKitModal() {
   const [shouldRender, setShouldRender] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const {
-    walletKitIsOpen,
-    setWalletKitIsOpen,
-    setUserKey,
+    stellarWalletKitIsOpen,
+    setPublicKey,
     setNetwork,
-    selectedSourceChain,
-    userKey,
+    publicKey,
     network,
+    handleCloseStellarWalletKitModal,
   } = useWallet();
+
   const stellarWalletKitOptions = WalletKitService.walletKit.modules;
 
-  console.log({ userKey, network });
-
-  const { mutate: walletChallengeMutation } = useMutation({
+  const { mutate: initiateWalletChallengeMutation } = useMutation({
     mutationFn: ({ publicKey, network }) =>
-      requestWalletChallenge(publicKey, network.network),
-    onSuccess: async (challengeData) => {
-      console.log({ challengeData });
-      if (challengeData?.data?.content) {
+      initiateWalletChallenge(publicKey, network.network),
+    onSuccess: async (data) => {
+      if (data?.status === 200) {
         try {
           const signedChallengeXdr = await WalletKitService.signTx(
-            challengeData.data.content,
+            data.data.content,
             network,
           );
 
-          console.log({ signedChallengeXdr });
-          verifyWalletMutation({
+          verifyWalletChallengeMutation({
             signedChallengeXdr,
-            publicKey: userKey,
+            publicKey,
             network: network.network,
           });
         } catch (error) {
@@ -57,39 +52,43 @@ export default function WalletKitModal() {
     },
   });
 
-  const { mutate: verifyWalletMutation } = useMutation({
+  const { mutate: verifyWalletChallengeMutation } = useMutation({
     mutationFn: ({ signedChallengeXdr, publicKey, network }) =>
-      verifyWalletLogin(signedChallengeXdr, publicKey, network),
+      verifyWalletChallenge(signedChallengeXdr, publicKey, network),
     onSuccess: async (data) => {
+      console.log({ data });
       if (data.status === 200) {
         const content = data.data.content;
-        if (!content.isVerified) {
+        const token = content.accessToken?.token;
+
+        if (!content.username) {
           login({
-            token: content.accessToken.token,
-            email: content.email,
-            user: null,
-            otp: null,
-            username: null,
-          });
-          navigate("/get-started/verify-email");
-          toast.success("Kindly verify your email address");
-        } else if (!content.username) {
-          login({
-            token: content.accessToken.token,
-            email: content.email,
+            token,
+            email: null,
             user: null,
             otp: "123456",
             username: null,
+            authMethod: "WALLET",
           });
           navigate("/get-started/username");
-          toast.error("Kindly select a username");
+        } else if (!content.bio && !content.lastLogin) {
+          login({
+            token,
+            email: null,
+            user: null,
+            otp: null,
+            username: content.username,
+            authMethod: "WALLET",
+          });
+          navigate("/get-started/account-configuration");
         } else {
           login({
-            token: content.accessToken.token,
+            token,
             email: null,
             user: content,
             otp: null,
             username: null,
+            authMethod: "WALLET",
           });
           navigate("/", { replace: true });
           toast.success("Login successful");
@@ -97,13 +96,14 @@ export default function WalletKitModal() {
       }
     },
     onError: (error) => {
+      console.error("Wallet login failed:", error);
       toast.error(error.response?.data?.message || "Wallet login failed");
     },
   });
 
   useEffect(() => {
     Promise.all(
-      stellarWalletKitOptions.map(({ isAvailable }) => isAvailable()),
+      stellarWalletKitOptions.map(async ({ isAvailable }) => isAvailable()),
     ).then((results) => {
       const map = new Map();
       results.forEach((isAvailable, index) => {
@@ -115,7 +115,7 @@ export default function WalletKitModal() {
 
   // Mount and show modal
   useEffect(() => {
-    if (walletKitIsOpen) {
+    if (stellarWalletKitIsOpen) {
       setShouldRender(true);
       // small timeout to trigger enter transition
       setTimeout(() => setIsVisible(true), 20);
@@ -123,11 +123,7 @@ export default function WalletKitModal() {
       setIsVisible(false);
       setTimeout(() => setShouldRender(false), 300); // Match transition duration
     }
-  }, [walletKitIsOpen]);
-
-  const closeHandler = () => {
-    setWalletKitIsOpen(false);
-  };
+  }, [stellarWalletKitIsOpen]);
 
   const handleDownload = (url) => {
     window.open(url, "_blank");
@@ -137,7 +133,7 @@ export default function WalletKitModal() {
 
   return (
     <div
-      onClick={closeHandler}
+      onClick={handleCloseStellarWalletKitModal}
       className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/35 px-2 py-5 backdrop-blur-sm sm:p-6"
     >
       {/* Modal Panel */}
@@ -149,7 +145,7 @@ export default function WalletKitModal() {
       >
         <svg
           className="absolute top-0 right-0 mt-4 mr-4 h-auto w-5 cursor-pointer text-gray-500"
-          onClick={closeHandler} // Close on click
+          onClick={handleCloseStellarWalletKitModal} // Close on click
           viewBox="0 0 32 32"
           fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
@@ -174,15 +170,17 @@ export default function WalletKitModal() {
                   isAvailableMap.get(option?.productName)
                     ? WalletKitService.login(
                         option?.productId,
-                        selectedSourceChain,
-                        setUserKey,
+                        setPublicKey,
                         setNetwork,
                         (publicKey, network) => {
-                          walletChallengeMutation({ publicKey, network });
+                          initiateWalletChallengeMutation({
+                            publicKey,
+                            network,
+                          });
                         },
                       )
                     : handleDownload(option?.productUrl);
-                  setWalletKitIsOpen(false);
+                  handleCloseStellarWalletKitModal();
                 }}
                 key={option?.productName}
                 className="transform cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-transform duration-300 hover:translate-x-1 hover:translate-y-1"
