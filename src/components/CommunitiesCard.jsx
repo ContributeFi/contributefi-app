@@ -164,7 +164,7 @@ function CommunitiesCard({ community }) {
           </div>
         </div>
 
-        <p className="text-sm font-light text-[#050215]">
+        <p className="truncate text-sm font-light text-[#050215]">
           {community?.communityDescription}
         </p>
       </div>
