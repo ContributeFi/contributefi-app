@@ -82,7 +82,7 @@ function DashboardLayout() {
 
   const { communityAlias: communityId } = useParams();
   const { taskId } = useParams();
-  const { newBurst } = useParams();
+  const { newBurst, burstId } = useParams();
 
   const [uploading, setUploading] = useState(false);
 
@@ -204,7 +204,7 @@ function DashboardLayout() {
           <DashboardDesktopHeader>
             {communityId || taskId ? (
               <BackButton />
-            ) : newBurst ? (
+            ) : newBurst || burstId ? (
               <div></div>
             ) : (
               <Heading />

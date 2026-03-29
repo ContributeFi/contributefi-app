@@ -55,7 +55,7 @@ export default function CustomInput({
               </span>
             )}
             {token && (
-              <span className="absolute top-0 bottom-0 left-0 flex h-full w-[25%] items-center rounded-l-sm bg-[#EDF2FF] px-4 pt-2 text-sm text-[#8791A7]">
+              <span className="absolute top-0 bottom-0 left-0 flex h-full w-[30%] items-center rounded-l-sm bg-[#EDF2FF] px-4 pt-2 text-sm text-[#8791A7]">
                 {token}
               </span>
             )}

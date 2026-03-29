@@ -27,7 +27,7 @@ function MoreAboutBurst({ sheetIsOpen, setSheetIsOpen }) {
   return (
     <Sheet open={sheetIsOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
-        <Button className="cursor-pointer rounded-md bg-[#EDF2FF] px-8 py-5 text-[16px] font-[300] text-[#205CE2] hover:bg-[#2F0FD1] hover:text-white md:w-auto">
+        <Button className="w-full cursor-pointer rounded-md bg-[#EDF2FF] px-8 py-5 text-[16px] font-[300] text-[#205CE2] hover:bg-[#2F0FD1] hover:text-white min-[240px]:w-fit">
           More About Burst
         </Button>
       </SheetTrigger>

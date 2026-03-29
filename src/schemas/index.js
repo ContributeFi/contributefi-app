@@ -97,6 +97,55 @@ const GrowthTaskSchema = z.object({
   keywordValidation: z.string().nullish(),
 });
 
+export const CreateBurstSchema = z
+  .object({
+    burstTitle: z.string().nonempty("Burst title is required"),
+    platform: z
+      .string({ required_error: "Platform is required" })
+      .min(1, "Platform is required"),
+    selectionMethod: z
+      .string({ required_error: "Selection method is required" })
+      .min(1, "Selection method is required"),
+    numberOfSelections: z
+      .union([z.string(), z.number()])
+      .optional()
+      .transform((val) => (val === "" ? undefined : Number(val)))
+      .refine((val) => val !== undefined, {
+        message: "Number of selections is required",
+      })
+      .pipe(z.number().min(1)),
+    tokenContract: z.string().nonempty("Token contract is required"),
+    conversation: z.string().nonempty("Conversation is required"),
+    tokensForWinner: z
+      .union([z.string(), z.number()])
+      .optional()
+      .transform((val) => (val === "" ? undefined : Number(val)))
+      .refine((val) => val !== undefined, {
+        message: "Number of tokens for winner is required",
+      })
+      .pipe(z.number().min(1)),
+    sentimentCheck: z.string().min(1, "Sentiment check is required"),
+    requireImage: z.boolean().default(false),
+    referenceImages: z
+      .union([z.array(z.string()), z.any()])
+      .optional()
+      .refine((files) => {
+        if (!files || !Array.isArray(files)) return true;
+        return files.length <= 3;
+      }, "Maximum 3 images allowed"),
+  })
+  .refine(
+    (data) => {
+      const files = data.referenceImages;
+      const len = Array.isArray(files) ? files.length : 0;
+      return !data.requireImage || len > 0;
+    },
+    {
+      message: "Please upload at least 1 reference image",
+      path: ["referenceImages"],
+    },
+  );
+
 export const CreateGrowthQuestSchema = z
   .object({
     questTitle: z.string().nonempty("Quest title is required"),

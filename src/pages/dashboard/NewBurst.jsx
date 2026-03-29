@@ -7,73 +7,130 @@ import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getItemFromLocalStorage } from "@/lib/utils";
-import { CreateGrowthQuestSchema } from "@/schemas";
+import { getItemFromLocalStorage, setItemInLocalStorage } from "@/lib/utils";
+import { CreateBurstSchema } from "@/schemas";
+import { createBurst, uploadBurstImage } from "@/services";
 import {
-  REWARD_MODES,
+  BURST_SELECTION_METHOD,
   SENTIMENT_CHECK,
   SOCIAL_MEDIA_PLATFORM,
 } from "@/utils/constants";
 import { Checkbox, Field, Radio, RadioGroup } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { PiNotePencilFill } from "react-icons/pi";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Switch } from "@/components/ui/switch";
+import { hydrateQuestData } from "@/utils";
 
 function NewBurst() {
   const { newBurst } = useParams();
   const [openTokenSelectorModal, setOpenTokenSelectorModal] = useState(false);
-  const [step, setStep] = useState(1);
   const [rewardToken, setRewardToken] = useState(
     getItemFromLocalStorage("rewardToken") || null,
   );
+  const [burstData, setBurstData] = useState(() => {
+    const stored = getItemFromLocalStorage("burstData");
+    return stored ? hydrateQuestData(stored) : null;
+  });
+  const [imagePreviews, setImagePreviews] = useState(
+    getItemFromLocalStorage("burstImageUrls") || [],
+  );
+
+  const navigate = useNavigate();
 
   const handleChangeToken = () => {
     setOpenTokenSelectorModal(true);
   };
 
-  const handleContinue = () => {
-    setStep(2);
-  };
-
   const {
+    handleSubmit,
     formState: { errors },
     control,
     watch,
     setValue,
+    register,
   } = useForm({
-    resolver: zodResolver(CreateGrowthQuestSchema),
+    resolver: zodResolver(CreateBurstSchema),
+    defaultValues: burstData ?? {
+      burstTitle: "",
+      platform: "",
+      selectionMethod: "",
+      numberOfSelections: "",
+      tokenContract: "",
+      symbol: "",
+    },
   });
 
-  console.log("NewBurst render - newBurst param:", newBurst);
+  const onSubmit = async (data) => {
+    console.log(data);
+    const updatedData = {
+      ...data,
+      referenceImages: imagePreviews,
+      tokenContract: rewardToken?.contract,
+      symbol: rewardToken?.code,
+    };
+
+    try {
+      const response = await createBurst(updatedData);
+      console.log("Burst created:", response);
+      setItemInLocalStorage("burstData", response.data.content);
+      setBurstData(response.data.content);
+      setItemInLocalStorage("rewardToken", rewardToken);
+      navigate("/burst/preview");
+    } catch (error) {
+      console.error("Failed to create burst:", error);
+    }
+  };
+
+  console.log({ errors, rewardToken });
+
+  useEffect(() => {
+    setValue(
+      "tokenContract",
+      rewardToken?.contract
+        ? `Contract: ${rewardToken.contract.slice(0, 5)}...${rewardToken.contract.slice(-5)}`
+        : rewardToken?.issuer
+          ? `Issuer: ${rewardToken.issuer.slice(0, 5)}...${rewardToken.issuer.slice(-5)}`
+          : "",
+    );
+  }, [rewardToken, setValue]);
+
+  useEffect(() => {
+    const savedUrls = getItemFromLocalStorage("burstImageUrls") || [];
+    if (savedUrls.length > 0) {
+      setValue("referenceImages", savedUrls);
+    }
+  }, [setValue]);
+
   return (
     <div>
       <div className="space-y-8">
         <div className="space-y-[32px] rounded-[4px] bg-white px-[56px] pt-[32px] pb-[80px]">
           <BackButton />
 
-          {step === 1 && (
+          {newBurst === "new-burst" && (
             <div className="space-y-[24px]">
               <p className="font-bricolage text-[24px] font-[700] text-[#050215]">
                 Create New Burst
               </p>
 
               <form
-                //   onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(onSubmit)}
                 className="grid gap-5 lg:grid-cols-2"
               >
                 <CustomInput
                   label="Burst Title"
                   placeholder="Enter Title"
                   type="text"
-                  // error={errors.questTitle?.message}
-                  // {...register("questTitle")}
+                  error={errors.burstTitle?.message}
+                  {...register("burstTitle")}
                 />
+
                 <Controller
-                  name="socialMediaPlatform"
+                  name="platform"
                   control={control}
                   render={({ field }) => (
                     <CustomSelect
@@ -81,17 +138,18 @@ function NewBurst() {
                       options={SOCIAL_MEDIA_PLATFORM}
                       value={field.value}
                       onChange={field.onChange}
-                      error={errors.socialMediaPlatform?.message}
+                      error={errors.platform?.message}
                     />
                   )}
                 />
+
                 <Controller
                   name="selectionMethod"
                   control={control}
                   render={({ field }) => (
                     <CustomSelect
                       label="Selection Method"
-                      options={SOCIAL_MEDIA_PLATFORM}
+                      options={BURST_SELECTION_METHOD}
                       value={field.value}
                       onChange={field.onChange}
                       error={errors.selectionMethod?.message}
@@ -101,10 +159,10 @@ function NewBurst() {
 
                 <CustomInput
                   label="How many selection?"
-                  placeholder="1"
+                  placeholder="eg 10"
                   type="number"
-                  error={errors.tokensPerWinner?.message}
-                  // {...register("tokensPerWinner", { valueAsNumber: true })}
+                  error={errors.numberOfSelections?.message}
+                  {...register("numberOfSelections")}
                 />
 
                 <CustomInput
@@ -112,17 +170,11 @@ function NewBurst() {
                   placeholder="Select or enter an asset or token"
                   type="text"
                   error={errors.tokenContract?.message}
-                  // {...register("tokenContract")}
-                  // className={
-                  //   rewardType !== "Token"
-                  //     ? "hidden"
-                  //     : rewardToken
-                  //       ? "pl-[30%]"
-                  //       : ""
-                  // }
+                  {...register("tokenContract")}
+                  className={rewardToken ? "pl-[35%]" : ""}
                   onFocus={handleChangeToken}
                   handleClickIcon={() => {}}
-                  icon={<IoMdArrowDropdown />}
+                  icon={rewardToken ? null : <IoMdArrowDropdown />}
                   token={
                     rewardToken && (
                       <div className="flex w-full items-center gap-2 text-sm text-black">
@@ -149,8 +201,8 @@ function NewBurst() {
                   label="How many token for the winner?"
                   placeholder="eg 50"
                   type="number"
-                  error={errors.tokensPerWinner?.message}
-                  // {...register("tokensPerWinner", { valueAsNumber: true })}
+                  error={errors.tokensForWinner?.message}
+                  {...register("tokensForWinner")}
                 />
 
                 <Label className="flex flex-col items-start gap-2 text-base font-light text-[#09032A] lg:col-span-2">
@@ -158,19 +210,20 @@ function NewBurst() {
                   <Textarea
                     className="h-[96px] rounded-[12px] border-none bg-[#F7F9FD] px-4 text-base placeholder:text-base placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0"
                     placeholder="What's the community about?"
-                    //   error={errors.communityDescription?.message}
-                    //   {...register("communityDescription")}
+                    error={errors.conversation?.message}
+                    {...register("conversation")}
                   />
                 </Label>
 
                 <div className="lg:col-span-2">
                   <Controller
-                    name="rewardMode"
+                    name="sentimentCheck"
                     control={control}
+                    defaultValue="Positive"
                     render={({ field }) => (
                       <div className="grid gap-2">
                         <p className="text-base font-light text-[#09032A]">
-                          Reward Mode
+                          Sentiment Check
                         </p>
                         <RadioGroup
                           value={field.value}
@@ -207,7 +260,7 @@ function NewBurst() {
 
                 <div className="flex items-center gap-3 lg:col-span-2">
                   <Controller
-                    name="makeConcurrent"
+                    name="requireImage"
                     control={control}
                     defaultValue={false}
                     render={({ field }) => (
@@ -236,13 +289,37 @@ function NewBurst() {
                   </p>
                 </div>
 
-                <div className="lg:col-span-2">
-                  <FileUpload />
-                </div>
+                {watch("requireImage") && (
+                  <div className="lg:col-span-2">
+                    <Controller
+                      name="referenceImages"
+                      control={control}
+                      render={({ field }) => (
+                        <FileUpload
+                          onUpload={async (file) => {
+                            const response = await uploadBurstImage(file);
+                            const urls = response?.data?.content || [];
+                            const existingUrls =
+                              getItemFromLocalStorage("burstImageUrls") || [];
+                            const allUrls = [...existingUrls, ...urls];
+                            setItemInLocalStorage("burstImageUrls", allUrls);
+                            setImagePreviews(allUrls);
+                            field.onChange(allUrls);
+                            return response;
+                          }}
+                          previews={imagePreviews}
+                          setPreviews={setImagePreviews}
+                          disabled={imagePreviews.length >= 3}
+                          error={errors.referenceImages?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                )}
 
                 <Button
-                  onClick={handleContinue}
-                  className="w-full cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 text-[16px] font-[300] hover:bg-[#2F0FD1]/70 hover:text-white lg:col-span-2"
+                  type="submit"
+                  className="mt-4 w-full cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 text-[16px] font-[300] hover:bg-[#2F0FD1]/70 hover:text-white lg:col-span-2"
                 >
                   Continue
                 </Button>
@@ -250,7 +327,7 @@ function NewBurst() {
             </div>
           )}
 
-          {step === 2 && (
+          {newBurst === "preview" && (
             <div className="space-y-[24px]">
               <div className="flex items-center justify-between gap-4">
                 <p className="font-bricolage text-[24px] font-[700] text-[#050215]">
@@ -258,7 +335,7 @@ function NewBurst() {
                 </p>
 
                 <Button
-                  onClick={() => setStep(1)}
+                  onClick={() => navigate(-1)}
                   className="group cursor-pointer rounded-md bg-[#EDF2FF] px-8 py-5 text-[16px] font-[300] text-[#205CE2] hover:bg-[#2F0FD1] hover:text-white"
                 >
                   Edit Burst
@@ -267,66 +344,83 @@ function NewBurst() {
               </div>
 
               <div className="space-y-[16px]">
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#525866]">
                     Burst Title
                   </p>
-                  <p className="flex-2">Join a Trending Topic about Errands</p>
+                  <p className="flex-2 text-[#050215]">
+                    {burstData?.burstTitle || "-"}
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Social Media Platform
                   </p>
-                  <p className="flex-2">Twitter</p>
+                  <p className="flex-2">{burstData?.platform || "-"}</p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Number of Winners
                   </p>
-                  <p className="flex-2">1</p>
+                  <p className="flex-2">
+                    {burstData?.numberOfSelections || "-"}
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Burst Duration
                   </p>
-                  <p className="flex-2">08:00 AM to 11:00 AM</p>
+                  <p className="flex-2">
+                    {burstData?.startDate
+                      ? new Date(burstData.startDate).toLocaleString()
+                      : "-"}
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Reward Per Winner
                   </p>
-                  <p className="flex-2">50 XLM</p>
+                  <p className="flex-2">
+                    {burstData?.tokensForWinner} {burstData?.symbol || "XLM"}
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Conversation Type
                   </p>
-                  <p className="flex-2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in repreh
-                  </p>
+                  <p className="flex-2">{burstData?.conversation || "-"}</p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Reference Images
                   </p>
-                  <p className="flex-2">Twitter</p>
+                  <div className="flex flex-2 gap-2">
+                    {(
+                      burstData?.referenceImages ||
+                      getItemFromLocalStorage("burstImageUrls") ||
+                      []
+                    ).map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt={`Reference ${idx + 1}`}
+                        className="h-10 w-20 rounded object-cover"
+                      />
+                    ))}
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-left">
-                  <p className="flex-1 text-[15px] text-[#48484A]">
-                    Social Media Platform
+                <div className="flex items-center justify-between gap-4 text-left">
+                  <p className="flex-1 text-[16px] text-[#48484A]">
+                    Sentiment Check
                   </p>
-                  <p className="flex-2">Twitter</p>
+                  <p className="flex-2">{burstData?.sentimentCheck || "-"}</p>
                 </div>
               </div>
 

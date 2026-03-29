@@ -7,9 +7,20 @@ export const REWARD_TYPES = [
 ];
 
 export const SOCIAL_MEDIA_PLATFORM = [
-  { label: "X (Twitter)", value: "twitter" },
-  { label: "Discord", value: "discord" },
-  { label: "Telegram", value: "telegram" },
+  { label: "X (Twitter)", value: "X (Twitter)" },
+  // { label: "Discord", value: "discord" },
+  // { label: "Telegram", value: "telegram" },
+];
+
+export const BURST_SELECTION_METHOD = [
+  {
+    label: "Automated: AI selects and publishes the best entry",
+    value: "Automated: AI selects and publishes the best entry",
+  },
+  {
+    label: "Assisted: AI shortlists; manual review required",
+    value: "Assisted: AI shortlists; manual review required",
+  },
 ];
 
 export const NETWORK_TYPES = [

@@ -5,35 +5,35 @@ function BurstCard({ burst, tag }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const pathLength = location.pathname.split("/").length;
-  let pathname = location.pathname.split("/");
+  // const pathLength = location.pathname.split("/").length;
+  // let pathname = location.pathname.split("/");
 
-  pathname = pathname[1] + "/" + pathname[2];
+  // pathname = pathname[1] + "/" + pathname[2];
 
   const handleOpen = () => {
-    if (!burst.isActive) {
-      toast.error("Quest is no longer available");
-      return;
-    }
-    if (pathLength === 3 && location.pathname.startsWith("/communities")) {
-      navigate(
-        `/${location.pathname.slice(1, location.pathname.length)}/${encodeURIComponent(burst.id)}`,
-        {
-          replace: false,
-        },
-      );
-      return;
-    } else if (pathLength === 4) {
-      navigate(`/${pathname}/${encodeURIComponent(burst.id)}`, {
-        replace: false,
-      });
-      return;
-    } else {
-      navigate(`/tasks/${encodeURIComponent(burst.id)}`, {
-        replace: false,
-      });
-      return;
-    }
+    // if (!burst.isActive) {
+    //   toast.error("Quest is no longer available");
+    //   return;
+    // }
+    // if (pathLength === 3 && location.pathname.startsWith("/communities")) {
+    //   navigate(
+    //     `/${location.pathname.slice(1, location.pathname.length)}/${encodeURIComponent(burst.id)}`,
+    //     {
+    //       replace: false,
+    //     },
+    //   );
+    //   return;
+    // } else if (pathLength === 4) {
+    //   navigate(`/${pathname}/${encodeURIComponent(burst.id)}`, {
+    //     replace: false,
+    //   });
+    //   return;
+    // } else {
+    navigate(`detail/${encodeURIComponent(burst.id)}`, {
+      replace: false,
+    });
+    // return;
+    // }
   };
 
   return (
