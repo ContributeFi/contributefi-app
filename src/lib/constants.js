@@ -15,6 +15,7 @@ import { HiUserGroup } from "react-icons/hi";
 import { BsIntersect } from "react-icons/bs";
 import { LuListChecks } from "react-icons/lu";
 import { GoSignOut } from "react-icons/go";
+import { PiMegaphoneFill } from "react-icons/pi";
 
 export const LANDING_NAV_LINKS = [
   { title: "Communities", href: "/communities" },
@@ -762,7 +763,7 @@ export const DASHBOARD_NAV_LINKS = [
         icon: HiSquare3Stack3D,
       },
       { title: "Tasks", href: "/tasks", icon: FaNewspaper },
-      { title: "Burst", href: "/burst", icon: FaNewspaper },
+      { title: "Burst", href: "/burst", icon: PiMegaphoneFill },
       {
         title: "Analytics",
         href: "/analytics",
