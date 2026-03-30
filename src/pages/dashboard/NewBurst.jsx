@@ -277,7 +277,7 @@ function NewBurst() {
                   Which conversations do you want to engage in?
                   <Textarea
                     className="h-[96px] rounded-[12px] border-none bg-[#F7F9FD] px-4 text-base placeholder:text-base placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0"
-                    placeholder="What's the community about?"
+                    placeholder="e.g trending topic about new mobile apps"
                     error={errors.conversation?.message}
                     {...register("conversation")}
                   />

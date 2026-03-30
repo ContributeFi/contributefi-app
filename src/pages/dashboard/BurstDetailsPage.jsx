@@ -6,7 +6,7 @@ import { FaUsers } from "react-icons/fa";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import Empty from "@/components/Empty";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { endTime, timeAgo } from "@/utils";
 import { IoIosCheckmarkCircle, IoIosRefreshCircle } from "react-icons/io";
 import {
@@ -23,10 +23,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { BsInfoCircleFill } from "react-icons/bs";
 import { PiMegaphoneFill } from "react-icons/pi";
+import { IoChevronDown, IoChevronUp } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 function BurstDetailsPage() {
   const { burstId } = useParams();
   const { requireAuth } = useRequireAuth();
+  const [collapsedTasks, setCollapsedTasks] = useState({});
+
+  const toggleTask = (index) => {
+    setCollapsedTasks((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
 
   console.log({ burstId });
 
@@ -149,7 +160,7 @@ function BurstDetailsPage() {
                   </p>
                 </div>
 
-                {user.id === burst?.creatorId && (
+                {user.id !== burst?.creatorId && (
                   <>
                     <Accordion
                       type="single"
@@ -157,8 +168,8 @@ function BurstDetailsPage() {
                       className="rounded-[8px] border border-[#8791A7] p-1"
                     >
                       <AccordionItem
+                        value="post-trend-link"
                         className={`relative w-full cursor-pointer rounded-[8px] bg-white`}
-                        // value={task?.payload?.functionSpec?.doc}
                       >
                         <AccordionTrigger
                           className={`cursor-pointer bg-[#2F0FD1] px-8 py-4 text-white hover:no-underline`}
@@ -168,42 +179,75 @@ function BurstDetailsPage() {
                               <PiMegaphoneFill className="text-[30px]" />
                               Post Trend Link and Suggest a Post
                             </span>
-
-                            {/* <span className="text-white">
-                              {quest?.rewardType === "Token" &&
-                                task.tokensPerTask &&
-                                `(${task.tokensPerTask + " " + quest?.symbol})`}
-
-                              {quest?.rewardType === "Points" &&
-                                task?.pointsPerTask &&
-                                `(${task?.pointsPerTask + " Points"})`}
-                            </span> */}
                           </p>
                         </AccordionTrigger>
                         <AccordionContent className="flex flex-col gap-4 rounded-xl bg-white px-[30px] py-4 text-[18px] font-normal">
                           <div className="space-y-3">
-                            {/* {task?.userProgress?.completed ? (
-                              <>
-                                <CustomInput
-                                  placeholder="Paste Post URL Here"
-                                  value={task?.userProgress?.submission}
-                                  disabled
-                                  icon={
-                                    <IoIosCheckmarkCircle className="text-[30px] text-[#538E11]" />
-                                  }
-                                />
-                              </>
-                            ) : (
-                              <OnChainTaskInput
-                                task={task}
-                                quest={quest}
-                                userId={user?.id}
-                              />
-                            )} */}
+                            <div className="flex w-full items-center gap-2">
+                              1.{" "}
+                              <div className="w-full">
+                                <CustomInput placeholder="Paste Post URL Here" />
+                              </div>
+                            </div>
+
+                            <div className="flex w-full items-center gap-2">
+                              2.{" "}
+                              <div className="w-full overflow-hidden rounded-[8px] border border-[#D4DCEA] text-[16px]">
+                                <div className="flex items-center justify-between px-4 py-2 text-[#09032A]">
+                                  <p className="font-semibold text-[#09032A]">
+                                    Suggest Post for the Trend
+                                  </p>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleTask("suggest-post")}
+                                    className="text-[#09032A]"
+                                  >
+                                    {collapsedTasks["suggest-post"] ? (
+                                      <IoChevronDown className="text-[30px]" />
+                                    ) : (
+                                      <IoChevronUp className="text-[30px]" />
+                                    )}
+                                  </button>
+                                </div>
+
+                                {!collapsedTasks["suggest-post"] && (
+                                  <div className="space-y-4 bg-white p-4">
+                                    {/* <CustomInput placeholder="Write your suggested post here..." /> */}
+                                    <Textarea
+                                      className="h-[96px] rounded-[12px] border-none bg-[#F7F9FD] px-4 text-base placeholder:text-base placeholder:text-[#8791A7] focus:border-none focus:outline-0 focus:outline-none focus-visible:border-none focus-visible:ring-0"
+                                      placeholder="Type post here..."
+                                      //   error={errors.conversation?.message}
+                                      //   {...register("conversation")}
+                                    />
+
+                                    <div className="flex justify-end">
+                                      <Button className="cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 text-[16px] font-[300] hover:bg-[#2F0FD1]/70 hover:text-white">
+                                        Submit Entry
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
+                  </>
+                )}
+
+                {user.id === burst?.creatorId && (
+                  <>
+                    <hr />
+                    <div>
+                      <h2 className="font-bricolage text-[20px] font-bold text-[#050215]">
+                        Top Entries (5)
+                      </h2>
+                      <p className="text-[18px] text-[#525866]">
+                        The selected entry gets selected as the winner
+                      </p>
+                    </div>
                   </>
                 )}
               </div>
