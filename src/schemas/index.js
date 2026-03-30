@@ -156,7 +156,7 @@ export const CompleteBurstCreateSchema = z
       (val) => (val === "" ? null : val),
       z.date().nullable(),
     ),
-    postStartTime: z
+    trendAge: z
       .string({ required_error: "Post start time is required" })
       .min(1, "Post start time is required"),
     autoPostSelected: z.boolean().default(false),

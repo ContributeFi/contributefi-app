@@ -86,7 +86,7 @@ function NewBurst() {
   } = useForm({
     resolver: zodResolver(CompleteBurstCreateSchema),
     defaultValues: {
-      postStartTime: "",
+      trendAge: "",
       startDate: null,
       endDate: null,
       autoPostSelected: false,
@@ -515,7 +515,7 @@ function NewBurst() {
 
                 <div className="col-span-2 w-full lg:col-span-1">
                   <Controller
-                    name="postStartTime"
+                    name="trendAge"
                     control={createBurstControl}
                     render={({ field }) => (
                       <CustomSelect
@@ -523,7 +523,7 @@ function NewBurst() {
                         options={POST_START_TIME}
                         value={field.value}
                         onChange={field.onChange}
-                        error={createBurstErrors.postStartTime?.message}
+                        error={createBurstErrors.trendAge?.message}
                       />
                     )}
                   />

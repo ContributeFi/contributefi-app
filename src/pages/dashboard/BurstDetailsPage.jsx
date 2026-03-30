@@ -21,6 +21,7 @@ import TaskSubmissionForm from "@/components/dashboard/TaskSubmissionForm";
 import OnChainTaskInput from "@/components/dashboard/OnChainTaskInput";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { BsInfoCircleFill } from "react-icons/bs";
 
 function BurstDetailsPage() {
   const { burstId } = useParams();
@@ -58,8 +59,14 @@ function BurstDetailsPage() {
   return (
     <div>
       <div className="space-y-8">
-        <div className="space-y-[32px] rounded-[4px] bg-white px-[56px] pt-[32px] pb-[80px]">
+        <div className="md:hidden">
           <BackButton />
+        </div>
+
+        <div className="space-y-[32px] rounded-[4px] bg-white px-4 py-6 lg:px-[56px] lg:pt-[32px] lg:pb-[80px]">
+          <div className="hidden md:block">
+            <BackButton />
+          </div>
 
           {loadingQuest ? (
             <Loader />
@@ -67,50 +74,38 @@ function BurstDetailsPage() {
             <Error title="Failed to load community details." />
           ) : (
             <div className="space-y-6">
-            
-
               <div className="space-y-8">
                 <div className="space-y-6">
                   <div>
                     <div className="space-y-4">
-                      <h2 className="text-[20px] font-bold text-[#050215]">
+                      <h2 className="font-bricolage text-[20px] font-bold text-[#050215]">
                         {burst?.burstTitle}
                       </h2>
-                      {/* <div className="flex flex-wrap gap-2">
-                        <div
-                          className={`rounded-[4px] px-[12px] py-[5px] text-sm font-normal text-[#313131] ${TASK_TAG_BG[quest.category]}`}
-                        >
-                          {quest.category}
-                        </div>
-                      </div> */}
 
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex shrink-0 items-center justify-between">
-                          {/* <div className="h-1 w-1 rounded-full bg-[#636366]" /> */}
-                          <p className="flex gap-1.5 font-normal text-[#525866]">
-                            Published {timeAgo(burst?.createdAt)}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex shrink-0 items-center justify-between gap-2 rounded-[144px] bg-[#F0F4FD] px-5 py-2">
+                          <BsInfoCircleFill />
+                          <p
+                            className={`flex gap-1.5 font-normal text-[#525866]`}
+                          >
+                            Your entry should be:{" "}
+                            <span
+                              className={`font-semibold ${burst?.sentimentCheck === "Positive" ? "text-[#67AD19]" : burst?.sentimentCheck === "Negative" ? "text-[#FF3B30]" : "text-[#525866]"}`}
+                            >
+                              {burst?.sentimentCheck}
+                            </span>
                           </p>
                         </div>
 
                         <p className="flex shrink-0 gap-1.5 font-semibold text-[#2F0FD1]">
-                          {/* <img src="/Gift.svg" alt="" /> */}
-                          {burst?.rewardType === "Token" &&
-                            burst.tokensPerWinner &&
-                            burst.tokensPerWinner +
-                              " " +
-                              burst?.symbol +
-                              " Per Winner"}
-
-                          {burst?.rewardType === "Points" &&
-                            burst?.pointsPerWinner &&
-                            burst?.pointsPerWinner + " Points Per Winner"}
+                          <img src="/Gift.svg" alt="" />
+                          {burst.tokensForWinner} {burst.symbol}
                         </p>
                       </div>
                     </div>
                   </div>
-
                   <div
-                    className={`grid grid-cols-2 divide-x-[3px] divide-y-[3px] divide-[#F0F4FD] overflow-hidden rounded-[8px] border-[3px] border-[#F0F4FD] ${burst?.numberOfWinners && burst?.winnerSelectionMethod ? "lg:grid-cols-4" : "lg:grid-cols-2"} lg:divide-y-0 lg:py-5 [@media(max-width:379px)]:grid-cols-1 [@media(max-width:379px)]:divide-x-0 [@media(max-width:379px)]:divide-y-[3px]`}
+                    className={`grid grid-cols-2 divide-x-[3px] divide-y-[3px] divide-[#F0F4FD] overflow-hidden rounded-[8px] border-[3px] border-[#F0F4FD] lg:grid-cols-4 lg:divide-y-0 lg:py-5 [@media(max-width:379px)]:grid-cols-1 [@media(max-width:379px)]:divide-x-0 [@media(max-width:379px)]:divide-y-[3px]`}
                   >
                     {burst?.participants && (
                       <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
@@ -121,42 +116,35 @@ function BurstDetailsPage() {
                       </div>
                     )}
 
-                    {burst?.endDate ? (
+                    {burst?.endDate && (
                       <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
-                        <p className="text-[#525866]">Quest Duration</p>
+                        <p className="text-[#525866]">Burst Time</p>
                         <p className="font-semibold text-[#09032A]">
                           {endTime(burst?.endDate)}
                         </p>
                       </div>
-                    ) : (
-                      <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
-                        <p className="text-[#525866]">Quest Duration</p>
-                        <p className="font-semibold text-[#09032A]">
-                          Continuous
-                        </p>
-                      </div>
                     )}
-                    {burst?.numberOfWinners && (
+
+                    {burst?.trendAge && (
                       <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
-                        <p className="text-[#525866]"> Number of Winners</p>
+                        <p className="text-[#525866]">Trend Age</p>
                         <p className="font-semibold text-[#09032A]">
-                          {burst?.numberOfWinners}
+                          {burst?.trendAge}
                         </p>
                       </div>
                     )}
 
-                    {burst?.winnerSelectionMethod && (
+                    {burst?.numberOfSelections && (
                       <div className="space-y-[12px] px-4 py-5 text-center lg:py-0">
-                        <p className="text-[#525866]">Selection Method</p>
+                        <p className="text-[#525866]"> Number of Winners</p>
                         <p className="font-semibold text-[#09032A]">
-                          {burst?.winnerSelectionMethod}
+                          {burst?.numberOfSelections}
                         </p>
                       </div>
                     )}
                   </div>
-
                   <p className="font-normal text-[#525866]">
-                    {burst?.burstDescription}
+                    {burst?.conversation}
                   </p>
                 </div>
 

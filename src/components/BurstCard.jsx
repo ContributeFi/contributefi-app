@@ -3,38 +3,14 @@ import { toast } from "react-toastify";
 
 function BurstCard({ burst, tag }) {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // const pathLength = location.pathname.split("/").length;
-  // let pathname = location.pathname.split("/");
-
-  // pathname = pathname[1] + "/" + pathname[2];
 
   const handleOpen = () => {
-    // if (!burst.isActive) {
-    //   toast.error("Quest is no longer available");
-    //   return;
-    // }
-    // if (pathLength === 3 && location.pathname.startsWith("/communities")) {
-    //   navigate(
-    //     `/${location.pathname.slice(1, location.pathname.length)}/${encodeURIComponent(burst.id)}`,
-    //     {
-    //       replace: false,
-    //     },
-    //   );
-    //   return;
-    // } else if (pathLength === 4) {
-    //   navigate(`/${pathname}/${encodeURIComponent(burst.id)}`, {
-    //     replace: false,
-    //   });
-    //   return;
-    // } else {
     navigate(`detail/${encodeURIComponent(burst.id)}`, {
       replace: false,
     });
-    // return;
-    // }
   };
+
+  console.log("BurstCard render with burst:", burst);
 
   return (
     <div
@@ -76,17 +52,17 @@ function BurstCard({ burst, tag }) {
       </div>
 
       <div className="space-y-4">
-        <div className="w-fit bg-[#D9F3DC] px-3 py-[5px]">X (Twitter)</div>
+        <div className="w-fit bg-[#D9F3DC] px-3 py-[5px]">{burst.platform}</div>
 
         <div className="flex items-center gap-2">
           <p className="flex shrink-0 gap-1.5 font-semibold text-[#2F0FD1]">
             <img src="/Gift.svg" alt="" />
-            {burst.amount} XLM
+            {burst.tokensForWinner} {burst.symbol}
           </p>
           <div className="flex shrink-0 items-center gap-1">
             <div className="h-1 w-1 rounded-full bg-[#636366]" />
             <p className="flex gap-1.5 font-semibold text-[#8791A7]">
-              <img src="/UsersThree.svg" alt="" /> {burst.numberOfMembers}
+              <img src="/UsersThree.svg" alt="" /> {burst.participantCount}
             </p>
           </div>
         </div>
