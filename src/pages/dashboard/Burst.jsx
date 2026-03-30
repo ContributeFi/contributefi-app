@@ -94,8 +94,8 @@ function Burst() {
           <Error title="Failed to load bursts." />
         ) : bursts?.data?.length === 0 ? (
           <div className="col-span-full flex h-[calc(100vh-230px)] flex-col items-center justify-center gap-8 bg-white p-4 text-center min-[872px]:h-[calc(100vh-180px)]">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F7F9FD] text-[#2F0FD1]">
-              <PiMegaphoneFill className="h-8 w-8" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#F7F9FD] text-[#2F0FD1]">
+              <PiMegaphoneFill className="h-12 w-12" />
             </div>
             <div className="max-w-md space-y-4">
               <p className="font-bricolage text-[24px] font-bold text-[#050215]">

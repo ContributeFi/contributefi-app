@@ -34,7 +34,7 @@ export default function FileUpload({
   return (
     <div className="space-y-2">
       <div
-        className={`h-[100px] w-full cursor-pointer rounded-[4px] border border-dashed border-[#B2B9C766] bg-[#F7F9FD] text-center transition hover:bg-[#EFF2FA] ${className} ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+        className={`h-[100px] w-full cursor-pointer overflow-hidden rounded-[4px] border border-dashed border-[#B2B9C766] bg-[#F7F9FD] text-center transition hover:bg-[#EFF2FA] ${className} ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
       >
         <input
           type="file"
@@ -64,13 +64,13 @@ export default function FileUpload({
             )}
 
             {previews.length > 0 && (
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
                 {previews.map((url, idx) => (
                   <img
                     key={idx}
                     src={url}
                     alt={`Preview ${idx + 1}`}
-                    className="h-10 w-20 rounded object-cover"
+                    className="h-10 w-20 max-w-full min-w-[80px] rounded object-cover"
                   />
                 ))}
               </div>

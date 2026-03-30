@@ -7,11 +7,16 @@ import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getItemFromLocalStorage, setItemInLocalStorage } from "@/lib/utils";
-import { CreateBurstSchema } from "@/schemas";
+import {
+  getItemFromLocalStorage,
+  removeItemFromLocalStorage,
+  setItemInLocalStorage,
+} from "@/lib/utils";
+import { CompleteBurstCreateSchema, CreateBurstSchema } from "@/schemas";
 import { createBurst, uploadBurstImage } from "@/services";
 import {
   BURST_SELECTION_METHOD,
+  POST_START_TIME,
   SENTIMENT_CHECK,
   SOCIAL_MEDIA_PLATFORM,
 } from "@/utils/constants";
@@ -38,6 +43,9 @@ function NewBurst() {
   const [imagePreviews, setImagePreviews] = useState(
     getItemFromLocalStorage("burstImageUrls") || [],
   );
+  const [burstCreated, setBurstCreated] = useState(() => {
+    return getItemFromLocalStorage("burstCreated") || false;
+  });
 
   const navigate = useNavigate();
 
@@ -61,6 +69,28 @@ function NewBurst() {
       numberOfSelections: "",
       tokenContract: "",
       symbol: "",
+      tokensForWinner: "",
+      conversation: "",
+      sentimentCheck: "Positive",
+      requireImage: false,
+      referenceImages: [],
+    },
+  });
+
+  const {
+    handleSubmit: handleCreateBurst,
+    formState: { errors: createBurstErrors },
+    control: createBurstControl,
+    watch: createBurstWatch,
+    setValue: setCreateBurstValue,
+  } = useForm({
+    resolver: zodResolver(CompleteBurstCreateSchema),
+    defaultValues: {
+      postStartTime: "",
+      startDate: null,
+      endDate: null,
+      autoPostSelected: false,
+      aiCheckSelected: false,
     },
   });
 
@@ -74,10 +104,10 @@ function NewBurst() {
     };
 
     try {
-      const response = await createBurst(updatedData);
-      console.log("Burst created:", response);
-      setItemInLocalStorage("burstData", response.data.content);
-      setBurstData(response.data.content);
+      //   const response = await createBurst(updatedData);
+      console.log("Burst created:", updatedData);
+      setItemInLocalStorage("burstData", updatedData);
+      setBurstData(updatedData);
       setItemInLocalStorage("rewardToken", rewardToken);
       navigate("/burst/preview");
     } catch (error) {
@@ -85,7 +115,33 @@ function NewBurst() {
     }
   };
 
-  console.log({ errors, rewardToken });
+  const onSubmitBurst = async (data) => {
+    const storedBurstData = getItemFromLocalStorage("burstData");
+    const storedRewardToken = getItemFromLocalStorage("rewardToken");
+    const storedImageUrls = getItemFromLocalStorage("burstImageUrls") || [];
+
+    const combinedData = {
+      ...storedBurstData,
+      ...data,
+      referenceImages: storedImageUrls,
+      tokenContract:
+        storedRewardToken?.contract || storedBurstData?.tokenContract,
+      symbol: storedRewardToken?.code || storedBurstData?.symbol,
+    };
+
+    console.log("Submitting burst data:", combinedData);
+
+    try {
+      const response = await createBurst(combinedData);
+      console.log("Burst created:", response);
+      setBurstCreated(true);
+      setItemInLocalStorage("burstCreated", true);
+    } catch (error) {
+      console.error("Failed to create burst:", error);
+    }
+  };
+
+  console.log({ errors, rewardToken, createBurstErrors });
 
   useEffect(() => {
     setValue(
@@ -108,8 +164,18 @@ function NewBurst() {
   return (
     <div>
       <div className="space-y-8">
-        <div className="space-y-[32px] rounded-[4px] bg-white px-[56px] pt-[32px] pb-[80px]">
-          <BackButton />
+        {!burstCreated && (
+          <div className="md:hidden">
+            <BackButton />
+          </div>
+        )}
+
+        <div className="space-y-[32px] rounded-[4px] bg-white px-4 py-6 md:px-[56px] md:pt-[32px] md:pb-[80px]">
+          {!burstCreated && (
+            <div className="hidden md:block">
+              <BackButton />
+            </div>
+          )}
 
           {newBurst === "new-burst" && (
             <div className="space-y-[24px]">
@@ -171,7 +237,7 @@ function NewBurst() {
                   type="text"
                   error={errors.tokenContract?.message}
                   {...register("tokenContract")}
-                  className={rewardToken ? "pl-[35%]" : ""}
+                  className={rewardToken ? "pl-28 md:pl-[35%]" : ""}
                   onFocus={handleChangeToken}
                   handleClickIcon={() => {}}
                   icon={rewardToken ? null : <IoMdArrowDropdown />}
@@ -185,7 +251,9 @@ function NewBurst() {
                               ? "Asset:"
                               : ""}
                         </span>
-                        <span className="font-bold">{rewardToken?.code}</span>
+                        <span className="truncate font-bold">
+                          {rewardToken?.code}
+                        </span>
                       </div>
                     )
                   }
@@ -334,13 +402,15 @@ function NewBurst() {
                   Preview Burst
                 </p>
 
-                <Button
-                  onClick={() => navigate(-1)}
-                  className="group cursor-pointer rounded-md bg-[#EDF2FF] px-8 py-5 text-[16px] font-[300] text-[#205CE2] hover:bg-[#2F0FD1] hover:text-white"
-                >
-                  Edit Burst
-                  <PiNotePencilFill className="text-[#2F0FD1] group-hover:text-white" />
-                </Button>
+                {!burstCreated && (
+                  <Button
+                    onClick={() => navigate(-1)}
+                    className="group cursor-pointer rounded-md bg-[#EDF2FF] px-8 py-5 text-[16px] font-[300] text-[#205CE2] hover:bg-[#2F0FD1] hover:text-white"
+                  >
+                    Edit Burst
+                    <PiNotePencilFill className="text-[#2F0FD1] group-hover:text-white" />
+                  </Button>
+                )}
               </div>
 
               <div className="space-y-[16px]">
@@ -371,17 +441,6 @@ function NewBurst() {
 
                 <div className="flex items-center justify-between gap-4 text-left">
                   <p className="flex-1 text-[16px] text-[#48484A]">
-                    Burst Duration
-                  </p>
-                  <p className="flex-2">
-                    {burstData?.startDate
-                      ? new Date(burstData.startDate).toLocaleString()
-                      : "-"}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 text-left">
-                  <p className="flex-1 text-[16px] text-[#48484A]">
                     Reward Per Winner
                   </p>
                   <p className="flex-2">
@@ -400,7 +459,7 @@ function NewBurst() {
                   <p className="flex-1 text-[16px] text-[#48484A]">
                     Reference Images
                   </p>
-                  <div className="flex flex-2 gap-2">
+                  <div className="flex flex-2 flex-wrap gap-2">
                     {(
                       burstData?.referenceImages ||
                       getItemFromLocalStorage("burstImageUrls") ||
@@ -425,38 +484,55 @@ function NewBurst() {
               </div>
 
               <form
-                //   onSubmit={handleSubmit(onSubmit)}
-                className="grid gap-5 lg:grid-cols-3"
+                onSubmit={handleCreateBurst(onSubmitBurst)}
+                className="grid gap-5 lg:grid-cols-2"
               >
-                <div className="space-y-2 lg:col-span-3">
+                <div className="col-span-2 w-full space-y-2">
                   <p className="flex w-full items-center justify-between text-base font-light text-[#09032A]">
-                    Quest Duration
+                    Burst Time Configuration
                   </p>
 
                   <Controller
                     name="startDate"
-                    control={control}
+                    control={createBurstControl}
                     render={({ field }) => (
                       <CustomDateSelect
                         startDate={field.value}
-                        endDate={watch("endDate")}
+                        endDate={createBurstWatch("endDate")}
                         onStartDateChange={field.onChange}
                         onEndDateChange={(date) =>
-                          setValue("endDate", date, { shouldValidate: true })
+                          setCreateBurstValue("endDate", date, {
+                            shouldValidate: true,
+                          })
                         }
-                        runContinuously={watch("runContinuously")}
-                        startDateError={errors.startDate?.message}
-                        endDateError={errors.endDate?.message}
-                        startTime={true}
+                        runContinuously={createBurstWatch("runContinuously")}
+                        startDateError={createBurstErrors.startDate?.message}
+                        endDateError={createBurstErrors.endDate?.message}
                       />
                     )}
                   />
                 </div>
 
-                <div className="flex items-center gap-3 lg:col-span-3">
+                <div className="col-span-2 w-full lg:col-span-1">
                   <Controller
-                    name="makeConcurrent"
-                    control={control}
+                    name="postStartTime"
+                    control={createBurstControl}
+                    render={({ field }) => (
+                      <CustomSelect
+                        // label="Social Media Platform"
+                        options={POST_START_TIME}
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={createBurstErrors.postStartTime?.message}
+                      />
+                    )}
+                  />
+                </div>
+
+                <div className="col-span-2 flex items-center gap-3">
+                  <Controller
+                    name="autoPostSelected"
+                    control={createBurstControl}
                     defaultValue={false}
                     render={({ field }) => (
                       <Switch
@@ -472,10 +548,10 @@ function NewBurst() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 lg:col-span-3">
+                <div className="col-span-2 flex items-center gap-3">
                   <Controller
-                    name="makeConcurrent"
-                    control={control}
+                    name="aiCheckSelected"
+                    control={createBurstControl}
                     defaultValue={false}
                     render={({ field }) => (
                       <Switch
@@ -491,46 +567,58 @@ function NewBurst() {
                   </p>
                 </div>
 
-                <div className="mt-6 space-y-2 rounded-[8px] bg-[#EDF2FF] px-9 py-6 lg:col-span-3">
-                  <>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-[300] text-[#09032A]">
-                        Total Rewards (to be deposited):
-                      </p>
-                      <p className="text-2xl font-bold text-[#050215]">
-                        {/* {step1Data.rewardMode === "Overall Reward" &&
-                          `${step1Data.tokensPerWinner * step1Data.numberOfWinners} ${step1Data?.symbol}`}
+                {!burstCreated && (
+                  <Button
+                    type="submit"
+                    className="col-span-2 mt-4 w-full cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 text-[16px] font-[300] hover:bg-[#2F0FD1]/70 hover:text-white"
+                  >
+                    Continue
+                  </Button>
+                )}
 
-                        {step1Data.rewardMode === "Individual Task Reward" &&
-                          `${step1Data.tasks.reduce((total, task) => total + task.tokensPerTask, 0) * step1Data.numberOfWinners} ${step1Data?.symbol}`} */}
-                        50 XLM
-                      </p>
-                    </div>
+                {burstCreated && (
+                  <div className="col-span-2 mt-6 space-y-2 rounded-[8px] bg-[#EDF2FF] px-9 py-6">
+                    <>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-[300] text-[#09032A]">
+                          Total Rewards (to be deposited):
+                        </p>
+                        <p className="text-2xl font-bold text-[#050215]">
+                          {burstData?.tokensForWinner}{" "}
+                          {burstData?.symbol || "XLM"}
+                        </p>
+                      </div>
 
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-[300] text-[#09032A]">
-                        Fees to Charge
-                      </p>
-                      <p className="text-2xl font-bold text-[#050215]">
-                        1.5 XLM
-                      </p>
-                    </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-[300] text-[#09032A]">
+                          Fees to Charge
+                        </p>
+                        <p className="text-2xl font-bold text-[#050215]">
+                          1.5 {burstData?.symbol || "XLM"}
+                        </p>
+                      </div>
 
-                    <Button
-                      variant="secondary"
-                      size="lg"
-                      type="submit"
-                      className="mt-5 w-full"
-                      //   onClick={() => {
-                      //     setStep((prev) => prev + 1);
-                      //     setItemInLocalStorage("growthQuestStep", 3);
-                      //   }}
-                      //   disabled={rewardAllWithPoints && !extraPoints}
-                    >
-                      Deposit Token
-                    </Button>
-                  </>
-                </div>
+                      <Button
+                        variant="secondary"
+                        size="lg"
+                        type="button"
+                        className="mt-5 w-full"
+                        onClick={() => {
+                          removeItemFromLocalStorage("burstData");
+                          setBurstData(null);
+                          removeItemFromLocalStorage("rewardToken");
+                          removeItemFromLocalStorage("burstImageUrls");
+                          removeItemFromLocalStorage("burstCreated");
+                          setImagePreviews([]);
+                          setBurstCreated(false);
+                          navigate("/burst");
+                        }}
+                      >
+                        Deposit Token
+                      </Button>
+                    </>
+                  </div>
+                )}
               </form>
             </div>
           )}

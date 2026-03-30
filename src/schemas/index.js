@@ -146,6 +146,62 @@ export const CreateBurstSchema = z
     },
   );
 
+export const CompleteBurstCreateSchema = z
+  .object({
+    startDate: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.date().nullable(),
+    ),
+    endDate: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.date().nullable(),
+    ),
+    postStartTime: z
+      .string({ required_error: "Post start time is required" })
+      .min(1, "Post start time is required"),
+    autoPostSelected: z.boolean().default(false),
+    aiCheckSelected: z.boolean().default(false),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.startDate) {
+      ctx.addIssue({
+        path: ["startDate"],
+        message: "Start date is required",
+        code: "custom",
+      });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(data.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    if (startDate < today) {
+      ctx.addIssue({
+        path: ["startDate"],
+        message: "Start date must be greater than or equal to today",
+        code: "custom",
+      });
+    }
+
+    if (!data.endDate) {
+      ctx.addIssue({
+        path: ["endDate"],
+        message: "End date is required",
+        code: "custom",
+      });
+    }
+
+    if (data.endDate && data.startDate && data.endDate < data.startDate) {
+      ctx.addIssue({
+        path: ["endDate"],
+        message: "End date must be greater than start date",
+        code: "custom",
+      });
+    }
+  });
+
 export const CreateGrowthQuestSchema = z
   .object({
     questTitle: z.string().nonempty("Quest title is required"),

@@ -8,17 +8,26 @@ export const REWARD_TYPES = [
 
 export const SOCIAL_MEDIA_PLATFORM = [
   { label: "X (Twitter)", value: "X (Twitter)" },
-  // { label: "Discord", value: "discord" },
-  // { label: "Telegram", value: "telegram" },
+  { label: "Discord", value: "Discord" },
+  { label: "Telegram", value: "Telegram" },
+  { label: "Facebook", value: "Facebook" },
+];
+
+export const POST_START_TIME = [
+  { label: "Post started within 2hrs", value: "Post started within 2hrs" },
+  { label: "Post started within 4hrs", value: "Post started within 4hrs" },
+  { label: "Post started within 8hrs", value: "Post started within 8hrs" },
+  { label: "Post started within 12hrs", value: "Post started within 12hrs" },
+  { label: "Post started within 24hrs", value: "Post started within 24hrs" },
 ];
 
 export const BURST_SELECTION_METHOD = [
   {
-    label: "Automated: AI selects and publishes the best entry",
+    label: "Automated",
     value: "Automated: AI selects and publishes the best entry",
   },
   {
-    label: "Assisted: AI shortlists; manual review required",
+    label: "Assisted",
     value: "Assisted: AI shortlists; manual review required",
   },
 ];

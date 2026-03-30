@@ -33,7 +33,7 @@ function MoreAboutBurst({ sheetIsOpen, setSheetIsOpen }) {
       </SheetTrigger>
       <SheetContent
         side={side}
-        className={`bg-white ${side === "bottom" ? "h-[80%]" : "sm:max-w-xl"} px-4`}
+        className={`bg-white ${side === "bottom" ? "h-[80%]" : "sm:max-w-xl"} overflow-scroll px-2 pb-4`}
       >
         <SheetHeader className="relative">
           <SheetTitle className="font-bricolage text-[28px] font-bold text-[#09032A]">
@@ -45,7 +45,7 @@ function MoreAboutBurst({ sheetIsOpen, setSheetIsOpen }) {
           </SheetDescription>
         </SheetHeader>
 
-        <ul className="list-disc space-y-4 pl-7 text-[18px] text-[#09032A]">
+        <ul className="list-disc space-y-4 pl-7 text-[16px] text-[#09032A]">
           <li>
             State the kind of trending conversations you want to engage in on
             the selected social media platform.
@@ -67,6 +67,13 @@ function MoreAboutBurst({ sheetIsOpen, setSheetIsOpen }) {
             suggested by other active social media users.
           </li>
         </ul>
+
+        <Button
+          onClick={() => setSheetIsOpen(false)}
+          className="w-full cursor-pointer rounded-md bg-[#2F0FD1] px-8 py-5 text-[16px] font-[300] hover:bg-[#2F0FD1]/70 hover:text-white mt-4"
+        >
+          Got it
+        </Button>
       </SheetContent>
     </Sheet>
   );
