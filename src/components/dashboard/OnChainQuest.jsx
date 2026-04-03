@@ -27,7 +27,7 @@ import {
 import { FaArrowLeftLong } from "react-icons/fa6";
 import {
   formatDateToYYYYMMDD,
-  hydrateQuestData,
+  hydrateData,
   mapFormToCreateOnChainQuestPayload,
 } from "@/utils";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
@@ -63,7 +63,7 @@ function OnChainQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   );
   const [step1Data, setStep1Data] = useState(() => {
     const stored = getItemFromLocalStorage("onChainQuestStep1Data");
-    return stored ? hydrateQuestData(stored) : null;
+    return stored ? hydrateData(stored) : null;
   });
   const [selectedSpecs, setSelectedSpecs] = useState(
     getItemFromLocalStorage("selectedSpecs") || {},

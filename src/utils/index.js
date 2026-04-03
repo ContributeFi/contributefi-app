@@ -31,17 +31,36 @@ export function endTime(date) {
   const diffSeconds = (end - now) / 1000;
 
   // already ended
-  if (diffSeconds <= 0) return "ended";
+  if (diffSeconds <= 0) return "Ended";
 
   const minutes = diffSeconds / 60;
   const hours = minutes / 60;
   const days = Math.ceil(hours / 24);
 
-  if (minutes < 1) return "Ends now";
+  if (minutes < 1) return "Ending now";
   if (minutes < 60) return `Ends in ${Math.ceil(minutes)} minutes`;
   if (hours < 24) return `Ends in ${Math.ceil(hours)} hours`;
 
   return `Ends in ${days} day${days > 1 ? "s" : ""}`;
+}
+
+export function startTime(date) {
+  const now = new Date();
+  const start = new Date(date);
+  const diffSeconds = (start - now) / 1000;
+
+  // already started
+  if (diffSeconds <= 0) return "Started";
+
+  const minutes = diffSeconds / 60;
+  const hours = minutes / 60;
+  const days = Math.ceil(hours / 24);
+
+  if (minutes < 1) return "Starting now";
+  if (minutes < 60) return `Starts in ${Math.ceil(minutes)} minutes`;
+  if (hours < 24) return `Starts in ${Math.ceil(hours)} hours`;
+
+  return `Starts in ${days} day${days > 1 ? "s" : ""}`;
 }
 
 export function shortenString(str, maxLength = 20) {
@@ -107,7 +126,7 @@ export const validateUrl = (value) => {
   }
 };
 
-export const hydrateQuestData = (data) => {
+export const hydrateData = (data) => {
   if (!data) return data;
 
   return {

@@ -33,7 +33,7 @@ export function bindEmail(data) {
   };
 
   return api.post(
-    `${import.meta.env.VITE_BASE_URL}/auth/check-email-before-send-otp`,
+    `${import.meta.env.VITE_BASE_URL}/auth/bind-email`,
     requestPayload,
   );
 }
@@ -62,11 +62,51 @@ export function createUsername(data) {
   );
 }
 
+export function initiateTelegramLinking(data) {
+  const requestPayload = {
+    username: data.username,
+  };
+
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/auth/telegram/init-link`,
+    requestPayload,
+  );
+}
+
+export function verifyTelegram(data) {
+  const requestPayload = {
+    otpCode: data.otp,
+    otpPurpose: "TELEGRAM_VERIFICATION",
+    telegramUsername: data.username,
+  };
+
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/auth/verify-otp`,
+    requestPayload,
+  );
+}
+
 export function checkUsernameAvailability(username) {
   return api.get(
     `${import.meta.env.VITE_BASE_URL}/users/check-username?username=${username}`,
   );
 }
+
+export function submitBurstEntry(burstId, data) {
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/bursts/${burstId}/entries`,
+    {
+      content: data.content,
+      postUrl: data.postUrl,
+    },
+  );
+}
+
+export const selectBurstEntry = (burstId, entryId) => {
+  return api.post(
+    `${import.meta.env.VITE_BASE_URL}/bursts/${burstId}/entries/${entryId}/select-winner`,
+  );
+};
 
 export function createWallet(network) {
   return api.post(`${import.meta.env.VITE_BASE_URL}/auth/create-wallet`, {
@@ -140,7 +180,6 @@ export function createGrowthQuest(payload, communityId) {
 }
 
 export function completeTask(payload, taskId) {
-  console.log({ payload, taskId });
   return api.post(
     `${import.meta.env.VITE_BASE_URL}/quests/tasks/${taskId}/complete`,
     payload,
@@ -148,7 +187,6 @@ export function completeTask(payload, taskId) {
 }
 
 export function createOnChainQuest(payload, communityId) {
-  console.log({ payload, communityId });
   return api.post(
     `${import.meta.env.VITE_BASE_URL}/quests/${communityId}/on-chain`,
     payload,

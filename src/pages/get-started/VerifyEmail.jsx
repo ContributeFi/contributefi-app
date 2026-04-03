@@ -20,8 +20,6 @@ function VerifyEmail() {
   const [secondsLeft, setSecondsLeft] = useState(RESEND_OTP_TIME);
   const [canResend, setCanResend] = useState(false);
 
-  console.log({ email, otp, username });
-
   useEffect(() => {
     if (canResend) return;
 
@@ -60,13 +58,13 @@ function VerifyEmail() {
     reset,
   } = useForm({
     resolver: zodResolver(VerifyEmailSchema),
+    mode: "onChange",
   });
 
   const { mutate: verifyEmailMutation, isPending: verifyEmailPending } =
     useMutation({
       mutationFn: (data) => verifyEmail(data),
       onSuccess: async (data, variable) => {
-        console.log({ data });
         if (data.status === 200) {
           const content = data.data.content;
 
@@ -79,8 +77,22 @@ function VerifyEmail() {
               username: null,
             });
             navigate("/get-started/username");
-            toast.success("Email verified successfully");
-          } else {
+          }
+          // else if (
+          //   (content.authMethod === "EMAIL" ||
+          //     content.authMethod === "GOOGLE") &&
+          //   !content.publicKey
+          // ) {
+          //   login({
+          //     token,
+          //     email: email,
+          //     user: null,
+          //     otp: variable.otp,
+          //     username: content.username,
+          //   });
+          //   navigate("/get-started/create-wallet");
+          // }
+          else {
             login({
               token,
               email: email,
@@ -89,7 +101,6 @@ function VerifyEmail() {
               username: content.username,
             });
             navigate("/get-started/account-configuration");
-            toast.success("Email verified successfully");
           }
 
           reset();
