@@ -10,7 +10,12 @@ export const SignUpSchema = z.object({
 });
 
 export const ConnectWithEmailSchema = z.object({
-  email: z.string().min(1, "Email or username is required"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .refine((val) => z.email().safeParse(val).success, {
+      message: "Invalid email address",
+    }),
   password: z
     .string()
     .nonempty("Password is required")
@@ -32,6 +37,7 @@ export const UsernameSchema = z.object({
   username: z
     .string()
     .nonempty("Username is required")
+    .min(6, "Username must be atleast 6 characters")
     .regex(/^[a-zA-Z0-9_]+$/, "Only letters, numbers, and underscores allowed"),
 });
 
@@ -157,8 +163,8 @@ export const CompleteBurstCreateSchema = z
       z.date().nullable(),
     ),
     trendAge: z
-      .string({ required_error: "Post start time is required" })
-      .min(1, "Post start time is required"),
+      .string({ required_error: "Trend age is required" })
+      .min(1, "Trend age is required"),
     autoPostSelected: z.boolean().default(false),
     aiCheckSelected: z.boolean().default(false),
   })
@@ -916,4 +922,17 @@ export const CreateTechnicalQuestSchema = z
 
 export const TaskSubmissionSchema = z.object({
   submission: z.string().min(1, "Submission is required"),
+});
+
+export const TelegramUsernameSchema = z.object({
+  username: z.string().min(1, "Telegram username is required"),
+});
+
+export const TelegramOtpSchema = z.object({
+  otp: z.string().min(1, "OTP is required").min(6, "OTP must be 6 digits"),
+});
+
+export const BurstSubmissionSchema = z.object({
+  postUrl: z.string().min(1, "Post URL is required").url("Invalid URL"),
+  suggestedPost: z.string().min(1, "Suggested post is required"),
 });

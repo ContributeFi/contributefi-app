@@ -49,7 +49,19 @@ function GoogleCallback() {
         authMethod: "GOOGLE",
       });
       navigate("/get-started/username", { replace: true });
-    } else if (!user.bio && !user.lastLogin) {
+    } 
+    // else if (!user.publicKey) {
+    //   login({
+    //     token,
+    //     email: user.email,
+    //     user: null,
+    //     otp: "123456",
+    //     username: user.username,
+    //     authMethod: "GOOGLE",
+    //   });
+    //   navigate("/get-started/create-wallet", { replace: true });
+    // } 
+    else if (!user.bio && !user.lastLogin) {
       login({
         token,
         email: user.email,

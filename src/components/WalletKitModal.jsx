@@ -43,6 +43,7 @@ export default function WalletKitModal() {
           });
         } catch (error) {
           console.error("Signing error:", error);
+          setPublicKey("");
           toast.error("Failed to sign transaction");
           setWalletLoading(false);
         }

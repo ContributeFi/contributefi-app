@@ -17,11 +17,13 @@ import { ArrowRight } from "lucide-react";
 
 function GetStarted() {
   const { login } = useAuth();
+
   const {
     handleOpenStellarWalletKitModal,
     isLoading: isWalletLoading,
     setWalletLoading,
   } = useWallet();
+
   const navigate = useNavigate();
   const [revealPassword, setRevealPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -37,6 +39,7 @@ function GetStarted() {
     reset,
   } = useForm({
     resolver: zodResolver(ConnectWithEmailSchema),
+    mode: "onChange",
   });
 
   const {
@@ -46,11 +49,10 @@ function GetStarted() {
     mutationFn: (data) => connectWithEmail(data),
     onSuccess: async (data) => {
       if (data.status === 200) {
-        const content = data.data.content;
-        const token = content.accessToken?.token;
-        const email = content.email;
+        const { accessToken, email, isVerified, username } = data.data.content;
+        const token = accessToken.token;
 
-        if (!content.isVerified) {
+        if (!isVerified) {
           login({
             token,
             email,
@@ -59,7 +61,7 @@ function GetStarted() {
             username: null,
           });
           navigate("/get-started/verify-email");
-        } else if (!content.username) {
+        } else if (!username) {
           login({
             token,
             email,
@@ -68,11 +70,22 @@ function GetStarted() {
             username: null,
           });
           navigate("/get-started/username");
-        } else {
+        }
+        // else if (!wallet) {
+        //   login({
+        //     token,
+        //     email,
+        //     user: null,
+        //     otp: "123456",
+        //     username: username,
+        //   });
+        //   navigate("/get-started/create-wallet");
+        // }
+        else {
           login({
             token,
             email: null,
-            user: content,
+            user: data.data.content,
             otp: null,
             username: null,
           });
@@ -172,7 +185,7 @@ function GetStarted() {
           Or Continue with Email
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-[32px]">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-[10px]">
           <CustomInput
             className="h-[48px]"
             label="Email Address"

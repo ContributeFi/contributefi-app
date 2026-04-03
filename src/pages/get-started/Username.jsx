@@ -12,24 +12,9 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 function Username() {
-  const { login, token, otp, username, email, authMethod } = useAuth();
+  const { login, token, otp, username, email } = useAuth();
   const navigate = useNavigate();
-  const [usernameInput, setUsernameInput] = useState("");
   const [debouncedUsername, setDebouncedUsername] = useState("");
-
-  console.log({ login, token, otp, username, email, authMethod });
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedUsername(usernameInput);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [usernameInput]);
-
-  useEffect(() => {}, []);
 
   useEffect(() => {
     if (!otp && username) {
@@ -52,16 +37,26 @@ function Username() {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm({
     resolver: zodResolver(UsernameSchema),
     mode: "onChange",
   });
 
+  const usernameValue = watch("username");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedUsername(usernameValue);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [usernameValue]);
+
   const { mutate: createUserNameMutation, isPending: createUsernamePending } =
     useMutation({
       mutationFn: (data) => createUsername(data),
       onSuccess: async (data, variable) => {
-        console.log({ data });
         if (data.status === 200) {
           const content = data.data.content;
 
@@ -106,12 +101,26 @@ function Username() {
   const { data: usernameCheckData, isFetching: checkingUsername } = useQuery({
     queryKey: ["checkUsername", debouncedUsername],
     queryFn: () => checkUsernameAvailability(debouncedUsername),
-    enabled: !!debouncedUsername && isUsernameValid,
+    enabled:
+      debouncedUsername.length >= 6 && isUsernameValid && !errors.username,
   });
 
-  const handleUsernameChange = (e) => {
-    setUsernameInput(e.target.value);
-  };
+  let usernameMessage = "";
+  let usernameMessageType = ""; // optional: "error" | "success" | "info"
+
+  if (errors.username?.message) {
+    usernameMessage = errors.username.message;
+    usernameMessageType = "error";
+  } else if (debouncedUsername.length >= 6 && checkingUsername) {
+    usernameMessage = "Checking availability...";
+    usernameMessageType = "info";
+  } else if (usernameCheckData?.data.content.isAvailable === true) {
+    usernameMessage = "Username available";
+    usernameMessageType = "success";
+  } else if (usernameCheckData?.data.content.isAvailable === false) {
+    usernameMessage = "Username already taken";
+    usernameMessageType = "error";
+  }
 
   return (
     <div>
@@ -131,23 +140,10 @@ function Username() {
             label="Username"
             placeholder="Enter Username"
             type="text"
-            error={errors.username?.message}
-            {...register("username", {
-              onChange: handleUsernameChange,
-            })}
+            error={usernameMessage}
+            messageType={usernameMessageType}
+            {...register("username")}
           />
-
-          {checkingUsername ? (
-            <p className="text-left text-sm text-gray-500">...</p>
-          ) : usernameCheckData?.data.content.isAvailable === true ? (
-            <p className="text-left text-sm text-[#1082E4]">
-              Username available
-            </p>
-          ) : (
-            usernameCheckData?.data.content.isAvailable === false && (
-              <p className="text-left text-sm text-[#F31307]">Username taken</p>
-            )
-          )}
         </div>
 
         <div className="flex flex-col gap-2">

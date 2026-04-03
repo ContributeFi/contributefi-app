@@ -44,38 +44,35 @@ function Burst() {
 
   return (
     <>
-      {/* <h2 className="text-[20px] font-bold text-[#050215] md:text-2xl mb-2">
+      <h2 className="mb-2 text-[24px] font-bold text-[#050215] md:text-2xl">
         Active Bursts
-      </h2> */}
+      </h2>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex w-full items-center gap-2 min-[872px]:w-auto">
-          <Filter />
+          {/* <Filter /> */}
 
           <div className="flex w-full gap-2 overflow-hidden rounded-[8px] bg-[#F7F9FD] p-2">
-            <Button
+            <button
               onClick={() => handleChangeBurstView("all")}
-              variant="outline"
-              className={`flex-1 cursor-pointer rounded-[2px] border-none ${burstView === "all" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[14px] hover:bg-white hover:text-[#2F0FD1]`}
+              className={`flex-1 cursor-pointer text-sm font-medium transition-all ${burstView === "all" ? "rounded-[2px] bg-[#EDF2FF] text-[#2F0FD1] shadow-xs" : "text-[#525866]"} p-2 px-6 text-[14px] hover:bg-[#EDF2FF] hover:text-[#2F0FD1]`}
             >
               All
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={() => handleChangeBurstView("created")}
-              variant="outline"
-              className={`flex-1 cursor-pointer rounded-[2px] border-none ${burstView === "created" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[14px] hover:bg-white hover:text-[#2F0FD1]`}
+              className={`flex-1 cursor-pointer text-sm font-medium transition-all ${burstView === "created" ? "rounded-[2px] bg-[#EDF2FF] text-[#2F0FD1] shadow-xs" : "text-[#525866]"} p-2 px-6 text-[14px] hover:bg-[#EDF2FF] hover:text-[#2F0FD1]`}
             >
               Created
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={() => handleChangeBurstView("participated")}
-              variant="outline"
-              className={`flex-1 cursor-pointer rounded-[2px] border-none ${burstView === "participated" ? "bg-white text-[#2F0FD1]" : "bg-[#F7F9FD] text-[#525866]"} p-2 text-[14px] hover:bg-white hover:text-[#2F0FD1]`}
+              className={`flex-1 cursor-pointer text-sm font-medium transition-all ${burstView === "participated" ? "rounded-[2px] bg-[#EDF2FF] text-[#2F0FD1] shadow-xs" : "text-[#525866]"} p-2 px-6 text-[14px] hover:bg-[#EDF2FF] hover:text-[#2F0FD1]`}
             >
               Participated
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -93,7 +90,7 @@ function Burst() {
         ) : errorLoadingBursts ? (
           <Error title="Failed to load bursts." />
         ) : bursts?.data?.length === 0 ? (
-          <div className="col-span-full flex h-[calc(100vh-230px)] flex-col items-center justify-center gap-8 bg-white p-4 text-center min-[872px]:h-[calc(100vh-180px)]">
+          <div className="col-span-full flex h-[calc(100vh-270px)] flex-col items-center justify-center gap-8 bg-white p-4 text-center min-[872px]:h-[calc(100vh-220px)]">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#F7F9FD] text-[#2F0FD1]">
               <PiMegaphoneFill className="h-12 w-12" />
             </div>
@@ -113,7 +110,7 @@ function Burst() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 mb-4">
+            <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {bursts?.data?.map((burst, i) => (
                 <BurstCard burst={burst} key={i} />
               ))}

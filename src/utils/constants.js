@@ -8,9 +8,9 @@ export const REWARD_TYPES = [
 
 export const SOCIAL_MEDIA_PLATFORM = [
   { label: "X (Twitter)", value: "X (Twitter)" },
-  { label: "Discord", value: "Discord" },
-  { label: "Telegram", value: "Telegram" },
-  { label: "Facebook", value: "Facebook" },
+  // { label: "Discord", value: "Discord" },
+  // { label: "Telegram", value: "Telegram" },
+  // { label: "Facebook", value: "Facebook" },
 ];
 
 export const POST_START_TIME = [

@@ -27,7 +27,7 @@ import {
 import { FaArrowLeftLong } from "react-icons/fa6";
 import {
   formatDateToYYYYMMDD,
-  hydrateQuestData,
+  hydrateData,
   mapFormToCreateGrowthQuestPayload,
 } from "@/utils";
 import {
@@ -58,7 +58,7 @@ function GrowthQuest({ setSheetIsOpen, setOpenQuestSuccess, communityId }) {
   );
   const [step1Data, setStep1Data] = useState(() => {
     const stored = getItemFromLocalStorage("growthQuestStep1Data");
-    return stored ? hydrateQuestData(stored) : null;
+    return stored ? hydrateData(stored) : null;
   });
 
   const toggleTask = (index) => {

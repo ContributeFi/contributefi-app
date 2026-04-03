@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { FaPlus, FaUserLarge, FaCheck } from "react-icons/fa6";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -10,7 +10,13 @@ import { FaDiscord } from "react-icons/fa";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { FaTelegram } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
-import Modal from "@/components/Modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   getItemFromSessionStorage,
   removeItemFromSessionStorage,
@@ -18,15 +24,19 @@ import {
 } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
-import { linkedAccount, updateBio, uploadProfilePicture } from "@/services";
+import {
+  initiateTelegramLinking,
+  verifyTelegram,
+  linkedAccount,
+  updateBio,
+  uploadProfilePicture,
+} from "@/services";
 import { ImSpinner5 } from "react-icons/im";
+import { useForm } from "react-hook-form";
+import { TelegramUsernameSchema, TelegramOtpSchema } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import CustomInput from "@/components/CustomInput";
 
-const ACCOUNT_KEYS = {
-  github: "Github",
-  discord: "Discord",
-  twitter: "X Account",
-  telegram: "Telegram",
-};
 const ACCOUNTS_TO_LINK = [
   {
     title: "Github",
@@ -59,13 +69,30 @@ function AccountConfiguration() {
   const [saving, setSaving] = useState(false);
   const [user] = useState(() => getItemFromSessionStorage("user"));
   const [linkingAccount, setLinkingAccount] = useState(null);
-  const [telegramLinkStep, setTelegramLinkStep] = useState("idle");
-  const [telegramUsername, setTelegramUsername] = useState("");
-  const [telegramOtp, setTelegramOtp] = useState("");
-  const [telegramPendingId, setTelegramPendingId] = useState(null);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [showInstructionModal, setShowInstructionModal] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [telegramUsername, setTelegramUsername] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(TelegramUsernameSchema),
+    mode: "onChange",
+  });
+
+  const {
+    register: otpRegister,
+    handleSubmit: handleOtpSubmit,
+    formState: { errors: otpErrors },
+    reset: resetOtp,
+  } = useForm({
+    resolver: zodResolver(TelegramOtpSchema),
+    mode: "onChange",
+  });
 
   const { data: linkedAccountsData, isLoading: loadingAccounts } = useQuery({
     queryKey: ["linkedAccounts", token],
@@ -110,8 +137,6 @@ function AccountConfiguration() {
   }, [navigate, username]);
 
   useEffect(() => {
-    console.log("AccountConfiguration mounted with:", { error, message });
-
     if (error) {
       const errorMessage = message
         ? decodeURIComponent(message)
@@ -124,15 +149,12 @@ function AccountConfiguration() {
   }, [error, message, navigate]);
 
   const handleLinkAccount = async (accountType) => {
-    const userId = user?.id;
-    console.log({ accountType, userId });
-
     if (accountType === "github") {
       setLinkingAccount("github");
-      window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/github?userId=${userId}`;
+      window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/github?token=${token}`;
     } else if (accountType === "discord") {
       setLinkingAccount("discord");
-      window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/discord?userId=${userId}`;
+      window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/discord?token=${token}`;
     } else if (accountType === "twitter") {
       setLinkingAccount("twitter");
       window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/twitter?token=${token}`;
@@ -141,114 +163,71 @@ function AccountConfiguration() {
     }
   };
 
-  const handleTelegramSubmitUsername = async () => {
-    if (!telegramUsername.trim()) {
-      toast.error("Please enter your Telegram username");
-      return;
-    }
-    const usernameRegex = /^[a-zA-Z0-9_]{5,32}$/;
-    if (!usernameRegex.test(telegramUsername.trim())) {
-      toast.error(
-        "Invalid username format. Use 5-32 characters, letters, numbers, and underscores only.",
-      );
-      return;
-    }
-    setLinkingAccount("telegram");
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/auth/telegram/init-link`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ username: telegramUsername.trim() }),
-        },
-      );
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        data = {};
-      }
-      if (!response.ok) {
-        const errorMessage =
-          data?.message ||
-          data?.error ||
-          `Request failed with status ${response.status}`;
-        toast.error(errorMessage);
-        setTelegramLinkStep("idle");
-        setLinkingAccount(null);
-        return;
-      }
-      if (data?.content?.pendingId) {
-        setTelegramPendingId(data.content.pendingId);
-        setTelegramLinkStep("waiting_start");
+  const { mutate: initiateTelegramLinkMutation, isPending: telegramLoading } =
+    useMutation({
+      mutationFn: (data) => initiateTelegramLinking(data),
+      onSuccess: (data, variables) => {
+        setTelegramUsername(variables.username);
         setShowUsernameModal(false);
         setShowInstructionModal(true);
-        setLinkingAccount(null);
-      } else {
-        toast.error(data?.message || "Unexpected response from server");
-        setTelegramLinkStep("idle");
-        setLinkingAccount(null);
-      }
-    } catch (error) {
-      toast.error("Failed to initiate linking");
-      setTelegramLinkStep("idle");
-      setLinkingAccount(null);
-    }
+        reset();
+      },
+
+      onError: (error) => {
+        toast.error(
+          error.response.data.message || "Failed to initiate linking",
+        );
+      },
+    });
+
+  const { mutate: verifyTelegramOtpMutation, isPending: otpVerifying } =
+    useMutation({
+      mutationFn: (data) => verifyTelegram(data),
+      onSuccess: (data) => {
+        console.log({ data });
+        toast.success(data?.data?.message);
+        setShowOtpModal(false);
+        // window.location.reload();
+        // if (data?.data?.message === "") {
+        //   toast.success("Telegram account linked successfully!");
+        //   setShowOtpModal(false);
+        //   window.location.reload();
+        // } else {
+        //   toast.error(data?.message || "Invalid or expired OTP");
+        // }
+      },
+      onError: (error) => {
+        toast.error(error.response.data.message || "Failed to verify OTP");
+      },
+    });
+
+  const onSubmitTelegramUsername = (data) => {
+    setLinkingAccount("telegram");
+    initiateTelegramLinkMutation(data, {
+      onSettled: () => setLinkingAccount(null),
+    });
   };
 
-  const handleTelegramVerifyOtp = async () => {
-    if (!telegramOtp.trim()) {
-      toast.error("Please enter the OTP");
-      return;
-    }
-    setLinkingAccount("telegram");
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/auth/telegram/verify-otp`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ otp: telegramOtp.trim() }),
-        },
-      );
-      const data = await response.json();
-      if (data?.content?.success) {
-        toast.success("Telegram account linked successfully!");
-        setTelegramLinkStep("idle");
-        setTelegramUsername("");
-        setTelegramOtp("");
-        setTelegramPendingId(null);
-        setLinkingAccount(null);
-        setShowOtpModal(false);
-        window.location.reload();
-      } else {
-        toast.error(data?.message || "Invalid or expired OTP");
-        setLinkingAccount(null);
-      }
-    } catch (error) {
-      toast.error("Failed to verify OTP");
-      setLinkingAccount(null);
-    }
+  const onVerifyOtp = (data) => {
+    verifyTelegramOtpMutation(
+      { otp: data.otp, username: telegramUsername },
+      {
+        onSettled: () => setLinkingAccount(null),
+      },
+    );
   };
 
   const handleTelegramCancel = () => {
-    setTelegramLinkStep("idle");
-    setTelegramUsername("");
-    setTelegramOtp("");
-    setTelegramPendingId(null);
     setLinkingAccount(null);
+    setTelegramUsername("");
     setShowUsernameModal(false);
     setShowInstructionModal(false);
     setShowOtpModal(false);
+    resetOtp();
   };
+
   const [bio, setBio] = useState(() => getItemFromSessionStorage("bio") || "");
+
   const handleImageSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -283,6 +262,7 @@ function AccountConfiguration() {
       setUploading(false);
     }
   };
+
   const handleSaveDetails = async (e) => {
     e.preventDefault();
     if (!bio) {
@@ -306,6 +286,17 @@ function AccountConfiguration() {
         const res = await updateBio(bio);
         if (res?.data?.content?.bio) {
           toast.success("Bio updated successfully");
+          navigate("/");
+          login({
+            token,
+            email: null,
+            user: res?.data?.content,
+            otp: null,
+            username: null,
+          });
+          removeItemFromSessionStorage("user");
+          removeItemFromSessionStorage("imageUrl");
+          removeItemFromSessionStorage("bio");
         } else {
           toast.error("Failed to save bio");
           setSaving(false);
@@ -318,23 +309,9 @@ function AccountConfiguration() {
       } finally {
         setSaving(false);
       }
-      navigate("/");
-      login({
-        token,
-        email: null,
-        user: {
-          ...user,
-          ...(imageUrl && { profileImageUrl: imageUrl }),
-          bio,
-        },
-        otp: null,
-        username: null,
-      });
-      removeItemFromSessionStorage("user");
-      removeItemFromSessionStorage("imageUrl");
-      removeItemFromSessionStorage("bio");
     }
   };
+
   return (
     <div>
       <div className="mb-8 space-y-[8px]">
@@ -413,8 +390,6 @@ function AccountConfiguration() {
             );
             const isLinked = !!linkedAccount;
             const isLinking = linkingAccount === account.key;
-            const isTelegramLinking =
-              account.key === "telegram" && telegramLinkStep !== "idle";
             return (
               <div
                 key={account.title}
@@ -443,65 +418,6 @@ function AccountConfiguration() {
                     </button>
                   )}
                 </div>
-                {isTelegramLinking && (
-                  <div className="mt-3 space-y-3 border-t border-gray-200 pt-3">
-                    {telegramLinkStep === "entering_username" && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-[#525866]">
-                          Enter your Telegram username
-                        </p>
-                        <Input
-                          placeholder="username"
-                          value={telegramUsername}
-                          onChange={(e) => setTelegramUsername(e.target.value)}
-                          className="bg-white"
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={handleTelegramSubmitUsername}
-                            disabled={linkingAccount === "telegram"}
-                          >
-                            {linkingAccount === "telegram" ? (
-                              <ImSpinner5 className="animate-spin" />
-                            ) : (
-                              "Continue"
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleTelegramCancel}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    {telegramLinkStep === "waiting_start" && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-[#525866]">
-                          Waiting for OTP. Make sure you messaged the bot.
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => setShowOtpModal(true)}
-                          >
-                            Enter OTP
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleTelegramCancel}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })}
@@ -525,109 +441,185 @@ function AccountConfiguration() {
         </div>
       </div>
 
-      <Modal
-        open={showUsernameModal}
-        onClose={() => setShowUsernameModal(false)}
-        heading="Link Telegram Account"
+      <Dialog
+        open={showUsernameModal || showInstructionModal || showOtpModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            if (showUsernameModal) {
+              setShowUsernameModal(false);
+              reset();
+            }
+            if (showInstructionModal) {
+              setShowInstructionModal(false);
+            }
+            if (showOtpModal) {
+              setShowOtpModal(false);
+              resetOtp();
+            }
+            setTelegramUsername("");
+          }
+        }}
       >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">Enter your Telegram username</p>
-          <Input
-            placeholder="username"
-            value={telegramUsername}
-            onChange={(e) => setTelegramUsername(e.target.value)}
-            className="bg-white"
-          />
-          <div className="flex gap-2">
-            <Button
-              onClick={handleTelegramSubmitUsername}
-              disabled={linkingAccount === "telegram"}
-            >
-              {linkingAccount === "telegram" ? (
-                <ImSpinner5 className="animate-spin" />
-              ) : (
-                "Continue"
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowUsernameModal(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        <DialogContent className="sm:max-w-[500px]">
+          {showUsernameModal && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Link Telegram Account</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Enter your Telegram username to link your account
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                onSubmit={handleSubmit(onSubmitTelegramUsername)}
+                className="space-y-4"
+              >
+                <CustomInput
+                  className="h-[48px]"
+                  label="Username"
+                  placeholder="Enter Username"
+                  type="text"
+                  error={errors?.username?.message}
+                  {...register("username")}
+                />
 
-      <Modal
-        open={showOtpModal}
-        onClose={() => setShowOtpModal(false)}
-        heading="Enter OTP"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Enter the OTP code sent to your Telegram
-          </p>
-          <Input
-            placeholder="123456"
-            value={telegramOtp}
-            onChange={(e) => setTelegramOtp(e.target.value)}
-            className="bg-white"
-            maxLength={6}
-          />
-          <div className="flex gap-2">
-            <Button
-              onClick={handleTelegramVerifyOtp}
-              disabled={linkingAccount === "telegram"}
-            >
-              {linkingAccount === "telegram" ? (
-                <ImSpinner5 className="animate-spin" />
-              ) : (
-                "Verify"
-              )}
-            </Button>
-            <Button variant="outline" onClick={() => setShowOtpModal(false)}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </Modal>
+                <div className="flex gap-2">
+                  <Button
+                    className="w-1/2"
+                    type="button"
+                    size="lg"
+                    onClick={() => {
+                      setShowUsernameModal(false);
+                      reset();
+                    }}
+                  >
+                    Cancel
+                  </Button>
 
-      <Modal
-        open={showInstructionModal}
-        onClose={() => setShowInstructionModal(false)}
-        heading="Link Telegram Account"
-      >
-        <div className="space-y-4">
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>Follow these steps to link your Telegram account:</p>
-            <ol className="list-inside list-decimal space-y-1">
-              <li>
-                Go to Telegram and open the{" "}
-                <a
-                  href="https://t.me/contributefi_bot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-[#2F0FD1] hover:underline"
-                >
-                  ContributeFi bot
-                </a>
-              </li>
-              <li>Press /start</li>
-              <li>You will receive an OTP code</li>
-            </ol>
-          </div>
-          <p className="text-sm font-medium text-[#2F0FD1]">
-            Waiting for OTP...
-          </p>
-          <div className="flex gap-2">
-            <Button onClick={() => setShowOtpModal(true)}>Enter OTP</Button>
-            <Button variant="outline" onClick={handleTelegramCancel}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </Modal>
+                  <Button
+                    className="w-1/2"
+                    type="submit"
+                    variant="secondary"
+                    size="lg"
+                    disabled={telegramLoading}
+                  >
+                    {telegramLoading ? (
+                      <ImSpinner5 className="animate-spin" />
+                    ) : (
+                      "Continue"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
+
+          {showInstructionModal && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Link Telegram Account</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Follow the steps below to link your Telegram account
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2 text-sm text-gray-600">
+                  <p>Follow these steps to link your Telegram account:</p>
+                  <ol className="list-inside list-decimal space-y-1">
+                    <li>
+                      Go to Telegram and open the{" "}
+                      <a
+                        href="https://t.me/contributefi_bot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-[#2F0FD1] hover:underline"
+                      >
+                        ContributeFi bot
+                      </a>
+                    </li>
+                    <li>Press /start</li>
+                    <li>You will receive an OTP code</li>
+                  </ol>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    className="w-1/2"
+                    size="lg"
+                    onClick={handleTelegramCancel}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    className="w-1/2"
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => {
+                      setShowOtpModal(true);
+                      setShowInstructionModal(false);
+                    }}
+                  >
+                    Enter OTP
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {showOtpModal && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Link Telegram Account</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Enter Otp
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                onSubmit={handleOtpSubmit(onVerifyOtp)}
+                className="space-y-4"
+              >
+                <CustomInput
+                  className="h-[48px]"
+                  label="OTP Code"
+                  placeholder="Enter 6-digit OTP"
+                  type="text"
+                  error={otpErrors?.otp?.message}
+                  maxLength={6}
+                  {...otpRegister("otp")}
+                />
+
+                <div className="flex gap-2">
+                  <Button
+                    className="w-1/2"
+                    type="button"
+                    size="lg"
+                    onClick={() => {
+                      setShowOtpModal(false);
+                      resetOtp();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    className="w-1/2"
+                    type="submit"
+                    variant="secondary"
+                    size="lg"
+                    disabled={otpVerifying}
+                  >
+                    {otpVerifying ? (
+                      <ImSpinner5 className="animate-spin" />
+                    ) : (
+                      "Verify"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

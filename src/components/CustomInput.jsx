@@ -10,6 +10,7 @@ export default function CustomInput({
   icon,
   handleClickIcon,
   error,
+  messageType,
   token,
   ...props
 }) {
@@ -63,7 +64,13 @@ export default function CustomInput({
         </>
       )}
 
-      {error && <span className="text-xs text-red-500">{error}</span>}
+      {/* {error && ( */}
+      <span
+        className={`text-xs ${messageType === "info" ? "text-gray-500" : messageType === "success" ? "text-[#1082E4]" : "text-red-500"} h-[16px]`}
+      >
+        {error}
+      </span>
+      {/* )} */}
     </Label>
   );
 }
